@@ -1,0 +1,197 @@
+<!DOCTYPE HTML/>
+
+<html>
+    <head>
+        <title>The Blazek Gazette</title>
+        <style>
+            html {
+                text-align: center;
+            }
+            
+            body {
+                text-align: center;
+                width: 80%;
+                margin: 0 10% 0 10%;
+            }
+            
+            article {
+                border: 2px solid black;
+                width: 45%;
+                display: block;
+                float: left;
+            }
+            
+            img {
+                max-width: 100%;
+            }
+            
+            img:hover {
+                cursor: pointer;
+            }
+            
+            #largeImg {
+                display: inline;
+                width: 100%;
+                max-height: 100%
+                position: fixed;
+                top: 0;
+                left: 0;
+                z-index: 1;
+                float: none;
+            }
+        </style>
+        <script>
+            yScroll = 0;
+            function start(){
+                imgs = document.getElementsByTagName('img');
+                for (var i = 1; i < imgs.length; i++){
+                    console.log('showLargePict("'+imgs[i].src+'");');
+                    imgs[i].setAttribute('onclick','showLargePict("'+imgs[i].src+'");');
+                }
+                
+                hideLarge();
+            }
+            
+            function showLargePict(src){
+                document.getElementById('largeImg').src = src;
+                document.getElementById('largeImg').style.display = 'block';
+                document.getElementById('content').style.display = 'none';
+                yScroll = scrollY;
+            }
+            
+            function hideLarge(){
+                document.getElementById('largeImg').style.display = 'none';
+                document.getElementById('content').style.display = 'inline';
+                window.setTimeout(scroll,100,0,yScroll);
+                scrollTo(0,yScroll);
+            }
+        </script>
+    </head>
+
+    <body onload='start();'>
+        <img id='largeImg' onclick='hideLarge();' />
+        <div id='content'>
+            <h1>The Blazek Gazette</h1>
+            <p><i>Click on any image to blow it up larger.</i></p>
+            <article>
+                <h2>The Art Show Issue 1 - The Beginning</h2>
+                <h3><i>Art - The Art Show</i></h3>
+                <h4>Time to view some "Art"!</h4>
+                <br/>
+                <p>
+                    <img src="images/gazette/evil yellow hat.png" title="By Josiah Blazek"/><br/>
+                    <i>The man with the yellow hat joins the Mafia...</i><br/>
+                    <img src="images/gazette/death george.png" title="By Josiah Blazek"/><br/>
+                    <i>George hath become death, destroyer of... pretty much everything.</i><br/>
+                    <img src="images/gazette/evil yellow hat.png" title="By Josiah Blazek"/><br/>
+                    <i>The man with the yellow hat joins the Mafia...</i><br/>
+                </p>
+                <br/>
+                
+                <i>Paul Blazek, September 10, 2019 - 5:39 PM</i>
+            </article>
+            <article>
+                <h2>Introducing The Art Show</h2>
+                <h3><i>Art - The Art Show</i></h3>
+                <h4>All sorts of images from the Blazeks</h4>
+                <br/>
+                <p>
+                    <img src='images/gazette/yellow hat UFO.png' title="By Josiah Blazek"/>
+                    <i>Curious George was always curious about aliens...</i><br/>
+                    
+                    The Art Show is a new thread which will feature all sorts of "art" by
+                    numerous local Blazeks. Be prepared for Minecraft scenes,
+                    Sonic Movie jokes, and other content of general hilarity.
+                </p>
+                <br/>
+                
+                <i>Paul Blazek, September 10, 2019 - 5:39 PM</i>
+            </article>
+            <article>
+                <h2>Introducing The Mews</h2>
+                <h3><i>Fun - The Mews</i></h3>
+                <h4>Cat facts and funny pictures</h4>
+                <br/>
+                <p>
+                    <img src='images/gazette/mews1.jpg' title="By Josiah Blazek"/>
+                    <i>You ate the last pickle!</i><br/>
+                    
+                    The Mews is a new thread from Gregory, informing us about different details related to cats.
+                    The Mews will also feature funny cat pictures.
+                </p>
+                <br/>
+                
+                <i>Gregory Blazek, November 12, 8:19 PM</i>
+            </article>
+            <article>
+                <h2>Shattered Earth - Sonic the Hedgehog</h2>
+                <h3><i>Board Games - Shattered Earth</i></h3>
+                <h4>Some concept art from an upcoming legacy game.</h4>
+                <br/>
+                <p>
+                    Josiah is annoucing a new upcoming legacy board game: Shattered Earth!
+                    Set in the Sonic universe, this game will probably be very interesting.
+                    <img src='images/gazette/deathBot.png' title="By Josiah Blazek"/>
+                    Concept art.
+                </p>
+                <br/>
+                
+                <i>Josiah Blazek, November 12th, 8:03 PM</i>
+            </article>
+            <article>
+                <h2>Introducing the Adventures of Jack!</h2>
+                <h3><i>Comics - Adventures of Jack</i></h3>
+                <h4>A new comic by Paul</h4>
+                <br/>
+                <p>
+                    In an attempt to get things started, I am going to post some different examples of what sorts of things you could post.
+                    The Adventures of Jack is a comic about an adventurer set in a D&D type setting.
+                    Jack is a peasent who has only heard of adventuring, and one day decides to give it a try.
+                    NOTE: You can click on images to zoom in on them.
+                    <img src='images/gazette/jackComic1.png' title="By Paul Blazek"/>
+                    For most posts that have a subtopic, there will be future posts continuing the thread, so further comics about Jack
+                    may be coming soon.
+                </p>
+                <br/>
+                
+                <i>Paul Blazek, November 12th, 7:30 pm</i>
+            </article>
+            <article>
+                <h2>A brief introduction to The Blazek Gazette</h2>
+                <h3><i>General</i></h3>
+                <h4>How you can add your own article and general structure</h4>
+                <br/>
+                <p>
+                    The Blazek Gazette is an online place for all sorts of fun stuff!
+                    Comics, articles, and other resources are coming soon as new items are added on the site.
+                    Send ideas for an article you would like to add to Paul Blazek and he will consider adding them to the site.
+                    Anything of general interest can be added.
+                    The main things I am looking for are creative postings, such as board games you have invented, lego creations, writing projects, and comics.
+                    With any luck there will soon be a full page with numerous contributations from many of our local Blazeks.
+                </p>
+                <br/>
+                
+                <i>Paul Blazek, November 12th, 7:07 pm</i>
+            </article>
+            
+            <!--
+            <article>
+                <h2>Article Title</h2>
+                <h3><i>Topic</i></h3>
+                <h4>Title Details</h4>
+                <br/>
+                <p>
+                    Content
+                </p>
+                <br/>
+                
+                <i>Name Blazek, Month Date, YEAR - TIME XM</i>
+            </article>
+            -->
+            <!--
+                    <img src="images/gazette/XXX.XXX" title="By NAME Blazek"/><br/>
+                    <i>DESCRIPTION</i><br/>
+            -->
+        </div>
+    </body>
+</html>

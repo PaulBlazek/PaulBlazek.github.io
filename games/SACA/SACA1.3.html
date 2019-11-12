@@ -1,0 +1,3948 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Super Amazing Cat Adventures</title>
+        <!--
+            Credits:
+
+            Programming by Paul Blazek
+            PxGamepad and Jquery scripts from their sources.
+
+            All Music by Paul Blazek with Musescore
+            Gunshot sound from open source game art
+
+            Most art by Paul Blazek except:
+            Scratch Cat by Scratch
+            Gun from images
+            Heart from Minecraft
+
+            Contact me at kol.trogdor@gmail.com if you have any problems with content.
+        -->
+        
+        <script src="jquery-3.3.1.min.js"></script>
+        <script src="PxGamepad.js"></script>
+        <script>
+            gamepad1 = new PxGamepad();
+            gamepad1.start();
+            
+            var entitys = [];
+            var backgroundEntitys = [];
+            var currentSpeed = 5;
+            var ticksUntilPing = 10;
+            var state = 'main menu';
+            var path = 'images/SACA/';
+            var characters = [];
+            var currentCharacter = null;
+            var profiles = {};
+            var currentBoss = null;
+            
+            var musicTracks = [
+                ['Super_Amazing_Cat_Adventures.ogg','Title Theme',0.4],
+                ['Grassland_Theme.ogg','Grassland',0.2],
+                ['SACA_Boss_Theme.ogg','Boss Theme',0.5]
+            ];
+            var music = {};
+            var currentMusic = 0;
+            
+            var soundSrcs = [
+                ['gunshot.ogg','gunshot',0.8]
+            ];
+            var soundEffects = {};
+
+            function changeMusic(newMusic=0){
+                if (currentMusic){
+                    currentMusic.pause();
+                    currentMusic.currentTime = 0;
+                }
+
+                if (newMusic){
+                    currentMusic = music[newMusic];
+                    currentMusic.play();
+                }
+            }
+
+            function playSound(s){
+                var a = new Audio(soundEffects[s].src);
+                a.volume = soundEffects[s].volume;
+                a.play();
+            }
+
+            function loadAudio(){
+                for (var i = 0; i < musicTracks.length; i++){
+                    music[musicTracks[i][1]] = new Audio("sounds/"+musicTracks[i][0]);
+                    m = music[musicTracks[i][1]];
+                    m.volume = musicTracks[i][2];
+                    m.loop = true;
+                }
+
+                for (var j = 0; j < soundSrcs.length; j++){
+                    soundEffects[soundSrcs[j][1]] = new Audio("sound/SACA/"+soundSrcs[j][0]);
+                    soundEffects[soundSrcs[j][1]].volume = soundSrcs[j][2];
+                }
+            }
+            
+            function newProfile(){
+                p = {
+                    'unlockedChars':['Super Cat'],
+                    'unlockedPowers':['Health+1']
+                };
+                
+                return p;
+            }
+            
+            function unlockChar(c,after){
+                if (isIn(c,profiles[profile].unlockedChars) || rand){
+                    after();
+                    return;
+                }
+                
+                profiles[profile].unlockedChars.push(c);
+                saveData();
+                areaInfo(['You unlocked '+c+'!'],3000,after);
+            }
+            
+            function saveData() {
+                // Saves profiles to web storage
+                if (typeof(Storage) == "undefined" && !saidMessage) {
+                    alert('Your web storage does not work, the game will still work, but it will not be able to save.');
+                    saidMessage = true;
+                }
+                
+                localStorage.setItem("SACA",JSON.stringify(profiles));
+            }
+            
+            function loadData() {
+                // Loads profiles from web storage
+                if (typeof(Storage) == "undefined" && !saidMessage) {
+                    alert('Your web storage does not work, the game will still work, but it will not be able to save.');
+                    saidMessage = true;
+                }
+                
+                if (!localStorage.getItem("SACA")) {
+                    return;
+                }
+                
+                profiles = JSON.parse(localStorage.getItem("SACA"));
+            }
+            
+            function isIn(item,array) {
+                for (var i = 0; i < array.length; i++) {
+                    if (item == array[i]) {
+                        return true;
+                    }
+                }
+                
+                return false;
+            }
+            
+            function copy(array) {
+                var newArray = [];
+                for (var i = 0; i < array.length; i++){
+                    newArray.push(array[i]);
+                }
+                
+                return newArray;
+            }
+            
+            function removeFromArray(item,array){
+                index = array.findIndex(function(i){
+                    return (i == item);
+                });
+                if (index < 0){return;}
+                array.splice(index,1);
+            }
+            
+            function checkClick(event) {
+                x = event.clientX-10;
+                y = event.clientY-10;
+                
+                if (state == 'chooseCharacters'){
+                    //ctx.fillRect(800,450,250,100);
+                    if (x >= 800 && x <= 1050 && y >= 450 && y <= 550 && (chosenCompanions.length == 3 || (chosenCompanions.length < 3 && chosenCompanions.length == profiles[profile].unlockedChars.length))){ // Start Game
+                        startGame(false);
+                    }
+                } else if (state == 'menu') {
+                    if (x < 750 && x > 350 && y > 50 && y < 150) {
+                        // Start Game
+                        buttonIndex = Math.round((y - 50) / 110);
+                        button = buttons[buttonIndex];
+                        state = 'chooseCharacters';
+                        loadProfile();
+                        chooseCharacters();
+                    } else if (x < 750 && x > 350 && y > 160 && y < 260) {
+                        // Adventure
+                        alert('Coming Soon!');
+                    } else if (x < 750 && x > 350 && y > 270 && y < 370) {
+                        startGame('bandit');
+                    } else if (x < 750 && x > 350 && y > 380 && y < 480) {
+                        startGame('random');
+                    } else if (x < 750 && x > 350 && y > 490 && y < 590) {
+                        state = 'main menu';
+                        updateMainMenu();
+                    }
+                } else if (state == 'main menu'){
+                    if (x < 750 && x > 350 && y > 50) {
+                        buttonIndex = Math.round((y - 250) / 110);
+                        button = buttons[buttonIndex];
+                        if (button == 'Create New Profile') {
+                            name = prompt('Input new profile name: ');
+                            if (!name || name.length < 1){
+                                alert('Invalid Name!');
+                                return;
+                            }
+                            
+                            profiles[name] = newProfile();
+                            saveData();
+                        } else {
+                            profile = button;
+                            loadProfile();
+                            state = 'menu';
+                            updateMenu();
+                        }
+                    }
+                    
+                    // 800,75+i*110,50,50
+                    if (x > 800 && x < 850){
+                        buttonIndex = Math.round((y - 275) / 110);
+                        button = buttons[buttonIndex];
+                        if (button != 'Create New Profile' && confirm('Are you sure you want to delete profile '+button+'?')){
+                            delete profiles[button];
+                            delete buttons[buttonIndex];
+                            saveData();
+                        }
+                    }
+                    
+                } else if (choice && state == 'pause'){
+                    if (x > 300 && x < 750 && y > 50 && y < 250) { // Top Button
+                        cLocation.button1();
+                    } else if (x > 300 && x < 750 && y > 300 && y < 500) { // Bottom Button
+                        cLocation.button2();
+                    }
+                }
+            }
+            
+            choice = false;
+            
+            function areaInfo(text,timer,f,resetPos,resetEntitys,lateComers) {
+                if (state == 'pause'){
+                    console.log('Delayed Action!');
+                    window.setTimeout(areaInfo,100,text,timer,f,resetPos,resetEntitys,lateComers);
+                    return;
+                }
+                
+                if (state != 'game') {
+                    return;
+                }
+                
+                if (resetPos  != false && !resetPos) {
+                    resetPos = true;
+                }
+                
+                if (resetEntitys != false && !resetEntitys) {
+                    resetEntitys = true;
+                }
+                
+                if (lateComers != false && !lateComers) {
+                    lateComers = false;
+                }
+                
+                if (!lateComers) {
+                    console.log('Preventing Latecomers...');
+                    var killId = setTimeout(function() {
+                        for (var i = killId; i > 0; i--) {clearInterval(i);}
+                    }, 11);
+                }
+                
+                if (resetPos) {
+                    entitys[0].x = 150;
+                    entitys[0].y = 300;
+                }
+                
+                if (resetEntitys) {
+                    console.log(entitys);
+                    entitys = [entitys[0]];
+                    for (var i = 0; i < backgroundEntitys.length; i++){
+                        if (backgroundEntitys[i].type != 'B'){
+                            backgroundEntitys[i].killTag = true;
+                        }
+                    }
+                    console.log(entitys);
+                }
+                
+                state = 'areaPause';
+                ctx.fillStyle = 'rgb(0,0,0)';
+                ctx.fillRect(0,0,1200,600);
+                ctx.fillStyle = 'rgb(255,255,255)';
+                ctx.font = '40px Monospace';
+                cY = 50;
+                for (var i = 0; i < text.length; i++){
+                    ctx.fillText(text[i],50,cY);
+                    cY += 60;
+                }
+                
+                cLocation[1] += 1;
+                
+                window.setTimeout(f,timer+1);
+                window.setTimeout(function(){state = 'game';},timer);
+            }
+            
+            // Locations 0 = Grassland
+            
+            var globalSurvival = false;
+            var rand = false;
+            var chosenCompanions = ['Super Cat'];
+            function startGame(survival) {
+                pelts = 0;
+                ctx.globalAlpha = 1;
+                state = 'game';
+                day = 1;
+                cLocation = [1,0];
+                entitys = [];
+                backgroundEntitys = [];
+                tickUntilPing = 0;
+                objective = '';
+                lightningStorm = false;
+                river = false;
+                bridge = false;
+                choice = false;
+                globalSurvival = survival;
+                banditsAnnoyed = false;
+                inRiver = false;
+                rand = false;
+                boulders = false;
+                mines = false;
+                spawns = [];
+                hunt = false;
+                bombs = false;
+                companions = [];
+                for (var i = 0; i < chosenCompanions.length; i++){
+                    companions.push(new playerCharacter(chosenCompanions[i]));
+                }
+                entitys.push(companions.shift());
+                currentCharacter = null;
+                
+                if (!survival) {
+                    characters = [];
+                    currentCharacter = [entitys[0]];
+                    cLocation = locs['Grassland 1-1'];
+                    cLocation.preEnter();
+                    updateGame();
+                    cDeath = ['The deer ate Super Cat.','The deer ate roasted cat.'];
+                } else if (survival == 'bandit') {
+                    lightningAmount = 1;
+                    cDeath = ['The bandits had a party.','The bandits feasted on roast cat.','The bandits gave out promotions.','The bandits destroyed all cats.','The bandits hung up your shoes on their flagpole.'];
+                    cLocation = ['BANDITS',0];
+                    updateGame();
+                    spawnBandits();
+                    window.setInterval(function(){for (var i = 0; i < 1; i++){entitys.push(new deer());}},2500);
+                    window.setInterval(spawnBandits,4300);
+                    window.setTimeout(window.setInterval,5000,spawnSmartBandits,6100);
+                    window.setInterval(function(){
+                        lightningStorm = !lightningStorm;
+                        if (lightningStorm) {
+                            for (var i = 0; i < lightningAmount; i++) {
+                                entitys.push(new Lightning(0,0));
+                            }
+                            lightningAmount += 1;
+                        } else {
+                            var i = 0;
+                            while (i < entitys.length) {
+                                if (entitys[i].name == 'Lightning') {
+                                    entitys[i].killTag = true;
+                                }
+                                i++;
+                            }
+                        }
+                    },7000);
+                    window.setInterval(function(){
+                        for (var i = 0; i < random(2,10); i++) {
+                            entitys.push(new evilPeashooter(random(700,1100),random(100,height-100)));
+                        }
+                    },8000);
+                    window.setInterval(function(){
+                        for (var i = 0; i < random(2,10); i++) {
+                            entitys.push(new evilPeashooter(random(700,1100),random(100,height-100),true));
+                        }
+                    },9500);
+                    window.setInterval(function(){
+                        for (var i = 0; i < random(2,10); i++) {
+                            entitys.push(new kernalPult(random(700,1100),random(100,height-100),true));
+                        }
+                    },10500);
+                    window.setInterval(function(){
+                        for (var i = 0; i < random(2,5); i++) {
+                            entitys.push(new coconutCannon(random(100,height-100)));
+                        }
+                    },12000);
+                    window.setTimeout(window.setInterval,10000,function(){entitys.push(new banditWagon(random(100,height-300),true));},15700);
+                    window.setTimeout(window.setInterval,20000,spawnSmartBandits,5500);
+                    window.setTimeout(window.setInterval,12000,function(){banditsAnnoyed = !banditsAnnoyed;},5100);
+                    window.setTimeout(window.setInterval,15000,spawnBandits,5200);
+                    window.setTimeout(window.setInterval,30000,function(){entitys.push(new banditWagon(random(100,height-300),true));},12700);
+                    window.setTimeout(window.setInterval,32000,spawnSmartBandits,4800);
+                    window.setTimeout(window.setInterval,28000,spawnBandits,4200);
+                    window.setInterval(function(){
+                        mines = !mines;
+                    },10000);
+                    window.setInterval(function(){
+                        bombs = !bombs;
+                    },6000);
+                } else if (survival == 'random') {
+                    cDeath = ['The bandits had a party.','The bandits feasted on roast cat.','The bandits gave out promotions.','The bandits destroyed all cats.','The bandits hung up your shoes on their flagpole.'];
+                    cLocation = locs[pick(locNames)];
+                    objective = 'defeat';
+                    rand = true;
+                    updateGame();
+                    cLocation.preEnter();
+                    globalSurvival = false;
+                }
+            }
+            
+            function pick(array) {
+                return array[random(0,array.length-1)];
+            }
+            
+            function weightedChoice(map){
+                array = [];
+                for (var i in map){
+                    for (var j = 0; j < map[i]; j++){
+                        array.push(i);
+                    }
+                }
+                
+                console.log(array);
+                
+                return pick(array);
+            }
+            
+            function spawnPowerup(randomP=false){
+                x = 1200;
+                y = random(100,height-70);
+                if (randomP){
+                    x = entitys[0].x;
+                    y = entitys[0].y;
+                }
+                
+                r = weightedChoice({
+                    'health+1':10,
+                    'nuke':1,
+                    'confused':3,
+                    'tripleShot':5,
+                    'frag':4,
+                    'laser':2,
+                    'machineGun':6,
+                    'coffee':6,
+                    'aim':5,
+                    'target':3,
+                    'shield1':7,
+                    'shield2':4,
+                    'deer':4,
+                    'eliteTarget':1,
+                    'fire':4,
+                    'random':5,
+                    'lightning':5
+                });
+                
+                if (randomP){
+                    r = pick(['health+1','nuke','confused','tripleShot','frag',
+                              'laser','machineGun','coffee','aim','shield1',
+                              'shield2','deer','fire','lightning']);
+                }
+                
+                if (r == 'health+1') {
+                    entitys.push(new pickup(x,y,'healthPowerup','health+1'));
+                } else if (r == 'nuke'){
+                    entitys.push(new pickup(x,y,'nukePowerup','nuke'));
+                } else if (r == 'confused'){
+                    entitys.push(new pickup(x,y,'confusedPowerup','confused'));
+                } else if (r == 'tripleShot'){
+                    entitys.push(new pickup(x,y,'tripleShotPowerup','tripleShot'));
+                } else if (r == 'frag'){
+                    entitys.push(new pickup(x,y,'fragPowerup','fragBullets'));
+                } else if (r == 'laser'){
+                    entitys.push(new pickup(x,y,'laserPowerup','laser'));
+                } else if (r == 'machineGun') {
+                    entitys.push(new pickup(x,y,'machineGunPowerup','machineGun'));
+                } else if (r == 'coffee'){
+                    entitys.push(new pickup(x,y,'coffeePowerup','coffee'));
+                } else if (r == 'aim'){
+                    entitys.push(new pickup(x,y,'aimPowerup','aim'));
+                } else if (r == 'target'){
+                    entitys.push(new pickup(x,y,'target','target'));
+                } else if (r == 'eliteTarget'){
+                    entitys.push(new pickup(x,y,'eliteTarget','eliteTarget'));
+                } else if (r == 'shield1'){
+                    entitys.push(new pickup(x,y,'shieldPowerup','shield'));
+                } else if (r == 'shield2'){
+                    entitys.push(new pickup(x,y,'shield2Powerup','shield2'));
+                } else if (r == 'deer'){
+                    entitys.push(new pickup(x,y,'deerPowerup','deer'));
+                } else if (r == 'fire'){
+                    entitys.push(new pickup(x,y,'firePowerup','fireTrail'));
+                } else if (r == 'random'){
+                    entitys.push(new pickup(x,y,'randomPowerup','random'));
+                } else if (r == 'lightning'){
+                    entitys.push(new pickup(x,y,'lightningPowerup','lightning'));
+                } else {
+                    alert('ERROR 0002: Powerup not found "'+r+'".');
+                }
+            }
+            
+            function spawnBandits() {
+                if (state != 'game') {
+                    return;
+                }
+                
+                for (var i = 0; i < random(1,10); i++) {
+                    entitys.push(new bandit(random(100,height-100)));
+                }
+                
+                objective = 'defeat';
+            }
+            
+            function spawnSharks() {
+                if (state != 'game') {
+                    return;
+                }
+                
+                r = random(4,12);
+                for (var i = 0; i < r; i++) {
+                    entitys.push(new shark('circle'));
+                }
+            }
+            
+            function spawnSmartBandits() {
+                if (state != 'game') {
+                    return;
+                }
+                
+                for (var i = 0; i < random(2,6); i++) {
+                    entitys.push(new bandit(random(100,height-100),true));
+                }
+                
+                window.setTimeout(function(){objective = 'defeat';},1000);
+            }
+            
+            function spawnPeashooters(smart) {
+                for (var i = 0; i < random(2,10); i++) {
+                    entitys.push(new evilPeashooter(random(700,1100),random(100,height-100),smart));
+                }
+            }
+            
+            function spawnKernalPults() {
+                for (var i = 0; i < random(2,15); i++) {
+                    entitys.push(new kernalPult(random(700,1100),random(200,450)));
+                }
+            }
+            
+            function spawnCocoCannons() {
+                for (var i = 0; i < random(2,5); i++) {
+                    entitys.push(new coconutCannon(random(200,420)));
+                }
+            }
+            
+            enemyNames = ['bandit','baddy'];
+            lightningStorm = false;
+            river = false;
+            var charOptions = [];
+            var charImgs = {};
+            
+            function loadProfile(){
+                charOptions = [];
+                for (var i = 0; i < profiles[profile].unlockedChars.length; i++){
+                    cChar = profiles[profile].unlockedChars[i];
+                    charOptions.push(cChar);
+                    c = new playerCharacter(cChar);
+                    charImgs[c.name] = new Image();
+                    charImgs[c.name].src = c.img.src;
+                }
+                
+                checkStartingChars();
+            }
+            
+            addEventListener("keydown", function (e) {
+                keysDown[e.keyCode] = true;
+                
+                if (state == 'chooseCharacters'){
+                    if (e.keyCode == 37){ // Left
+                        selectedChar -= 1;
+                        if (selectedChar < 0){
+                            if (selectedSide == 0){
+                                selectedChar = charOptions.length-1;
+                            } else {
+                                selectedChar = chosenCompanions.length-1;
+                            }
+                        }
+                    } else if (e.keyCode == 38 || e.keyCode == 40){ // Up / Down
+                        selectedSide = 1 - selectedSide;
+                        
+                        if (charOptions.length == 0){
+                            selectedSide = 1;
+                        } else if (chosenCompanions.length == 0){
+                            selectedSide = 0;
+                        }
+                        
+                        if (selectedSide == 0 && selectedChar >= charOptions.length){
+                            selectedChar = charOptions.length-1;
+                        } else if (selectedSide == 1 && selectedChar >= chosenCompanions.length){
+                            selectedChar = chosenCompanions.length-1;
+                        }
+                    } else if (e.keyCode == 39){ // Right
+                        selectedChar += 1;
+                        if (selectedSide == 0){
+                            if (selectedChar > charOptions.length-1){
+                                selectedChar = 0;
+                            }
+                        } else {
+                            if (selectedChar > chosenCompanions.length-1){
+                                selectedChar = 0;
+                            }
+                        }
+                    } else if (e.keyCode == 40){ // Down
+                        
+                    } else if (e.keyCode == 13 || e.keyCode == 32){ // Enter / Space
+                        if (selectedSide == 0){
+                            chosenCompanions.push(charOptions.splice(selectedChar,1));
+                            if (selectedChar > 0){selectedChar -= 1;}
+                            
+                            if (charOptions.length == 0){selectedSide = 1;}
+                        } else {
+                            charOptions.push(chosenCompanions.splice(selectedChar,1));
+                            if (selectedChar > 0){selectedChar -= 1;}
+                            
+                            if (chosenCompanions.length == 0){selectedSide = 0;}
+                        }
+                    }
+                    
+                    chooseCharacters();
+                }
+            }, false);
+            
+            function checkStartingChars(){
+                chosenCompanions = ['Super Cat'];
+                removeFromArray('Super Cat',charOptions);
+                if (isIn('Normal Cat',profiles[profile].unlockedChars)){
+                    chosenCompanions.push('Normal Cat');
+                    removeFromArray('Normal Cat',charOptions);
+                } if (isIn('Crazy Cat',profiles[profile].unlockedChars)){
+                    chosenCompanions.push('Crazy Cat');
+                    removeFromArray('Crazy Cat',charOptions);
+                }
+            }
+            
+            selectedChar = 0;
+            selectedSide = 1;
+            function chooseCharacters(){
+                ctx.globalAlpha = 1;
+                ctx.fillStyle = 'rgb(0,0,0)';
+                ctx.fillRect(0,0,1200,600);
+                
+                ctx.fillStyle = 'rgb(50,50,50)';
+                ctx.fillRect(0,0,1200,50);
+                
+                ctx.fillStyle = 'rgb(255,255,255)';
+                ctx.font = '40px Monospace';
+                ctx.fillText('Available Characters',50,35);
+                
+                // Draw Available Characters
+                ctx.fillStyle = 'rgb(200,200,200)';
+                cY = 60;
+                cX = 50;
+                for (var i = 0; i < charOptions.length; i++){
+                    if (isIn(charOptions[i],chosenCompanions)){
+                        continue;
+                    }
+                    
+                    if (selectedChar == i && selectedSide == 0){
+                        ctx.fillRect(cX,cY,85,80);
+                    }
+                    
+                    cImg = charImgs[charOptions[i]];
+                    ctx.drawImage(cImg,cX,cY,cImg.width/(cImg.height/80),80);
+                    cX += 90;
+                }
+                
+                ctx.fillStyle = 'rgb(50,50,50)';
+                ctx.fillRect(0,300,1200,50);
+                
+                ctx.fillStyle = 'white';
+                ctx.font = '40px Monospace';
+                ctx.fillText('Selected Characters',50,335);
+                
+                // Draw Selected Characters
+                ctx.fillStyle = 'rgb(200,200,200)';
+                cY = 360;
+                cX = 50;
+                for (var i = 0; i < chosenCompanions.length; i++){
+                    if (selectedChar == i && selectedSide == 1){
+                        ctx.fillRect(cX,cY,85,80);
+                    }
+                    
+                    cImg = charImgs[chosenCompanions[i]];
+                    ctx.drawImage(cImg,cX,cY,cImg.width/(cImg.height/80),80);
+                    cX += 90;
+                }
+                
+                // Draw Start Game Button
+                ctx.fillStyle = 'white';
+                if (chosenCompanions.length != 3 && (chosenCompanions.length != profiles[profile].unlockedChars.length || chosenCompanions.length > 3)){
+                    ctx.fillStyle = 'black';
+                }
+                
+                ctx.fillRect(800,450,250,100);
+                
+                ctx.fillStyle = 'black';
+                ctx.fillText('Start Game',810,510);
+            }
+            
+            function updateGame() {
+                gamepad1.update();
+                
+                if (cLocation.buttons && state == 'pause'){
+                    background('dayGrass');
+                    if (river){
+                        ctx.fillStyle = 'rgb(0,0,200)';
+                        ctx.fillRect(500,100,10000,10000);
+                    }
+                    
+                    entitys[0].update();
+                    ctx.globalAlpha = 0.8;
+                    ctx.fillStyle = 'black';
+                    ctx.fillRect(300,50,400,200);
+                    ctx.fillStyle = 'white';
+                    ctx.fillText(cLocation.buttons[0],400,150);
+                    ctx.fillStyle = 'black';
+                    ctx.fillRect(300,300,400,200);
+                    ctx.fillStyle = 'white';
+                    ctx.fillText(cLocation.buttons[1],400,400);
+                    ctx.globalAlpha = 1;
+                }
+                
+                if (state == 'pause' || state == 'areaPause') {
+                    requestAnimationFrame(updateGame);
+                    return;
+                } else if (state != 'game') {
+                    return;
+                }
+                
+                if (lightningStorm) {
+                    background('storm');
+                } else {
+                    background('dayGrass');
+                }
+                
+                if (inRiver) {
+                    ctx.fillStyle = 'rgb(0,0,200)';
+                    ctx.fillRect(0,100,10000,10000);
+                } else if (river) {
+                    ctx.fillStyle = 'rgb(0,0,200)';
+                    ctx.fillRect(500,100,10000,10000);
+                }
+                
+                if (bridge) {
+                    ctx.fillStyle = 'rgb(130,82,1)';
+                    ctx.fillRect(0,200,1500,300);
+                }
+                
+                ticksUntilPing -= currentSpeed;
+                
+                if (mines && ticksUntilPing < 1) {
+                    ticksUntilPing = 100;
+                    entitys.push(new potatoMine(random(200,440)));
+                }
+                
+                if (bombs && ticksUntilPing < 1) {
+                    ticksUntilPing = 100;
+                    entitys.push(new cherryBomb());
+                }
+                
+                if (ticksUntilPing < 1 && !river) {
+                    ticksUntilPing = 50;
+                    cImg = ['grass.png','flower1.png','flower2.png','flower3.png'][random(0,3)];
+                    backgroundEntitys.unshift(new staticEntity(random(100,height-70),cImg,70,70));
+                    
+                    if (hunt && random(1,3) == 3) {
+                        entitys.push(new deer());
+                    }
+                }
+                
+                if ((objective == 'defeat' || globalSurvival || (currentBoss && currentBoss.spawnPickups)) && random(1,1000) <= 2+rand*2+(globalSurvival == 'bandit')*2) {
+                    spawnPowerup();
+                }
+                
+                if (boulders && ticksUntilPing < 1) {
+                    ticksUntilPing = 50;
+                    entitys.push(new boulder());
+                }
+                
+                if (!entitys[0].dead) {
+                    for (var i = 0; i < backgroundEntitys.length; i++){
+                        backgroundEntitys[i].update();
+                    }
+                }
+                
+                for (var i = 0; i < spawns.length; i++) {
+                    entitys.push(spawns[i]);
+                }
+                spawns = [];
+                
+                for (var i = 0; i < entitys.length; i++){
+                    entitys[i].update();
+                    if (state == 'pause' || state == 'areaPause') {break;}
+                }
+                
+                j = 0;
+                while (j < entitys.length) {
+                    if (entitys[j].killTag == 1) {
+                        entitys.splice(j,1);
+                    } else {
+                        j++;
+                    }
+                }
+                
+                j = 0;
+                while (j < backgroundEntitys.length) {
+                    if (backgroundEntitys[j].killTag == 1) {
+                        backgroundEntitys.splice(j,1);
+                    } else {
+                        j++;
+                    }
+                }
+                
+                if (cLocation[0] != 'BANDITS'){
+                    cLocation.update();
+                }
+                
+                requestAnimationFrame(updateGame);
+            }
+            
+            locs = {};
+            locNames = [];
+            
+            function Location(name,data) {
+                this.name = name;
+                this.onEnter = data.onEnter || function(){};
+                this.update = data.onUpdate || function(){};
+                this.onLeave = data.onLeave || function(){};
+                this.preLeave = data.preLeave || function(){};
+                this.getInfoText = data.getInfoText || function(){return false;};
+                this.noRandom = data.noRandom || 0;
+                
+                this.areaText = data.areaText || 'ERROR 0001: areaText not found.';
+                this.areaTexts = data.areaTexts || 0;
+                this.areaTextLines = data.areaTextLines || 0;
+                this.textDuration = data.textDuration || 3000;
+                
+                this.buttons = data.buttons || 0;
+                this.button1 = data.button1 || function(){};
+                this.button2 = data.button2 || function(){};
+                
+                this.leaveLoc = data.leaveLoc || 'Grassland 1-1';
+                
+                locs[this.name] = this;
+                if (!this.noRandom){
+                    locNames.push(this.name);
+                }
+            }
+            
+            Location.prototype.preEnter = function(){
+                if (this.areaTexts){
+                    this.areaText = pick(this.areaTexts);
+                    if (typeof this.areaText == 'object'){
+                        this.areaTextLines = this.areaText;
+                    }
+                }
+                
+                if (this.areaTextLines){
+                    this.areaText = copy(this.areaTextLines);
+                    for (var i = 0; i < this.areaText.length; i++){
+                        chars = copy(companions);
+                        chars.push(entitys[0]);
+                        this.areaText[i] = this.areaText[i].replace('RANDOMCHAR',pick(chars).name);
+                        this.areaText[i] = this.areaText[i].replace('CURRENTPLAYER',entitys[0].name);
+                    }
+                }
+                
+                if (this.getInfoText()){
+                    this.areaText = this.getInfoText();
+                }
+                
+                if (!this.areaTextLines || this.areaTextLines == 0){
+                    tempText = this.areaText;
+                    chars = copy(companions);
+                    chars.push(entitys[0]);
+                    
+                    tempText = tempText.replace('CURRENTPLAYER',entitys[0].name);
+                    tempText = tempText.replace('RANDOMCHAR',pick(chars).name);
+                    
+                    areaInfo(['Day '+day,tempText],this.textDuration,this.onEnter);
+                } else {
+                    t = copy(this.areaText);
+                    t.unshift('Day '+day);
+                    areaInfo(t,this.textDuration,this.onEnter);
+                }
+            };
+            
+            Location.prototype.leave = function(){
+                if (!this.preLeave()){
+                    this.onLeave();
+                    this.postLeave();
+                }
+            }
+            
+            Location.prototype.postLeave = function(){
+                if (rand){
+                    this.leaveLoc = pick(locNames);
+                }
+                cLocation = locs[this.leaveLoc];
+                cLocation.preEnter();
+            };
+            
+            Location.prototype.checkVictory = function(){
+                onward = true;
+                for (var i = 0; i < entitys.length; i++) {
+                    if (isIn(entitys[i].name,enemyNames)) {
+                        onward = false;
+                        break;
+                    }
+                }
+                
+                return onward;
+            };
+            
+            Location.prototype.checkForward = function(){
+                return (entitys[0].x > 1100);
+            };
+            
+            new Location('Grassland 1-1',{
+                'areaText':'CURRENTPLAYER entered the grasslands.',
+                'textDuration':2000,
+                'onEnter':function(){
+                    day += random(1,3);
+                    changeMusic('Grassland');
+                },
+                'onUpdate':function(){
+                    this.tickMax = 200;
+                    
+                    if (!this.tick){
+                        this.tick = 0;
+                    }
+                    
+                    this.tick += 1;
+                    if (this.tick > this.tickMax){
+                        this.leave();
+                    }
+                },
+                'onLeave':function(){
+                    this.tick = 0;
+                },
+                'leaveLoc':'Grassland 1-2',
+                'noRandom':1
+            });
+            
+            new Location('Grassland 1-2',{
+                'areaText':'CURRENTPLAYER hunted to get some meat.',
+                'textDuration':2000,
+                'onEnter':function(){
+                    hunt = true;
+                    day += random(1,3);
+                    startingPelts = 0;
+                },
+                'onUpdate':function(){
+                    this.tickMax = 1000;
+                    
+                    if (!this.tick){
+                        this.tick = 0;
+                    }
+                    
+                    this.tick += 1;
+                    if (this.tick > this.tickMax){
+                        this.leave();
+                    }
+                },
+                'onLeave':function(){
+                    hunt = false;
+                    this.tick = 0;
+                    
+                    if (random(1,6) >= 5 && (pelts-startingPelts) >= 10){
+                        this.leaveLoc = 'Grassland 1-2B';
+                    } else {
+                        this.leaveLoc = 'Grassland 1-3';
+                    }
+                },
+                'leaveLoc':'Grassland 1-3'
+            });
+            
+            new Location('Grassland 1-2B',{
+                'areaTexts':['The deer were not pleased.',['The recreational deer shooting was not','appreciated by the deer.']],
+                'onEnter':function(){
+                    objective = 'defeat';
+                    entitys.push(new chargingDeer());
+                },
+                'onUpdate':function(){
+                    this.tickMax = 10;
+                    this.tick2Max = 1000;
+                    
+                    if (!this.tick){
+                        this.tick = 0;
+                    } if (!this.tick2){
+                        this.tick2 = 0;
+                    }
+                    
+                    this.tick += 1;
+                    this.tick2 += 1;
+                    if (this.tick > this.tickMax){
+                        entitys.push(new chargingDeer());
+                        this.tick = 0;
+                    }
+                    
+                    if (this.tick2 > this.tick2Max){
+                        this.leave();
+                    }
+                },
+                'onLeave':function(){
+                    this.tick = 0;
+                    this.tick2 = 0;
+                    objective = '';
+                    
+                    if (random(1,6) >= 3){
+                        this.leaveLoc = 'Grassland 1-2C';
+                    } else {
+                        this.leaveLoc = 'Grassland 1-3';
+                    }
+                }
+            });
+            
+            new Location('Grassland 1-2C',{
+                'areaTexts':['The deer upgraded their technology.','CURRENTPLAYER encountered deer partisans.'],
+                'onEnter':function(){
+                    objective = 'defeat';
+                    entitys.push(new gunnerDeer());
+                    entitys.push(new gunnerDeer());
+                    entitys.push(new gunnerDeer());
+                },
+                'onUpdate':function(){
+                    this.tickMax = 100;
+                    this.tick2Max = 1000;
+                    
+                    if (!this.tick){
+                        this.tick = 0;
+                    } if (!this.tick2){
+                        this.tick2 = 0;
+                    }
+                    
+                    this.tick += 1;
+                    this.tick2 += 1;
+                    if (this.tick > this.tickMax && this.tick2 <= this.tick2Max){
+                        entitys.push(new gunnerDeer());
+                        entitys.push(new gunnerDeer());
+                        entitys.push(new gunnerDeer());
+                        this.tick = 0;
+                    }
+                    
+                    if (this.tick2 > this.tick2Max && this.checkVictory()){
+                        this.leave();
+                    }
+                },
+                'onLeave':function(){
+                    this.tick = 0;
+                    this.tick2 = 0;
+                    objective = '';
+                },
+                'leaveLoc':'Grassland 1-3'
+            });
+            
+            new Location('Grassland 1-3',{
+                'areaText':'CURRENTPLAYER was attacked by bandits.',
+                'textDuration':2000,
+                'onEnter':function(){
+                    spawnBandits();
+                    cDeath = ['The bandits had a party.','The bandits feasted on roast cat.'];
+                },
+                'onUpdate':function(){
+                    if (this.checkVictory()){
+                        this.leave();
+                    }
+                },
+                'onLeave':function(){
+                    objective = '';
+                },
+                'leaveLoc':'Grassland 1-4'
+            });
+            
+            new Location('Grassland 1-4',{
+                'areaText':'More bandits arrived.',
+                'onEnter':function(){
+                    spawnBandits();
+                    day += random(1,3);
+                },
+                'onUpdate':function(){
+                    this.stageMax = 4;
+                    if (!this.currentStage){this.currentStage = 1;}
+                    
+                    if (this.checkVictory()){
+                        if (this.currentStage == 4){
+                            this.leave();
+                        } else {
+                            spawnBandits();
+                            this.currentStage += 1;
+                        }
+                    }
+                },
+                'preLeave':function(){
+                    unlockChar('Normal Cat',function(){
+                        cLocation.onLeave();
+                        cLocation.postLeave();
+                    });
+                    return true;
+                },
+                'onLeave':function(){
+                    objective = '';
+                    this.currentStage = 1;
+                    this.leaveLoc = ['Grassland 1-5','Grassland 1-6'][random(0,1)];
+                }
+            });
+            
+            new Location('Grassland 1-5',{
+                'areaTexts':['Some of the bandits could actually aim.','Some of the bandits were better than stormtroopers'],
+                'onEnter':function(){
+                    cDeath = ['The bandits had an elite-only party.','The bandits feasted on roast cat','Darn aiming bandits.'];
+                    spawnSmartBandits();
+                    day += random(1,3);
+                },
+                'onUpdate':function(){
+                    this.stageMax = 4;
+                    if (!this.currentStage){this.currentStage = 1;}
+                    
+                    if (this.checkVictory()){
+                        if (this.currentStage == 4){
+                            this.leave();
+                        } else {
+                            spawnSmartBandits();
+                            this.currentStage += 1;
+                        }
+                    }
+                },
+                'onLeave':function(){
+                    objective = '';
+                    this.currentStage = 1;
+                    r = random(1,6);
+                    if (r == 1){
+                        this.leaveLoc = 'Grassland 1-7';
+                    } else if (r == 2){
+                        this.leaveLoc = 'Grassland 1-8';
+                    } else {
+                        this.leaveLoc = 'Grassland 1-9'
+                    }
+                },
+                'leaveLoc':'Grassland 1-9'
+            });
+            
+            new Location('Grassland 1-6',{
+                'areaText':'A machine-gun armed bandit wagon arrived',
+                'onEnter':function(){
+                    day += random(1,3);
+                    objective = 'defeat';
+                    entitys.push(new banditWagon(random(100,height-100)));
+                    cDeath = ['The wagon got another weapon.','The bandits feasted on roast cat','The bandits destroyed the land.'];
+                },
+                'onUpdate':function(){
+                    if (this.checkVictory()){
+                        this.leave();
+                    }
+                },
+                'onLeave':function(){
+                    objective = '';
+                    r = random(1,6);
+                    if (r <= 1){
+                        this.leaveLoc = 'Grassland 1-7';
+                    } else if (r == 2){
+                        this.leaveLoc = 'Grassland 1-8';
+                    } else {
+                        this.leaveLoc = 'Grassland 1-9';
+                    }
+                },
+                'leaveLoc':'Grassland 1-9'
+            });
+            
+            new Location('Grassland 1-7',{
+                'areaText':'The bandits had an army.',
+                'textDuration':2000,
+                'onEnter':function(){
+                    day += random(1,5);
+                    spawnSmartBandits();
+                    spawnBandits();
+                    cDeath = ['The bandits got promotions all round.','The bandits all feasted on roast cat.','The bandits destroyed all cats.','Darn aiming bandits.'];
+                },
+                'onUpdate':function(){
+                    this.stageMax = 5;
+                    if (!this.currentStage){this.currentStage = 1;}
+                    
+                    if (this.checkVictory()){
+                        this.currentStage += 1;
+                        if (this.currentStage >= 5){
+                            this.leave();
+                        } else if (this.currentStage == 4){
+                            entitys.push(new banditWagon(random(100,height-100)));
+                        } else {
+                            spawnBandits();
+                            spawnSmartBandits();
+                        }
+                    }
+                },
+                'onLeave':function(){
+                    objective = '';
+                    this.currentStage = 1;
+                    r = random(1,4);
+                    if (r == 1){
+                        this.leaveLoc = 'Grassland 1-7';
+                    } else if (r == 2){
+                        this.leaveLoc = 'Grassland 1-8';
+                    } else if (r <= 4){
+                        this.leaveLoc = 'Grassland 1-7B';
+                    } else {
+                        this.leaveLoc = 'Grassland 1-9';
+                    }
+                },
+                'leaveLoc':'Grassland 1-9'
+            });
+            
+            new Location('Grassland 1-7B',{
+                'areaTextLines':['The bandit leader comes out to put','a stop to you once and for all.'],
+                'textDuration':4000,
+                'onEnter':function(){
+                    day += random(1,5);
+                    entitys.push(new RobBoss());
+                    cDeath = ['Rob became the most feared bandit in the land.',['Rob would always be remembered for his', 'victory against catkind.']];
+                },
+                'onLeave':function(){
+                    currentBoss = '';
+                    changeMusic("Grassland");
+                },
+                'preLeave':function(){
+                    unlockChar('Rob the Bandit',function(){
+                        cLocation.onLeave();
+                        cLocation.postLeave();
+                    });
+                    return true;
+                },
+                'leaveLoc':'Grassland 1-9'
+            });
+            
+            new Location('Grassland 1-8',{
+                'areaText':'There was a lightning storm',
+                'onEnter':function(){
+                    day += random(1,3);
+                    cDeath = ['The lightning continued on.','The bandits feasted on toasted cat.','Nobody heard of your discovery of electricity.'];
+                    for (var i = 0; i < 2; i++) {
+                        entitys.push(new Lightning(0,0));
+                    }
+                    lightningStorm = true;
+                },
+                'onUpdate':function(){
+                    this.tickMax = 700;
+                    
+                    if (!this.tick){
+                        this.tick = 0;
+                    }
+                    
+                    this.tick += 1;
+                    if (this.tick > this.tickMax){
+                        this.leave();
+                    }
+                },
+                'onLeave':function(){
+                    this.tick = 0;
+                },
+                'leaveLoc':'Grassland 1-8B'
+            });
+            
+            new Location('Grassland 1-8B',{
+                'areaText':'The storm got worse',
+                'onEnter':function(){
+                    day += random(1,3);
+                    cDeath = ['The lightning continued on.','The bandits feasted on toasted cat.','Nobody heard of your discovery of electricity.'];
+                    for (var i = 0; i < 4; i++) {
+                        entitys.push(new Lightning(0,0));
+                    }
+                    lightningStorm = true;
+                },
+                'onUpdate':function(){
+                    this.tickMax = 700;
+                    
+                    if (!this.tick){
+                        this.tick = 0;
+                    }
+                    
+                    this.tick += 1;
+                    if (this.tick > this.tickMax){
+                        this.leave();
+                    }
+                },
+                'onLeave':function(){
+                    this.tick = 0;
+                },
+                'leaveLoc':'Grassland 1-8C'
+            });
+            
+            new Location('Grassland 1-8C',{
+                'areaText':'The bandits seemed to like the storm.',
+                'onEnter':function(){
+                    day += random(1,3);
+                    cDeath = ['The bandits had a party in the storm.','The bandits feasted on fried cat.','The bandits hung your shoes up on a flagpole.'];
+                    for (var i = 0; i < 3; i++) {
+                        entitys.push(new Lightning(0,0));
+                    }
+                    lightningStorm = true;
+                    
+                    spawnBandits();
+                },
+                'onUpdate':function(){
+                    this.stageMax = 4;
+                    if (!this.currentStage){this.currentStage = 1;}
+                    
+                    if (this.checkVictory()){
+                        if (this.currentStage == 4){
+                            this.leave();
+                        } else {
+                            spawnBandits();
+                            this.currentStage += 1;
+                        }
+                    }
+                },
+                'onLeave':function(){
+                    objective = '';
+                    this.currentStage = 1;
+                    r = random(1,8);
+                    if (r == 1){
+                        this.leaveLoc = 'Grassland 1-7';
+                    } else if (r == 2){
+                        this.leaveLoc = 'Grassland 1-8';
+                    } else {
+                        this.leaveLoc = 'Grassland 1-9';
+                    }
+                    lightningStorm = false;
+                },
+                'leaveLoc':'Grassland 1-9'
+            });
+            
+            new Location('Grassland 1-9',{
+                'onEnter':function(){
+                    day += random(1,3);
+                },
+                'getInfoText':function(){
+                    adj = pick(['roasted','fried','raw','stringy','smoked','burnt','sweet','delicious']);
+                    thing = pick(['mouse','cheese','bandits','grass','milk','fish','shark','deer']);
+                    return entitys[0].name + ' ate a tasty meal of '+adj+' '+thing+'.';
+                },
+                'onUpdate':function(){
+                    this.tickMax = 50;
+                    
+                    if (!this.tick){
+                        this.tick = 0;
+                    }
+                    
+                    if (!this.stage){
+                        this.stage = 0;
+                    }
+                    
+                    this.tick += 1;
+                    if (this.tick > this.tickMax){
+                        this.tick = 0;
+                        this.stage += 1;
+                        
+                        if (this.stage >= 5){
+                            this.leave();
+                            return;
+                        }
+                        
+                        if (entitys[0].health < entitys[0].maxHealth){
+                            entitys[0].health += 1;
+                        }
+                    }
+                },
+                'preLeave':function(){
+                    unlockChar('Crazy Cat',function(){
+                        cLocation.onLeave();
+                        cLocation.postLeave();
+                    });
+                    return true;
+                },
+                'onLeave':function(){
+                    this.stage = 0;
+                    this.tick = 0;
+                },
+                'leaveLoc':'River 2-1'
+            });
+            
+            new Location('River 2-1',{
+                'areaText':'CURRENTPLAYER reached a river crossing.',
+                'onEnter':function(){
+                    backgroundEntitys = [];
+                    day += random(1,5);
+                    river = true;
+                },
+                'onUpdate':function(){
+                    this.tickMax = 350;
+                    
+                    if (!this.tick){
+                        this.tick = 0;
+                    }
+                    
+                    this.tick += 1;
+                    
+                    if (this.tick > this.tickMax){
+                        this.leave();
+                    }
+                },
+                'onLeave':function(){
+                    river = false;
+                    this.tick = 0;
+                },
+                'leaveLoc':'River 2-2',
+                'noRandom':1
+            });
+            
+            new Location('River 2-2',{
+                'areaTextLines':['RANDOMCHAR had the brilliant idea to try to swim.','Otherwise they could go north to the bridge.'],
+                'onEnter':function(){
+                    backgroundEntitys = [];
+                    day += random(1,5);
+                    river = true;
+                    state = 'pause';
+                    choice = true;
+                },
+                'onLeave':function(){
+                    river = false;
+                    choice = false;
+                },
+                'buttons':['Go Around','Swim'],
+                'button1':function(){
+                    state = 'game';
+                    this.leaveLoc = 'Grassland 3-1';
+                    this.leave();
+                },
+                'button2':function(){
+                    state = 'game';
+                    this.leaveLoc = 'River 2-3';
+                    this.leave();
+                },
+                'noRandom':1
+            });
+            
+            new Location('River 2-3',{
+                'areaText':'There were boulders in the river.',
+                'onEnter':function(){
+                    backgroundEntitys = [];
+                    day += random(1,3);
+                    inRiver = true;
+                    river = true;
+                    boulders = true;
+                    cDeath = ['The boulders sat unmolested','The fish feasted on fresh cat.','The sharks had dinner.'];
+                    for (var i = 0; i < 5; i++){entitys.push(new boulder());}
+                },
+                'onUpdate':function(){
+                    if (this.checkForward()){
+                        this.leave();
+                    }
+                },
+                'onLeave':function(){
+                    inRiver = false;
+                    river = false;
+                    boulders = false;
+                    r = random(1,6);
+                    if (r >= 5){
+                        this.leaveLoc = 'River 2-5';
+                    } else {
+                        this.leaveLoc = 'River 2-4';
+                    }
+                },
+                'leaveLoc':'River 2-4'
+            });
+            
+            new Location('River 2-4',{
+                'areaText':'Something something boulders.',
+                'onEnter':function(){
+                    backgroundEntitys = [];
+                    day += random(1,3);
+                    boulders = true;
+                    inRiver = true;
+                    river = true;
+                    for (var i = 0; i < 10; i++){entitys.push(new boulder());}
+                },
+                'onUpdate':function(){
+                    if (this.checkForward()){
+                        this.leave();
+                    }
+                },
+                'onLeave':function(){
+                    inRiver = false;
+                    boulders = false;
+                    river = false;
+                }
+            });
+            
+            new Location('River 2-5',{
+                'areaText':'CURRENTPLAYER was attacked by sharks.',
+                'onEnter':function(){
+                    day += random(1,3);
+                    inRiver = true;
+                    river = true;
+                    spawnSharks();
+                    objective = 'defeat';
+                    cDeath = ['The fish feasted on fresh cat.','The sharks had dinner.','The sharks ate cat BBQ.'];
+                },
+                'onUpdate':function(){
+                    this.stageMax = 3;
+                    if (!this.currentStage){this.currentStage = 1;}
+                    
+                    if (this.checkVictory()){
+                        if (this.currentStage == this.stageMax){
+                            this.leave();
+                        } else {
+                            spawnSharks();
+                            this.currentStage += 1;
+                        }
+                    }
+                },
+                'onLeave':function(){
+                    objective = '';
+                    river = false;
+                    inRiver = false;
+                    this.currentStage = 1;
+                }
+            });
+            
+            new Location('Grassland 3-1',{
+                'areaText':'CURRENTPLAYER encountered more bandits.',
+                'onEnter':function(){
+                    day += random(2,5);
+                    cDeath = ['The bandits had a party.','The bandits feasted on roast cat','The bandits laughed with revenge and ate CURRENTPLAYER.'];
+                    spawnBandits();
+                },
+                'onUpdate':function(){
+                    this.stageMax = 3;
+                    if (!this.currentStage){this.currentStage = 1;}
+                    
+                    if (this.checkVictory()){
+                        if (this.currentStage == this.stageMax){
+                            this.leave();
+                        } else {
+                            spawnBandits();
+                            spawnBandits();
+                            this.currentStage += 1;
+                        }
+                    }
+                },
+                'onLeave':function(){
+                    objective = '';
+                    this.currentStage = 1;
+                    
+                    if (random(1,6) >= 6){
+                        this.leaveLoc = 'Grassland 3-3';
+                    } else {
+                        this.leaveLoc = 'Grassland 3-2';
+                    }
+                },
+                'leaveLoc':'Grassland 3-2'
+            });
+            
+            new Location('Grassland 3-2',{
+                'areaText':'The bandits were very annoyed.',
+                'onEnter':function(){
+                    cDeath = ['The bandits danced on the cat\'s body.','The bandits burned the cat\'s body.','The bandits put the cat\'s head on their flagpole.'];
+                    banditsAnnoyed = true;
+                    spawnBandits();
+                    spawnBandits();
+                    day += random(1,3);
+                },
+                'onUpdate':function(){
+                    this.stageMax = 4;
+                    if (!this.currentStage){this.currentStage = 1;}
+                    
+                    if (this.checkVictory()){
+                        if (this.currentStage == this.stageMax){
+                            this.leave();
+                        } else {
+                            spawnBandits();
+                            this.currentStage += 1;
+                        }
+                    }
+                },
+                'onLeave':function(){
+                    objective = '';
+                    this.currentStage = 1;
+                    banditsAnnoyed = false;
+                },
+                'leaveLoc':'Grassland 3-4'
+            });
+            
+            new Location('Grassland 3-3',{
+                'areaText':'Some strange objects shot at CURRENTPLAYER.',
+                'onEnter':function(){
+                    cDeath = ['The peashooters continued firing.','The peashooters got promoted.'];
+                    spawnPeashooters();
+                    day += random(1,4);
+                    objective = 'defeat';
+                },
+                'onUpdate':function(){
+                    this.stageMax = 4;
+                    if (!this.currentStage){this.currentStage = 1;}
+                    
+                    if (this.checkVictory()){
+                        if (this.currentStage == this.stageMax){
+                            this.leave();
+                        } else if (this.currentStage % 2 == 0){
+                            spawnPeashooters(true);
+                            this.currentStage += 1;
+                        } else {
+                            spawnPeashooters();
+                            this.currentStage += 1;
+                        }
+                    }
+                },
+                'onLeave':function(){
+                    objective = '';
+                    this.currentStage = 1;
+                },
+                'leaveLoc':'Grassland 3-4'
+            });
+            
+            new Location('Grassland 3-4',{
+                'areaText':'CURRENTPLAYER arrived at the bridge.',
+                'onEnter':function(){
+                    day += random(3,8);
+                    river = true;
+                    bridge = true;
+                    backgroundEntitys = [];
+                },
+                'onUpdate':function(){
+                    this.tickMax = 300;
+                    
+                    if (!this.tick){
+                        this.tick = 0;
+                    }
+                    
+                    this.tick += 1;
+                    
+                    if (this.tick > this.tickMax){
+                        this.leave();
+                    }
+                },
+                'onLeave':function(){
+                    river = false;
+                    bridge = false;
+                    this.tick = 0;
+                },
+                'leaveLoc':'Bridge 4-1',
+                'noRandom':1
+            });
+            
+            new Location('Bridge 4-1',{
+                'onEnter':function(){
+                    day += random(1,3);
+                    river = true;
+                    bridge = true;
+                    backgroundEntitys = [];
+                },
+                'getInfoText':function(){
+                    adj = pick(['roasted','fried','raw','stringy','smoked','burnt','sweet','delicious']);
+                    thing = pick(['mouse','cheese','bandits','grass','milk','fish','shark','deer']);
+                    return entitys[0].name + ' ate a tasty meal of '+adj+' '+thing+'.';
+                },
+                'onUpdate':function(){
+                    this.tickMax = 50;
+                    
+                    if (!this.tick){
+                        this.tick = 0;
+                    }
+                    
+                    if (!this.stage){
+                        this.stage = 0;
+                    }
+                    
+                    this.tick += 1;
+                    if (this.tick > this.tickMax){
+                        this.tick = 0;
+                        this.stage += 1;
+                        
+                        if (this.stage >= 5){
+                            this.leave();
+                            return;
+                        }
+                        
+                        if (entitys[0].health < entitys[0].maxHealth){
+                            entitys[0].health += 1;
+                        }
+                    }
+                },
+                'onLeave':function(){
+                    this.stage = 0;
+                    this.tick = 0;
+                    river = false;
+                    bridge = false;
+                },
+                'leaveLoc':'Bridge 4-2'
+            });
+            
+            new Location('Bridge 4-2',{
+                'areaText':'CURRENTPLAYER battled butter-shooting foes.',
+                'onEnter':function(){
+                    day += random(1,3);
+                    river = true;
+                    inRiver = true;
+                    bridge = true;
+                    backgroundEntitys = [];
+                    cDeath = ['CURRENTPLAYER was better buttered.','The fish ate buttered cat.'];
+                    objective = 'defeat';
+                    spawnKernalPults();
+                },
+                'onUpdate':function(){
+                    this.stageMax = 3;
+                    if (!this.currentStage){this.currentStage = 1;}
+                    
+                    if (this.checkVictory()){
+                        if (this.currentStage == this.stageMax){
+                            this.leave();
+                        } else {
+                            spawnKernalPults();
+                            this.currentStage += 1;
+                        }
+                    }
+                },
+                'onLeave':function(){
+                    river = false;
+                    inRiver = false;
+                    bridge = false;
+                    objective = '';
+                    this.currentStage = 0;
+                    if (random(1,3) == 3){
+                        this.leaveLoc = 'Bridge 4-4';
+                    } else {
+                        this.leaveLoc = 'Bridge 4-3';
+                    }
+                },
+                'leaveLoc':'Bridge 4-3'
+            });
+            
+            new Location('Bridge 4-3',{
+                'areaText':'Coconut cannons arrived.',
+                'onEnter':function(){
+                    day += random(1,3);
+                    river = true;
+                    inRiver = true;
+                    bridge = true;
+                    backgroundEntitys = [];
+                    cDeath = ['The cannons blasted the bridge to pieces.','The fish ate exploded cat.','The cat was better buttered.','The fish ate buttered cat.'];
+                    objective = 'defeat';
+                    spawnCocoCannons();
+                    spawnKernalPults();
+                },
+                'onUpdate':function(){
+                    this.stageMax = 3;
+                    if (!this.currentStage){this.currentStage = 1;}
+                    
+                    if (this.checkVictory()){
+                        if (this.currentStage == this.stageMax){
+                            this.leave();
+                        } else {
+                            spawnKernalPults();
+                            spawnCocoCannons();
+                            this.currentStage += 1;
+                        }
+                    }
+                },
+                'onLeave':function(){
+                    river = false;
+                    inRiver = false;
+                    bridge = false;
+                    objective = '';
+                    this.currentStage = 0;
+                },
+                'leaveLoc':'Bridge 4-5'
+            });
+            
+            new Location('Bridge 4-4',{
+                'areaText':'The plants put down mines.',
+                'onEnter':function(){
+                    mines = true;
+                    day += random(1,3);
+                    river = true;
+                    inRiver = true;
+                    bridge = true;
+                    backgroundEntitys = [];
+                },
+                'onUpdate':function(){
+                    this.tickMax = 900;
+                    
+                    if (!this.tick){
+                        this.tick = 0;
+                    }
+                    
+                    if (!this.stage){
+                        this.stage = 0;
+                    }
+                    
+                    this.tick += 1;
+                    
+                    if (this.tick > this.tickMax){
+                        mines = false;
+                    }
+                    
+                    if (this.tick > this.tickMax && this.checkForward()){
+                        this.leave();
+                    }
+                },
+                'onLeave':function(){
+                    river = false;
+                    inRiver = false;
+                    bridge = false;
+                    mines = false;
+                    this.tick = 0;
+                },
+                'leaveLoc':'Bridge 4-5'
+            });
+            
+            new Location('Bridge 4-5',{
+                'areaText':'The bridge came under bombardment.',
+                'onEnter':function(){
+                    bombs = true;
+                    day += random(1,3);
+                    river = true;
+                    inRiver = true;
+                    bridge = true;
+                    backgroundEntitys = [];
+                    cDeath = ['The bombs blasted the bridge to pieces.','The fish ate exploded cat.','The cat was better bombed.'];
+                },
+                'onUpdate':function(){
+                    if (this.checkForward()){
+                        this.leave();
+                    }
+                },
+                'onLeave':function(){
+                    river = false;
+                    inRiver = false;
+                    bridge = false;
+                    bombs = false;
+                }
+            });
+            
+            new Location('Plains 5-1',{
+                'areaText':'The party finally reached the other side of the river.',
+                'onEnter':function(){
+                    day += random(1,3);
+                },
+                'onUpdate':function(){
+                    this.tickMax = 300;
+                    
+                    if (!this.tick){
+                        this.tick = 0;
+                    }
+                    
+                    this.tick += 1;
+                    
+                    if (this.tick > this.tickMax){
+                        this.leave();
+                    }
+                },
+                'onLeave':function(){
+                    river = false;
+                    bridge = false;
+                    this.tick = 0;
+                },
+                'noRandom':1
+            });
+            
+            
+            
+            
+            /*
+                
+            */
+            
+            /*   TEMPLATE LOCATION
+            new Location('Grassland 1-7',{
+                'areaText':'',
+                'onEnter':function(){
+                    day += random(1,3);
+                }
+            });
+            */
+            
+            function Lightning(x,y) {
+                this.x = x;
+                this.y = y;
+                this.state = 'reset';
+                this.img = new Image();
+                this.img.src = path+'lightning.png';
+                this.name = 'Lightning';
+                this.width = 50;
+                this.height = 50;
+                this.d = 1;
+                this.life = -1;
+            }
+            
+            Lightning.prototype.update = function(){
+                if (this.state == 'reset') {
+                    this.state = '';
+                    this.life -= 1;
+                    if (this.life == 0){
+                        this.killTag = true;
+                    }
+                    this.y = -120;
+                    this.x = random(0,1200-50);
+                    this.d = random(0,1) * 2 - 1;
+                } else {
+                    this.y += random(0,20);
+                    this.x += random(0,5) * this.d;
+                    
+                    if (random(1,100) == 100) {
+                        this.d = -this.d;
+                    }
+                }
+                
+                if (this.x < 0) {
+                    this.x = 0;
+                    this.d = 1;
+                } else if (this.x > 1200 - 50) {
+                    this.x = 1150;
+                    this.d = -1;
+                }
+                
+                ctx.drawImage(this.img,this.x,this.y,50,50);
+                
+                if (this.y > 700) {
+                    this.state = 'reset';
+                }
+                
+                for (var i = 0; i < entitys.length; i++){
+                    entity = entitys[i];
+                    // Overlapping Check
+                    if (this.x+this.width >= entity.x &&
+                        this.x <= entity.x+entity.width && 
+                        this.y+this.height >= entity.y &&
+                        this.y <= entity.y+entity.height
+                       ){
+                        if (isIn(entity.name,['bandit','player']) || entity == entitys[0]) {
+                            entity.health -= 1;
+                            entity.lastHit = 'lightning';
+                            this.state = 'reset';
+                        }
+                    }
+                }
+            }
+            
+            var heartImg = new Image();
+            heartImg.src = path+'heart.png';
+            var emptyHeartImg = new Image();
+            emptyHeartImg.src = path+'emptyHeart.png';
+            var peltImg = new Image();
+            peltImg.src = path+'pelts.jpg';
+            
+            function changeCharacter(death){
+                if (companions.length == 0){
+                    return;
+                }
+                
+                if (!death){
+                    companions.push(entitys.shift());
+                }
+                
+                entitys.unshift(companions.shift());
+                if (!death){
+                    entitys[0].y = companions[companions.length-1].y;
+                }
+                
+                entitys[0].x = -entitys[0].width;
+                entitys[0].isChanging = -1;
+            }
+            
+            fragBullets = false;
+            shieldImg = new Image();
+            shieldImg.src = path+'shield.png';
+            maxShieldImg = new Image();
+            maxShieldImg.src = path+'maxShield.png';
+            
+            function playerCharacter(name) {
+                this.x = 150;
+                this.y = 300;
+                this.cSpeed = 5;
+                this.health = 12;
+                this.healthShow = true;
+                this.weapon = ['Gun',999];
+                this.reloadTimer = 0;
+                this.width = 85;
+                this.height = 80;
+                this.img = new Image();
+                this.img.src = path+'superCat.gif';
+                this.gunImg = new Image();
+                this.gunImg.src = path+'gun1.png';
+                this.freeze = false;
+                this.regenTick = 0;
+                this.name = name;
+                this.isChanging = 0; // Positive is leaving, negative is entering.
+                this.shields = 0;
+                this.maxShields = 5;
+                
+                if (this.name == 'Normal Cat'){
+                    this.img.src = path+'normalCat.gif';
+                    this.health = 5;
+                    this.cSpeed = 4.5;
+                } else if (this.name == 'Crazy Cat'){
+                    this.img.src = path+'crazyCat.png';
+                    this.health = 6;
+                } else if (this.name == 'Rob the Bandit'){
+                    this.img.src = path+'rob.png';
+                    this.health = 8;
+                    this.cSpeed = 3.75;
+                } else if (this.name == 'Shield Cat'){
+                    this.img.src = path+'shieldCat.png';
+                    this.shields = 5;
+                    this.maxShields = 10;
+                    this.cSpeed = 5;
+                    this.health = 7;
+                }
+                
+                this.baseSpeed = this.cSpeed;
+                this.maxHealth = this.health;
+                this.effects = {};
+                this.lastHealth = this.health;
+            }
+            
+            playerCharacter.prototype.update = function(){
+                if (this.dead) {
+                    return;
+                }
+                
+                if (this.shields > this.maxShields){
+                    this.shields = this.maxShields;
+                }
+                
+                if (this.health < this.lastHealth && this.shields > 0){
+                    this.health = this.lastHealth;
+                    this.shields -= 1;
+                }
+                this.lastHealth = this.health;
+                
+                if (this.name == 'Normal Cat'){
+                    this.effects.tripleShot = 2;
+                } else if (this.name == 'Rob the Bandit'){
+                    this.effects.frag = 2;
+                }
+                
+                for (var e in this.effects){
+                    this.effects[e] -= 1;
+                    if (this.effects[e] < 1){
+                        delete this.effects[e];
+                    }
+                }
+                
+                if ('fireTrail' in this.effects){
+                    if (this.effects[e] % 10 == 0){
+                        entitys.push(new fire(this.x,this.y));
+                    }
+                }
+                
+                if (this.name == 'Crazy Cat'){
+                    if (this.cSpeed > 3 && random(1,4)){
+                        this.cSpeed -= 0.1;
+                    }
+                    
+                    if (this.cSpeed < 8 && random(1,4)){
+                        this.cSpeed += 0.1;
+                    }
+                } else if (this.hasEffect('coffee')){
+                    this.cSpeed = this.baseSpeed + 1.5;
+                } else {
+                    this.cSpeed = this.baseSpeed;
+                }
+                
+                if (this.health < 1) {
+                    this.dead = true;
+                    txt = [];
+                    if (this.lastHit == 'bullet') {
+                        txt.push([this.name+' died from a bullet wound.','A bullet hit '+this.name+' in the head.'][random(0,1)]);
+                    } else if (this.lastHit == 'lightning') {
+                        txt.push([this.name+' died from sheer electricity.','A lightning bolt hit '+this.name+' in the head.'][random(0,1)]);
+                    } else if (this.lastHit == 'boulder') {
+                        txt.push(['A boulder hit '+this.name+' in the head.','A boulder knocked '+this.name+' underwater.'][random(0,1)]);
+                    } else if (this.lastHit == 'shark'){
+                        txt.push(['A shark ate '+this.name+'.',this.name+'\'s head was swallowed by a shark.'][random(0,1)]);
+                    } else if (this.lastHit == 'butter') {
+                        txt.push([this.name+' was buttered to death.',this.name+' suffocated in butter.'][random(0,1)]);
+                    } else if (this.lastHit == 'cannonball') {
+                        txt.push([this.name+' tasted cannonball.',this.name+' exploded.'][random(0,1)]);
+                    } else if (this.lastHit == 'mine') {
+                        txt.push([this.name+' stepped on a landmine.',this.name+' exploded.'][random(0,1)]);
+                    } else if (this.lastHit == 'cherrybomb') {
+                        txt.push([this.name+' was hit by a bomb.',this.name+' exploded.'][random(0,1)]);
+                    } else if (this.lastHit == 'deer'){
+                        txt.push([this.name+' was trampled to death.',this.name+' was impaled by a deer\'s antlers.'][random(0,1)]);
+                    }
+                    
+                    if (globalSurvival && companions.length > 1 && false) {
+                        changeCharacter(true);
+                    } else {
+                        areaInfo(txt,3000,function(){
+                            if (companions.length == 0){
+                                deathMsg = cDeath[random(0,cDeath.length-1)];
+                                if (typeof deathMsg == String){
+                                    deathMsg = deathMsg.replace('CURRENTPLAYER',this.name);
+                                }
+                                
+                                areaInfo(['The journey ended there.',deathMsg],3000,function(){
+                                    areaInfo(['GAME OVER'],2000,function(){
+                                        state = 'menu';
+                                        updateMenu();
+                                        var killId = setTimeout(function() {
+                                            for (var i = killId; i > 0; i--) {clearInterval(i);}
+                                        }, 11);
+                                    });
+                                },false,false,false);
+                            } else {
+                                changeCharacter(true);
+                            }
+                            
+                        },false,false,true);
+                        return;
+                    }
+                }
+                
+                if (!inRiver || bridge) {
+                    ctx.drawImage(this.img,this.x,this.y,this.width,this.height);
+                    ctx.drawImage(this.gunImg,this.x+this.width-20,this.y+35,this.gunImg.width/4,this.gunImg.height/4);
+                    this.width = this.img.width/2;
+                    this.height = this.img.height/2;
+                } else {
+                    this.height = this.img.height/2;
+                    ctx.drawImage(this.img,this.x,this.y,this.width,this.height);
+                    ctx.drawImage(this.gunImg,this.x+50,this.y+35,this.gunImg.width/4,this.gunImg.height/4);
+                    ctx.fillStyle = 'rgb(0,0,200)';
+                    ctx.fillRect(this.x,this.y+this.height-30,this.width,30);
+                    this.width = this.img.width/2;
+                    this.height = this.img.height/2-30;
+                }
+                
+                if (this.shields < this.maxShields){
+                     for (var i = 0; i < this.shields; i++){
+                        ctx.drawImage(shieldImg,this.x+this.width-20+(this.height/2-10)*i,this.y-this.height/3,this.height*1.5/2,this.height*1.5);
+                    }
+                } else {
+                    ctx.drawImage(maxShieldImg,this.x+this.width+10,this.y+5,this.width/3*2,this.height-10);
+                }
+                
+                ctx.fillStyle = 'rgb(0,0,0)';
+                ctx.globalAlpha = 0.9;
+                ctx.fillRect(100,10,80*14,80);
+                for (var i = 0; i < this.maxHealth; i++){
+                    if (i < this.health){
+                        ctx.drawImage(heartImg,110+i*80,20,60,60);
+                    } else {
+                        ctx.drawImage(emptyHeartImg,110+i*80,20,60,60);
+                    }
+                }
+                
+                ctx.drawImage(peltImg,110+12*80,20,60,60);
+                ctx.fillStyle = 'rgb(255,255,255)';
+                m = [0,0,0];
+                tp = pelts;
+                if (tp > 999) {
+                    tp = 999;
+                }
+                
+                while (tp > 99) {
+                    tp -= 100;
+                    m[0] += 1;
+                }
+                
+                while (tp > 9) {
+                    tp -= 10;
+                    m[1] += 1;
+                }
+                
+                while (tp > 0) {
+                    tp -= 1;
+                    m[2] += 1;
+                }
+                
+                m = m[0] + '' + m[1] + '' + m[2];
+                
+                ctx.font = '30px Arial';
+                ctx.fillText(m,90+13*80,65);
+                
+                ctx.globalAlpha = 1;
+                
+                if (this.freeze) {
+                    this.freeze -= 1;
+                    return;
+                }
+                
+                if (globalSurvival) {
+                    this.regenTick += 1;
+                    if (this.regenTick > 10) {
+                        this.regenTick = 0;
+                        this.health += 1;
+                        if (this.health > this.maxHealth) {
+                            this.health = this.maxHealth;
+                        }
+                    }
+                }
+                
+                if (this.isChanging < 0){
+                    this.x += this.cSpeed * 1.5;
+                    if (this.x > 10){
+                        this.isChanging = 0;
+                    }
+                    return;
+                }
+                
+                if (this.isChanging > 0){
+                    this.x -= this.cSpeed * 1.5;
+                    if (this.x < -this.width){
+                        this.isChanging = 0;
+                        changeCharacter();
+                    }
+                    return;
+                }
+                
+                if (37 in keysDown || gamepad1.leftStick.x <= -0.5){
+                    this.x -= this.cSpeed;
+                } if (38 in keysDown || gamepad1.leftStick.y <= -0.5) {
+                    this.y -= this.cSpeed;
+                } if (39 in keysDown || gamepad1.leftStick.x >= 0.5) {
+                    this.x += this.cSpeed;
+                } if (40 in keysDown || gamepad1.leftStick.y >= 0.5) {
+                    this.y += this.cSpeed;
+                } if ((32 in keysDown || gamepad1.buttons.a) && this.reloadTimer < 1) {
+                    this.reloadTimer = 30;
+                    playSound("gunshot");
+                    if (this.name == 'Super Cat'){
+                        this.reloadTimer -= 10;
+                    } else if (this.name == 'Crazy Cat'){
+                        this.reloadTimer -= random(2,8);
+                    } else if (this.name == 'Normal Cat'){
+                        this.reloadTimer += 15;
+                    } else if (this.name == 'Rob the Bandit'){
+                        this.reloadTimer += 10;
+                    }
+                    
+                    if (globalSurvival) {
+                        this.reloadTimer -= 10;
+                    }
+                    
+                    if (this.effects.machineGun > 0){
+                        if (this.reloadTimer > 10){
+                            this.reloadTimer = 10;
+                        } else {
+                            this.reloadTimer /= 2;
+                        }
+                    }
+                    
+                    if (this.hasEffect('coffee')){
+                        if (this.reloadTimer > 5){
+                            this.reloadTimer -= 5;
+                        } else {
+                            this.reloadTimer /= 2;
+                        }
+                    }
+                    
+                    if (this.effects.laser > 0){
+                        this.reloadTimer = 1;
+                    }
+                    
+                    fragBullets = false;
+                    if (this.effects.frag){
+                        fragBullets = true;
+                    }
+                    
+                    if (this.name == 'Crazy Cat' || this.effects.confused > 0){
+                        entitys.push(new bullet(this.x+70,this.y+40,this.x+1000,random(this.y-100,this.y+150),['bandit','boss','baddy','animal']));
+                        
+                        if (this.effects.tripleShot > 0){
+                            entitys.push(new bullet(this.x+70,this.y+40,this.x+1000,random(this.y-200,this.y+0),['bandit','boss','baddy','animal']));
+                            entitys.push(new bullet(this.x+70,this.y+40,this.x+1000,random(this.y+100,this.y+300),['bandit','boss','baddy','animal']));
+                        }
+                    } else {
+                        if (this.hasEffect('aim')){
+                            closestDist = 10000;
+                            closest = 0;
+                            for (var i = 0; i < entitys.length; i++){
+                                if (!isIn(entitys[i].name,['bandit','boss','baddy','animal'])){
+                                    continue;
+                                }
+                                
+                                if (entity.x-this.x+entity.y-this.y < closestDist){
+                                    closest = entitys[i];
+                                    closestDist = entity.x-this.x+entity.y-this.y;
+                                }
+                            }
+                            
+                            if (!closest){
+                                entitys.push(new bullet(this.x+70,this.y+40,this.x+10000,this.y+50,['bandit','boss','baddy','animal']));
+                            } else {
+                                entitys.push(new bullet(this.x+70,this.y+40,closest.x+25,closest.y+25,['bandit','boss','baddy','animal']));
+                            }
+                        } else {
+                            entitys.push(new bullet(this.x+70,this.y+40,this.x+10000,this.y+50,['bandit','boss','baddy','animal']));
+                        }
+                        
+                        if (this.effects.tripleShot > 0){
+                            entitys.push(new bullet(this.x+70,this.y+40,this.x+1000,this.y-100,['bandit','boss','baddy','animal']));
+                            entitys.push(new bullet(this.x+70,this.y+40,this.x+1000,this.y+200,['bandit','boss','baddy','animal']));
+                        }
+                    }
+                    
+                    fragBullets = false;
+                    
+                } if ((16 in keysDown || gamepad1.buttons.y) && !this.isChanging){
+                    this.isChanging = 1;
+                }
+                
+                if (this.reloadTimer > 0) {
+                    this.reloadTimer--;
+                }
+                
+                if (this.y < 100) {
+                    this.y = 100;
+                } if (this.y > 600-this.height) {
+                    this.y = 600-this.height;
+                } if (this.x < 0) {
+                    this.x = 0;
+                } if (this.x > 1200-this.width) {
+                    this.x = 1200-this.width;
+                }
+                
+                if (bridge && inRiver) {
+                    if (this.y < 200) {
+                        this.y = 200;
+                    } else if (this.y > 500-this.height) {
+                        this.y = 500-this.height;
+                    }
+                }
+                
+                for (var i = 0; i < entitys.length; i++) {
+                    if (entitys[i].name == 'pickup') {
+                        entity = entitys[i];
+                        if (this.x+this.width >= entity.x &&
+                            this.x <= entity.x+entity.width && 
+                            this.y+this.height >= entity.y &&
+                            this.y <= entity.y+entity.height
+                        ){
+                            entity.killTag = 1;
+                            if (entity.effect == 'pelt') {
+                                pelts += 1;
+                            } else if (entity.effect == 'health+1') {
+                                if (this.health < this.maxHealth) {
+                                    this.health += 1;
+                                }
+                            } else if (entity.effect == 'machineGun'){
+                                this.effects.machineGun = 500;
+                            } else if (entity.effect == 'confused'){
+                                this.effects.confused = 500;
+                            } else if (entity.effect == 'tripleShot'){
+                                this.effects.tripleShot = 500;
+                            } else if (entity.effect == 'fragBullets'){
+                                this.effects.frag = 500;
+                            } else if (entity.effect == 'laser'){
+                                this.effects.laser = 50;
+                            } else if (entity.effect == 'nuke'){
+                                entitys.push(new nuke());
+                            } else if (entity.effect == 'deer'){
+                                for (var j = 0; j < 10; j++){
+                                    entitys.push(new deer());
+                                }
+                            } else if (entity.effect == 'lightning'){
+                                for (var j = 0; j < 3; j++){
+                                    l = new Lightning();
+                                    l.life = 4;
+                                    entitys.push(l);
+                                }
+                            } else if (entity.effect == 'shield'){
+                                this.shields += 1+(this.name == 'Shield Cat');
+                            } else if (entity.effect == 'shield2'){
+                                this.shields += 2+(this.name == 'Shield Cat');
+                            } else if (entity.effect == 'random'){
+                                spawnPowerup(true);
+                            } else {
+                                this.addEffect(entity.effect,300);
+                            }
+                        }
+                    }
+                }
+            };
+            
+            playerCharacter.prototype.addEffect = function(name,duration){
+                this.effects[name] = duration;
+            };
+            
+            playerCharacter.prototype.hasEffect = function(name){
+                names = [];
+                for (var e in this.effects){
+                    names.push(e);
+                }
+                
+                return isIn(name,names);
+            }
+            
+            function spawnDots(color,x,y) {
+                amount = random(30,60);
+                for (var i = 0; i < amount; i++) {
+                    x2 = random(x-random(0,80),x+random(0,80));
+                    y2 = random(y-random(0,120),y+random(0,100));
+                    backgroundEntitys.push(new dot(color,x2,y2));
+                }
+            }
+            
+            function kernalPult(x,y) {
+                this.name = 'baddy';
+                this.x = x;
+                this.y = y;
+                this.health = 1;
+                this.reloadTime = random(0,50);
+                this.img = new Image();
+                this.img.src = path+'KernalPult.png';
+                this.width = 50;
+                this.height = 50;
+            }
+            
+            kernalPult.prototype.update = function(){
+                if (this.health < 1) {
+                    this.killTag = 1;
+                    spawnDots('yellow',this.x+this.width/2,this.y+this.height/2);
+                    return;
+                }
+                
+                ctx.drawImage(this.img,this.x,this.y,50,50);
+                
+                if (this.reloadTime > 0) {
+                    this.reloadTime--;
+                } else {
+                    this.reloadTime = 200;
+                    playSound("gunshot");
+                    if (random(1,4) < 3) {
+                        entitys.push(new bullet(this.x,this.y+10,-1000,this.y+20,['player','animal']));
+                    } else {
+                        entitys.push(new butterBullet(this.x,this.y+10,-1000,this.y+20,['player','animal']));
+                    }
+                }
+            }
+            
+            function evilPeashooter(x,y,smart) {
+                this.name = 'baddy';
+                this.x = x;
+                this.y = y;
+                this.smart = smart;
+                this.health = 1;
+                this.reloadTime = random(0,50);
+                this.img = new Image();
+                this.img.src = path+'EvilPea.png';
+                this.width = 50;
+                this.height = 50;
+            }
+            
+            evilPeashooter.prototype.update = function(){
+                if (this.health < 1) {
+                    this.killTag = 1;
+                    spawnDots('green',this.x+this.width/2,this.y+this.height/2);
+                    return;
+                }
+                
+                ctx.drawImage(this.img,this.x,this.y,50,50);
+                
+                if (this.reloadTime > 0) {
+                    this.reloadTime--;
+                } else {
+                    playSound("gunshot");
+                    this.reloadTime = 150;
+                    if (!this.smart) {
+                        entitys.push(new bullet(this.x,this.y+10,-1000,this.y+20,['player','animal']));
+                    } else {
+                        entitys.push(new bullet(this.x,this.y+10,entitys[0].x,entitys[0].y,['player','animal']));
+                    }
+                }
+            }
+            
+            function shark(aiType){
+                this.name = 'baddy';
+                this.x = 1200;
+                this.y = random(110,height-40);
+                this.health = 1;
+                this.img = new Image();
+                this.img.src = path+'shark.png';
+                this.width = 80;
+                this.height = 35;
+                this.aiType = aiType;
+                this.stage = 0;
+                this.timeout = 0;
+                this.foeNames = ['player','animal'];
+            }
+            
+            shark.prototype.update = function(){
+                if (this.health < 1) {
+                    this.killTag = true;
+                    spawnDots('black',this.x+this.width/2,this.y+this.height/2);
+                }
+                
+                ctx.fillStyle = 'white';
+                
+                speed = random(1,4);
+                if (this.aiType == 'circle') {
+                    if (!this.attackSide) {
+                        this.attackSide = ['n','s','e','w'][random(0,3)];
+                    }
+                    
+                    if (this.stage == 0) {
+                        if (this.attackSide == 'e') {
+                            ready = 0;
+                            if (this.x > entitys[0].x+400) {
+                                this.x -= speed;
+                            } else if (this.x < entitys[0].x+100) {
+                                this.x += speed+1;
+                            } else {
+                                ready += 1;
+                            }
+                            
+                            if (this.y > entitys[0].y+50) {
+                                this.y -= speed;
+                            } else if (this.y < entitys[0].y-50) {
+                                this.y += speed;
+                            } else {
+                                ready += 1;
+                            }
+                            
+                            if (ready == 2) {
+                                this.stage = 1;
+                            }
+                        } else if (this.attackSide == 's') {
+                            ready = 0;
+                            if (this.x > entitys[0].x+50) {
+                                this.x -= speed;
+                            } else if (this.x < entitys[0].x-50) {
+                                this.x += speed+1;
+                            } else {
+                                ready += 1;
+                            }
+                            
+                            if (this.y > entitys[0].y+450) {
+                                this.y -= speed;
+                            } else if (this.y < entitys[0].y+100) {
+                                this.y += speed;
+                            } else {
+                                ready += 1;
+                            }
+                            
+                            if (ready == 2) {
+                                this.stage = 1;
+                            }
+                        } else if (this.attackSide == 'n') {
+                            ready = 0;
+                            if (this.x > entitys[0].x+50) {
+                                this.x -= speed;
+                            } else if (this.x < entitys[0].x-50) {
+                                this.x += speed+1;
+                            } else {
+                                ready += 1;
+                            }
+                            
+                            if (this.y > entitys[0].y-100) {
+                                this.y -= speed;
+                            } else if (this.y < entitys[0].y-350) {
+                                this.y += speed;
+                            } else {
+                                ready += 1;
+                            }
+                            
+                            if (ready == 2) {
+                                this.stage = 1;
+                            }
+                        } else if (this.attackSide == 'w') {
+                            ready = 0;
+                            
+                            if (this.y > entitys[0].y-200) {
+                                this.y -= speed;
+                            } else if (this.y < entitys[0].y-450) {
+                                this.y += speed;
+                            } else {
+                                ready += 1;
+                                if (this.x > entitys[0].x-100) {
+                                    this.x -= speed;
+                                } else if (this.x < entitys[0].x-200) {
+                                    this.x += speed;
+                                } else {
+                                    ready += 1;
+                                }
+                            }
+                            
+                            if (ready < 1) {
+                                if (this.x > entitys[0].x) {
+                                    this.x += speed;
+                                } else if (this.x < entitys[0].x) {
+                                    this.x -= speed;
+                                }
+                            }
+                            
+                            if (ready == 2) {
+                                this.stage = 1;
+                            }
+                        }
+                        
+                    } else if (this.stage == 1) {
+                        this.speed *= 2;
+                        
+                        if (this.x > entitys[0].x) {
+                            this.x -= speed;
+                        } else if (this.x < entitys[0].x) {
+                            this.x += speed;
+                        }
+                        
+                        if (this.y > entitys[0].y) {
+                            this.y -= speed;
+                        } else if (this.y < entitys[0].y) {
+                            this.y += speed;
+                        }
+                    }
+                }
+                
+                if (this.x < 0) {
+                    this.x = 0;
+                } else if (this.x > 1200) {
+                    this.x = 1200;
+                } if (this.y < 100) {
+                    this.y = 100;
+                } else if (this.y > 560) {
+                    this.y = 560;
+                }
+                
+                ctx.drawImage(this.img,this.x,this.y,this.width,this.height);
+                
+                this.timeout -= 1;
+                
+                for (var i = 0; i < entitys.length; i++){
+                    entity = entitys[i];
+                    // Overlapping Check
+                    if (this.x+this.width >= entity.x &&
+                        this.x <= entity.x+entity.width && 
+                        this.y+this.height >= entity.y &&
+                        this.y <= entity.y+entity.height
+                       ){
+                        if ((isIn(entity.name,this.foeNames) || (entity == entitys[0] && isIn('player',this.foeNames))) && this.timeout < 1) {
+                            entity.health -= 1;
+                            entity.lastHit = 'shark';
+                            this.timeout = 50;
+                            return;
+                        }
+                    }
+                }
+            };
+            
+            function RobBoss(){
+                this.name = 'boss';
+                this.x = 1200;
+                this.y = height / 2;
+                this.health = 0;
+                this.stage = 1;
+                this.img = new Image();
+                this.img.src = path+'RobBoss.png';
+                this.reloadImg = new Image();
+                this.reloadImg.src = path+'RobBossReloading.png';
+                this.finalImg = new Image();
+                this.finalImg.src = path+'RobBossLastStage.png';
+                this.defeatedImg = new Image();
+                this.defeatedImg.src = path+'RobBossDefeated.png';
+                this.width = 50*1.2;
+                this.height = 70*1.2;
+                currentBoss = this;
+                this.currentAction = null;
+                this.actionsSinceHit = 0;
+                this.movePause = 0;
+                this.trueHealth = 50;
+                this.spawnPickups = false;
+            }
+            
+            RobBoss.prototype.update = function(){
+                if (this.stage == 1){
+                    this.x -= 4;
+                    if (this.x <= 900){
+                        this.stage += 1;
+                        changeMusic('Boss Theme');
+                        areaInfo(["ROB: This is where your journey ends."],3000,function(){
+                            entitys.push(new bossText("Rob the Bandit",function(){
+                                currentBoss.stage += 1;
+                            }));
+                        },false,false);
+                    }
+                } else if (this.stage == 3){
+                    if (this.trueHealth <= 20){
+                        this.stage += 1;
+                        areaInfo(["ROB: I'm not beaten yet!","Rob puts on his hat..."],3000,function(){
+                            currentBoss.stage += 1;
+                            this.previousAction = "";
+                            currentBoss.moveTo = [random(600,1120),random(100,500)];
+                            currentBoss.shotTimer = 10;
+                            currentBoss.actionTime = 80;
+                            for (var i = 0; i < 4; i++){
+                                x = 1200;
+                                y = random(100,height-70);
+                                entitys.push(new pickup(x,y,'healthPowerup','health+1'));
+                            }
+                        },false,false);
+                    } else if (!this.currentAction){
+                        if (this.previousAction == "skirmish"){
+                            this.currentAction = weightedChoice({
+                                "skirmish":3,
+                                "burstFire":1
+                            });
+                            x = 1200;
+                            y = random(100,height-70);
+                            entitys.push(new pickup(x,y,'healthPowerup','health+1'));
+                        } else {
+                            this.currentAction = "skirmish";
+                        }
+                        
+                        this.actionsSinceHit += 1;
+                        
+                        if (this.currentAction == 'skirmish'){
+                            this.moveTo = [random(600,1120),random(100,500)];
+                            this.shotTimer = 10;
+                            this.actionTime = 55;
+                        } else {
+                            this.moveTo = [random(1000,1120),height/2];
+                            this.shotTimer = 100;
+                            this.actionTime = 200;
+                        }
+                    }
+                    
+                    this.previousAction = this.currentAction;
+                    if (this.currentAction == 'skirmish'){
+                        if (this.movePause){
+                            this.movePause -= 1;
+                            if (this.actionTime < 1 && this.movePause < 1){
+                                this.currentAction = '';
+                            }
+                        } else {
+                            if (this.x-6 > this.moveTo[0]){
+                                this.x -= 6;
+                            } else if (this.x+6 < this.moveTo[0]){
+                                this.x += 6;
+                            } if (this.y-6 > this.moveTo[1]){
+                                this.y -= 6;
+                            } else if (this.y+6 < this.moveTo[1]){
+                                this.y += 6;
+                            }
+                        }
+                        
+                        this.shotTimer -= 1;
+                        if (this.shotTimer < 1){
+                            playSound("gunshot");
+                            this.shotTimer = 30;
+                            if (this.movePause){
+                                this.shotTimer = 24;
+                            }
+                            entitys.push(new bullet(this.x,this.y+20,entitys[0].x,entitys[0].y,['player','animal']));
+                        }
+                        
+                        if (this.x+this.width+6 >= this.moveTo[0] &&
+                            this.x-6 <= this.moveTo[0] && 
+                            this.y+this.height+6 >= this.moveTo[1] &&
+                            this.y-6 <= this.moveTo[1]
+                           ){
+                            this.moveTo = [random(600,1120),random(100,500)];
+                            this.movePause = 50;
+                        }
+                        
+                        this.actionTime -= 1;
+                    } else if (this.currentAction == "burstFire"){
+                        if (this.x-6 > this.moveTo[0]){
+                            this.x -= 4;
+                        } else if (this.x+6 < this.moveTo[0]){
+                            this.x += 4;
+                        } if (this.y-6 > this.moveTo[1]){
+                            this.y -= 4;
+                        } else if (this.y+6 < this.moveTo[1]){
+                            this.y += 4;
+                        }
+                        
+                        if (this.x+this.width+6 >= this.moveTo[0] &&
+                            this.x-6 <= this.moveTo[0] && 
+                            this.y+this.height+6 >= this.moveTo[1] &&
+                            this.y-6 <= this.moveTo[1]
+                           ){
+                            if (this.shotTimer > -1){
+                                this.shotTimer -= 1;
+                                if (this.shotTimer % 20 == 0){
+                                    playSound("gunshot");
+                                    entitys.push(new bullet(this.x,this.y+20,entitys[0].x,entitys[0].y,['player','animal']));
+                                } else if (this.shotTimer % 10 == 0){
+                                    playSound("gunshot");
+                                    entitys.push(new bullet(this.x,this.y+20,50,random(0,600),['player','animal']));
+                                }
+                            } else {
+                                this.actionTime -= 1;
+                                if (this.health < 0){
+                                    this.trueHealth += this.health;
+                                }
+                                if (this.actionTime < 1){
+                                    this.currentAction = '';
+                                }
+                            }
+                        }
+                    }
+                } else if (this.stage == 5){
+                    if (this.health < 0){
+                        this.trueHealth += this.health;
+                        if (this.trueHealth < 1){
+                            this.stage += 1;
+                            changeMusic('Title Theme');
+                            areaInfo(["ROB: Wow. You beat me..."],3000,function(){
+                                currentBoss.stage += 1;
+                                currentBoss.actionTimer = 100;
+                            },false,false);
+                        }
+                    }
+                    if (this.movePause){
+                        this.movePause -= 1;
+                    } else {
+                        if (this.x-6 > this.moveTo[0]){
+                            this.x -= 6;
+                        } else if (this.x+6 < this.moveTo[0]){
+                            this.x += 6;
+                        } if (this.y-6 > this.moveTo[1]){
+                            this.y -= 6;
+                        } else if (this.y+6 < this.moveTo[1]){
+                            this.y += 6;
+                        }
+                    }
+                    
+                    this.shotTimer -= 1;
+                    
+                    if (this.shotTimer < 1){
+                        this.shotTimer = 28*2;
+                        if (this.movePause){
+                            this.shotTimer = 22*2;
+                        }
+                        playSound("gunshot");
+                        entitys.push(new bullet(this.x,this.y+20,entitys[0].x,entitys[0].y,['player','animal']));
+                    } else if (this.shotTimer % 15 == 0){
+                        playSound("gunshot");
+                        entitys.push(new bullet(this.x,this.y+20,50,random(0,600),['player','animal']));
+                    } else if (this.shotTimer % 31 == 0 && random(1,3) != 1){
+                        x = 1200;
+                        y = random(100,height-70);
+                        entitys.push(new pickup(x,y,'healthPowerup','health+1'));
+                    }
+                    
+                    if (this.x+this.width+6 >= this.moveTo[0] &&
+                        this.x-6 <= this.moveTo[0] && 
+                        this.y+this.height+6 >= this.moveTo[1] &&
+                        this.y-6 <= this.moveTo[1]
+                       ){
+                        this.moveTo = [random(600,1120),random(100,500)];
+                        this.movePause = 50;
+                    }
+                    
+                    this.actionTime -= 1;
+                } else if (this.stage == 7){
+                    this.actionTimer -= 1;
+                    if (this.actionTimer == 0){
+                        areaInfo(["ROB: I guess I'm not very","good at being a bandit after all."],3000,function(){
+                            currentBoss.stage += 1;
+                            currentBoss.actionTimer = 100;
+                        },false,false);
+                    }
+                } else if (this.stage == 8){
+                    this.actionTimer -= 1;
+                    if (this.actionTimer == 0){
+                        areaInfo(["ROB: Oh well, maybe I'll be better","as an adventurer!"],3000,function(){
+                            currentBoss.stage += 1;
+                            currentBoss.actionTimer = 100;
+                        },false,false);
+                    }
+                } else if (this.stage == 9){
+                    this.killTag = true;
+                    companions.push(new playerCharacter("Rob the Bandit"));
+                    cLocation.leave();
+                    return;
+                }
+                
+                if (this.stage == 3 && this.currentAction == "burstFire" && this.shotTimer < 1){
+                    ctx.drawImage(this.reloadImg,this.x,this.y,50,70);
+                } else if (this.stage == 5){
+                    ctx.drawImage(this.finalImg,this.x,this.y,50,70);
+                } else if (this.stage > 5){
+                    ctx.drawImage(this.defeatedImg,this.x,this.y,50,70);
+                } else {
+                    ctx.drawImage(this.img,this.x,this.y,50,70);
+                }
+                
+                if (this.stage < 6){
+                    ctx.globalAlpha = 0.5;
+                    ctx.fillStyle = 'white';
+                    ctx.fillRect(1000,590,200,10);
+                    ctx.globalAlpha = 0.8;
+                    ctx.fillStyle = 'green';
+                    ctx.fillRect(1010,592,180*(this.trueHealth/50),6);
+                    ctx.globalAlpha = 1;
+                }
+                this.health = 0;
+            };
+            
+            function bandit(y,smart) {
+                this.name = 'bandit';
+                this.x = 1200;
+                this.reloadTime = random(0,50);
+                this.health = 1;
+                this.moveTo = random(600,1000);
+                //console.log(this.moveTo);
+                this.img = new Image();
+                this.img.src = path+'Bandit.png';
+                this.deadImg = new Image();
+                this.deadImg.src = path+'BanditDead.png';
+                this.dead = false;
+                this.y = y;
+                this.width = 50;
+                this.height = 70;
+                this.smart = smart;
+            }
+            
+            bandit.prototype.update = function(){
+                if (this.health < 1 && this.dead == false) {
+                    this.name = 'body';
+                    this.dead = true;
+                    spawnDots('black',this.x+this.width/2,this.y+this.height/2);
+                }
+                
+                if (this.dead) {
+                    ctx.drawImage(this.deadImg,this.x,this.y,70,50);
+                    this.x -= currentSpeed;
+                    if (this.x < -90) {
+                        this.killTag = 1;
+                    }
+                    return;
+                }
+                
+                ctx.drawImage(this.img,this.x,this.y,50,70);
+                
+                if (this.x > this.moveTo) {
+                    this.x -= 8;
+                    return;
+                }
+                
+                if (this.reloadTime > 0) {
+                    this.reloadTime--;
+                } else {
+                    playSound("gunshot");
+                    this.reloadTime = 150;
+                    if (banditsAnnoyed || entitys[0].name == 'Rob the Bandit'){
+                        entitys.push(new bullet(this.x,this.y+20,50,random(0,600),['player','animal']));
+                    } else if (!this.smart) {
+                        entitys.push(new bullet(this.x,this.y+20,-1000,this.y+20,['player','animal']));
+                    } else {
+                        entitys.push(new bullet(this.x,this.y+20,entitys[0].x,entitys[0].y,['player','animal']));
+                    }
+                }
+            }
+            
+            function coconutCannon(y) {
+                this.name = 'baddy';
+                this.x = 1200;
+                this.reloadTime = random(0,50);
+                this.health = 3;
+                this.img = new Image();
+                this.img.src = path+'cocoCannon.png';
+                this.y = y;
+                this.width = 60;
+                this.height = 80;
+            }
+            
+            coconutCannon.prototype.update = function(){
+                if (this.health < 1) {
+                    this.killTag = 1;
+                    return;
+                }
+                
+                ctx.drawImage(this.img,this.x,this.y,60,80);
+                
+                if (this.x > 1000) {
+                    this.x -= 2;
+                    return;
+                }
+                
+                if (this.reloadTime > 0) {
+                    this.reloadTime--;
+                } else {
+                    playSound("gunshot");
+                    this.reloadTime = 300;
+                    entitys.push(new cannonBall(this.x+50,this.y+30,-1000,this.y,['player','animal']));
+                }
+            }
+            
+            function banditWagon(y,survivalEdition) {
+                this.name = 'bandit';
+                this.x = 1000;
+                this.reloadTime = random(0,50);
+                this.totalReloadTime = 0;
+                this.shots = 0;
+                this.health = 20;
+                this.img = new Image();
+                this.img.src = path+'banditWagon.png';
+                this.y = 300;
+                this.width = 200;
+                this.height = 80;
+                this.survivalEdition = false;
+                if (survivalEdition) {
+                    this.health = 5;
+                    this.y = y;
+                    this.survivalEdition = true;
+                    this.x = 1200;
+                }
+                
+                this.maxHealth = this.health;
+                
+                this.cSX = 0;
+                this.csY = 0;
+            }
+            
+            banditWagon.prototype.update = function(){
+                if (this.health < 1) {
+                    this.killTag = 1;
+                    return;
+                }
+                
+                ctx.drawImage(this.img,this.x,this.y,200,80);
+                
+                if (this.survivalEdition && this.x > 800) {
+                    this.x -= 2;
+                    return;
+                }
+                
+                if (this.reloadTime > 0) {
+                    this.reloadTime--;
+                } else if (this.shots > 0) {
+                    if (this.shots == 10 || (this.survivalEdition && this.shots == 5)) {
+                        this.cSX = entitys[0].x;
+                        this.cSY = entitys[0].y;
+                    }
+                    this.reloadTime = 2;
+                    this.shots -= 1;
+                    playSound("gunshot");
+                    if (banditsAnnoyed || entitys[0].name == 'Rob the Bandit'){
+                        entitys.push(new bullet(this.x,this.y+20,50,random(0,600),['player','animal']));
+                    } else {
+                        entitys.push(new bullet(this.x+50,this.y+20,this.cSX,this.cSY,['player','animal']));
+                    }
+                }
+                
+                if (this.totalReloadTime > 0 && this.shots == 0) {
+                    this.totalReloadTime--;
+                } else if (this.shots == 0) {
+                    if (this.survivalEdition) {
+                        this.shots = 5;
+                        this.totalReloadTime = 70;
+                    } else {
+                        this.shots = 10;
+                        this.totalReloadTime = 60;
+                    }
+                }
+            }
+            
+            function dot(color,x,y) {
+                this.name = 'dot';
+                this.x = x;
+                this.y = y;
+                if (this.y < 100) {
+                    this.y = 100;
+                }
+                this.width = 5;
+                this.height = 5;
+                this.color = color;
+            }
+            
+            dot.prototype.update = function(){
+                this.x -= currentSpeed;
+                ctx.fillStyle = this.color;
+                ctx.fillRect(this.x,this.y,this.width,this.height);
+                if (this.x+this.width < 0) {
+                    this.killTag = 1;
+                }
+            }
+            
+            function butterBullet(x,y,foeX,foeY,foeNames) {
+                this.name = 'bullet';
+                this.x = x;
+                this.y = y;
+                this.angle = 0;
+                this.targetX = foeX;
+                this.targetY = foeY;
+                this.baseX = x;
+                this.baseY = y;
+                this.flash = 0;
+                this.width = 10;
+                this.height = 10;
+                
+                this.shotDist = Math.sqrt((foeX-x)*(foeX-x)+(foeY-y)*(foeY-y));
+                this.angle = Math.acos((foeX-x)/this.shotDist); // In Radians
+                
+                if (foeY < this.baseY) {
+                    this.angle += Math.PI;
+                    this.angle = Math.PI - this.angle;
+                }
+                
+                this.foeNames = foeNames;
+            }
+            
+            butterBullet.prototype.update = function(){
+                if (this.flash < 10) {
+                    this.flash += 1;
+                } else {
+                    this.flash = 0;
+                }
+                
+                if (this.flash > 4) {
+                    ctx.fillStyle = 'rgb(243,239,124)';
+                } else {
+                    ctx.fillStyle = 'rgb(173,179,74)';
+                }
+                
+                ctx.fillRect(this.x,this.y,this.width,this.height);
+                
+                xChange = Math.cos(this.angle)*10;
+                yChange = Math.sin(this.angle)*10;
+                
+                this.x += xChange;
+                this.y += yChange;
+                
+                if (this.x < -10 || this.y < -10 || this.x > 1200 || this.y > 600) {
+                    this.killTag = 1;
+                }
+                
+                for (var i = 0; i < entitys.length; i++){
+                    entity = entitys[i];
+                    // Overlapping Check
+                    if (this.x+this.width >= entity.x &&
+                        this.x <= entity.x+entity.width && 
+                        this.y+this.height >= entity.y &&
+                        this.y <= entity.y+entity.height
+                       ){
+                        if (isIn(entity.name,this.foeNames) || (entity == entitys[0] && isIn('player',this.foeNames))) {
+                            entity.health -= 1;
+                            entity.lastHit = 'butter';
+                            this.killTag = 1;
+                            entity.freeze = 50;
+                            return;
+                        }
+                    }
+                }
+            }
+            
+            function cannonBall(x,y,foeX,foeY,foeNames) {
+                this.name = 'bullet';
+                this.x = x;
+                this.y = y;
+                this.angle = 0;
+                this.targetX = foeX;
+                this.targetY = foeY;
+                this.baseX = x;
+                this.baseY = y;
+                this.flash = 0;
+                this.width = 20;
+                this.height = 20;
+                
+                this.shotDist = Math.sqrt((foeX-x)*(foeX-x)+(foeY-y)*(foeY-y));
+                this.angle = Math.acos((foeX-x)/this.shotDist); // In Radians
+                
+                if (foeY < this.baseY) {
+                    this.angle += Math.PI;
+                    this.angle = Math.PI - this.angle;
+                }
+                
+                this.foeNames = foeNames;
+            }
+            
+            cannonBall.prototype.update = function(){
+                if (this.flash < 10) {
+                    this.flash += 1;
+                } else {
+                    this.flash = 0;
+                }
+                
+                if (this.flash > 4) {
+                    ctx.fillStyle = 'rgb(255,0,0)';
+                } else {
+                    ctx.fillStyle = 'rgb(0,0,0)';
+                }
+                
+                ctx.fillRect(this.x,this.y,this.width,this.height);
+                
+                xChange = Math.cos(this.angle)*18;
+                yChange = Math.sin(this.angle)*18;
+                
+                this.x += xChange;
+                this.y += yChange;
+                
+                if (this.x < -10 || this.y < -10 || this.x > 1200 || this.y > 600) {
+                    this.killTag = 1;
+                }
+                
+                for (var i = 0; i < entitys.length; i++){
+                    entity = entitys[i];
+                    // Overlapping Check
+                    if (this.x+this.width >= entity.x &&
+                        this.x <= entity.x+entity.width && 
+                        this.y+this.height >= entity.y &&
+                        this.y <= entity.y+entity.height
+                       ){
+                        if (isIn(entity.name,this.foeNames) || (entity == entitys[0] && isIn('player',this.foeNames))) {
+                            entity.health -= 4;
+                            entity.lastHit = 'cannonball';
+                            this.killTag = 1;
+                            return;
+                        }
+                    }
+                }
+            };
+            
+            function fire(x,y){
+                this.name = 'fire';
+                this.x = x;
+                this.y = y;
+                this.width = 40;
+                this.height = 40;
+                this.img = new Image();
+                this.img.src = path+'fire.png';
+                this.foeNames = ['baddy','bandit','animal'];
+                this.life = 50;
+            }
+            
+            fire.prototype.update = function(){
+                this.life -= 1;
+                ctx.drawImage(this.img,this.x,this.y,this.width,this.height);
+                
+                if (this.life < 1) {
+                    this.killTag = 1;
+                }
+                
+                for (var i = 0; i < entitys.length; i++){
+                    entity = entitys[i];
+                    // Overlapping Check
+                    if (this.x+this.width >= entity.x &&
+                        this.x <= entity.x+entity.width && 
+                        this.y+this.height >= entity.y &&
+                        this.y <= entity.y+entity.height
+                       ){
+                        if (isIn(entity.name,this.foeNames) || (entity == entitys[0] && isIn('player',this.foeNames))) {
+                            entity.health -= 1;
+                            entity.lastHit = 'fire';
+                            this.killTag = 1;
+                            return;
+                        }
+                    }
+                }
+            };
+            
+            function bullet(x,y,foeX,foeY,foeNames) {
+                this.name = 'bullet';
+                this.x = x;
+                this.y = y;
+                this.angle = 0;
+                this.targetX = foeX;
+                this.targetY = foeY;
+                this.baseX = x;
+                this.baseY = y;
+                this.flash = 0;
+                this.width = 10;
+                this.height = 10;
+                
+                this.shotDist = Math.sqrt((foeX-x)*(foeX-x)+(foeY-y)*(foeY-y));
+                this.angle = Math.acos((foeX-x)/this.shotDist); // In Radians
+                
+                if (foeY < this.baseY) {
+                    this.angle += Math.PI;
+                    this.angle = Math.PI - this.angle;
+                }
+                
+                this.foeNames = foeNames;
+                
+                this.frag = fragBullets;
+                if (fragBullets){
+                    this.width = 12;
+                    this.height = 12;
+                }
+            }
+            
+            bullet.prototype.update = function(){
+                if (this.flash < 10) {
+                    this.flash += 1;
+                } else {
+                    this.flash = 0;
+                }
+                
+                if (this.flash > 4) {
+                    ctx.fillStyle = 'rgb(255,0,0)';
+                } else {
+                    ctx.fillStyle = 'rgb(0,0,0)';
+                }
+                
+                ctx.fillRect(this.x,this.y,this.width,this.height);
+                
+                xChange = Math.cos(this.angle)*15;
+                yChange = Math.sin(this.angle)*15;
+                
+                this.x += xChange;
+                this.y += yChange;
+                
+                if (this.x < -10 || this.y < -10 || this.x > 1200 || this.y > 600) {
+                    this.killTag = 1;
+                }
+                
+                for (var i = 0; i < entitys.length; i++){
+                    entity = entitys[i];
+                    // Overlapping Check
+                    if (this.x+this.width >= entity.x &&
+                        this.x <= entity.x+entity.width && 
+                        this.y+this.height >= entity.y &&
+                        this.y <= entity.y+entity.height
+                       ){
+                        if (isIn(entity.name,this.foeNames) || (entity == entitys[0] && isIn('player',this.foeNames))) {
+                            entity.health -= 1;
+                            entity.lastHit = 'bullet';
+                            this.killTag = 1;
+                            if (this.frag){
+                                spawns.push(new bullet(this.x+1,this.y+1,this.x,this.y,this.foeNames));
+                                spawns.push(new bullet(this.x-1,this.y,this.x,this.y,this.foeNames));
+                                spawns.push(new bullet(this.x+1,this.y-1,this.x,this.y,this.foeNames));
+                                spawns.push(new bullet(this.x,this.y+1,this.x,this.y,this.foeNames));
+                                spawns.push(new bullet(this.x,this.y-1,this.x,this.y,this.foeNames));
+                                spawns.push(new bullet(this.x-1,this.y+1,this.x,this.y,this.foeNames));
+                                spawns.push(new bullet(this.x-1,this.y-1,this.x,this.y,this.foeNames));
+                            }
+                            return;
+                        }
+                    }
+                }
+            }
+            
+            function potatoMine(y) {
+                this.y = y;
+                this.x = width;
+                this.width = 60;
+                this.height = 60;
+                this.img = new Image();
+                this.img.src = path+'potatoMine.png';
+                this.killTag = 0;
+                this.name = 'baddy';
+                this.health = 1;
+            }
+            
+            potatoMine.prototype.update = function(){
+                if (this.health < 1) {
+                    this.explode();
+                    return;
+                }
+                
+                this.x -= currentSpeed;
+                ctx.drawImage(this.img,this.x,this.y,this.width,this.height);
+                
+                if (this.x < -30) {
+                    this.killTag = 1;
+                }
+                
+                for (var i = 0; i < entitys.length; i++){
+                    entity = entitys[i];
+                    if (entity == this) {
+                        continue;
+                    }
+                    // Overlapping Check
+                    if (this.x+this.width >= entity.x &&
+                        this.x <= entity.x+entity.width && 
+                        this.y+this.height >= entity.y &&
+                        this.y <= entity.y+entity.height
+                       ){
+                        this.explode();
+                        return;
+                    }
+                }
+            }
+            
+            potatoMine.prototype.explode = function(){
+                playSound("gunshot");
+                this.killTag = 1;
+                spawnDots('black',this.x+this.width/2,this.y+this.height/2);
+                for (var i = 0; i < entitys.length; i++){
+                    entity = entitys[i];
+                    // Overlapping Check
+                    if (this.x+this.width+20 >= entity.x &&
+                        this.x-20 <= entity.x+entity.width && 
+                        this.y+this.height+20 >= entity.y &&
+                        this.y-20 <= entity.y+entity.height
+                       ){
+                        entity.health -= 2;
+                        entity.lastHit = 'mine';
+                    }
+                }
+            }
+            
+            function nukeExplosion(x,y){
+                this.x = x-20;
+                this.y = y-20;
+                this.img = new Image();
+                this.img.src = path+'nukeExplosion.png';
+                this.width = 80;
+                this.height = 80;
+                this.health = 100;
+                this.duration = 150;
+                this.name = 'baddy';
+            }
+            
+            nukeExplosion.prototype.update = function(){
+                ctx.drawImage(this.img,this.x,this.y,this.width,this.height);
+                this.duration -= 1;
+                if (this.duration <= 0){
+                    this.killTag = 1;
+                }
+            }
+            
+            function nuke() {
+                this.y = -100;
+                this.x = random(300,width-50);
+                this.img = new Image();
+                this.img.src = path+'nuke.png';
+                this.width = 40;
+                this.height = 40;
+                this.name = 'nuke';
+                this.foeNames = ['baddy','bandit'];
+                this.health = 100;
+                this.finalY = random(250,height-50);
+            }
+            
+            nuke.prototype.update = function(){
+                this.y += 3;
+                ctx.drawImage(this.img,this.x,this.y,this.width,this.height);
+                if (this.y > this.finalY) {
+                    this.killTag = true;
+                    entitys.push(new nukeExplosion(this.x, this.y));
+                    
+                    for (var i = 0; i < entitys.length; i++){
+                        entity = entitys[i];
+                        if (isIn(entity.name,this.foeNames) || (entity == entitys[0] && isIn('player',this.foeNames))) {
+                            entity.health -= 100;
+                            entity.lastHit = 'nuke';
+                        }
+                    }
+                }
+            }
+            
+            function boulder() {
+                this.y = 100;
+                this.x = random(100,width-50);
+                this.width = 50;
+                this.height = 20;
+                this.img = new Image();
+                this.img.src = path+'boulder.png';
+                this.killTag = 0;
+                this.foeNames = ['player'];
+                this.name = 'baddy';
+                this.health = 2;
+            }
+            
+            boulder.prototype.update = function(){
+                if (this.health < 1) {
+                    this.killTag = 1;
+                    spawnDots('grey',this.x+this.width/2,this.y+this.height/2);
+                }
+                
+                this.y += 5;
+                ctx.drawImage(this.img,this.x,this.y,this.width,this.height);
+                if (this.y > height) {
+                    this.killTag = true;
+                }
+                
+                for (var i = 0; i < entitys.length; i++){
+                    entity = entitys[i];
+                    // Overlapping Check
+                    if (this.x+this.width >= entity.x &&
+                        this.x <= entity.x+entity.width && 
+                        this.y+this.height >= entity.y &&
+                        this.y <= entity.y+entity.height
+                       ){
+                        if (isIn(entity.name,this.foeNames) || (entity == entitys[0] && isIn('player',this.foeNames))) {
+                            entity.health -= 1;
+                            entity.lastHit = 'boulder';
+                            this.killTag = 1;
+                            return;
+                        }
+                    }
+                }
+            }
+            
+            function cherryBomb() {
+                this.y = -10;
+                this.x = random(0,width-50);
+                this.width = 50;
+                this.height = 50;
+                this.img = new Image();
+                this.img.src = path+'cherryBomb.png';
+                this.killTag = 0;
+                this.foeNames = ['player'];
+                this.name = 'animal';
+                this.health = 1;
+            }
+            
+            cherryBomb.prototype.update = function(){
+                if (this.health < 1) {
+                    this.killTag = 1;
+                    spawnDots('red',this.x+this.width/2,this.y+this.height/2);
+                }
+                
+                this.y += 10;
+                ctx.drawImage(this.img,this.x,this.y,this.width,this.height);
+                if (this.y > height) {
+                    this.killTag = true;
+                }
+                
+                for (var i = 0; i < entitys.length; i++){
+                    entity = entitys[i];
+                    // Overlapping Check
+                    if (this.x+this.width >= entity.x &&
+                        this.x <= entity.x+entity.width && 
+                        this.y+this.height >= entity.y &&
+                        this.y <= entity.y+entity.height
+                       ){
+                        if (isIn(entity.name,this.foeNames) || (entity == entitys[0] && isIn('player',this.foeNames))) {
+                            entity.health -= 2;
+                            entity.lastHit = 'cherrybomb';
+                            this.killTag = 1;
+                            playSound("gunshot");
+                            return;
+                        }
+                    }
+                }
+            }
+            
+            function chargingDeer() {
+                this.y = random(100,height-100);
+                this.x = 1300;
+                this.width = 62;
+                this.height = 60;
+                this.img = new Image();
+                this.img.src = path+'deerCharging.png';
+                this.killTag = 0;
+                this.name = 'baddy';
+                this.health = 1;
+                this.d = 1;
+                this.pelt = 1;
+                this.foeNames = ['player'];
+                this.speed = 15;
+            }
+            
+            chargingDeer.prototype.update = function(){
+                if (this.health < 1) {
+                    this.killTag = 1;
+                    spawnDots('red',this.x+this.width/2,this.y+this.height/2);
+                    if (this.pelt){
+                        spawns.push(new deerDead(this.x,this.y));
+                    }
+                    return;
+                }
+                
+                this.x -= this.speed*this.d;
+                
+                ctx.drawImage(this.img,this.x,this.y,this.width,this.height);
+                
+                for (var i = 0; i < entitys.length; i++){
+                    entity = entitys[i];
+                    // Overlapping Check
+                    if (this.x+this.width >= entity.x &&
+                        this.x <= entity.x+entity.width && 
+                        this.y+this.height >= entity.y &&
+                        this.y <= entity.y+entity.height
+                       ){
+                        if (isIn(entity.name,this.foeNames) || (entity == entitys[0] && isIn('player',this.foeNames))) {
+                            entity.health -= 1;
+                            entity.lastHit = 'deer';
+                            this.pelt = 0;
+                            this.health = 0;
+                            return;
+                        }
+                    }
+                }
+                
+                if (this.x < -100 || this.x > 1300) {
+                    this.killTag = true;
+                }
+            }
+            
+            function gunnerDeer() {
+                this.y = random(100,height-100);
+                this.x = 1300;
+                this.width = 69;
+                this.height = 60;
+                this.img = new Image();
+                this.img.src = path+'deerGunner.png';
+                this.killTag = 0;
+                this.name = 'baddy';
+                this.health = 1;
+                this.d = 1;
+                this.foeNames = ['player'];
+                this.moveTo = random(700,1100);
+            }
+            
+            gunnerDeer.prototype.update = function(){
+                if (this.health < 1) {
+                    this.killTag = 1;
+                    spawnDots('red',this.x+this.width/2,this.y+this.height/2);
+                    spawns.push(new deerDead(this.x,this.y));
+                }
+                
+                ctx.drawImage(this.img,this.x,this.y,this.width,this.height);
+                
+                if (this.x > this.moveTo) {
+                    this.x -= 8;
+                    return;
+                }
+                
+                if (this.reloadTime > 0) {
+                    this.reloadTime--;
+                } else {
+                    playSound("gunshot");
+                    this.reloadTime = 100;
+                    if (random(1,3) != 3) {
+                        entitys.push(new bullet(this.x,this.y+20,-1000,this.y+20,['player','animal']));
+                    } else {
+                        entitys.push(new bullet(this.x,this.y+20,entitys[0].x,entitys[0].y,['player','animal']));
+                    }
+                }
+            }
+            
+            function deer() {
+                this.y = random(100,height-100);
+                this.x = 1300;
+                this.width = 62;
+                this.height = 60;
+                this.img = new Image();
+                this.img.src = path+'deer.png';
+                this.killTag = 0;
+                this.name = 'animal';
+                this.health = 1;
+                this.d = 1;
+            }
+            
+            deer.prototype.update = function(){
+                if (this.health < 1) {
+                    this.killTag = 1;
+                    spawnDots('red',this.x+this.width/2,this.y+this.height/2);
+                    spawns.push(new deerDead(this.x,this.y));
+                }
+                
+                this.x -= 5*this.d;
+                if (Math.abs(entitys[0].y - this.y) < 300 && this.x > entitys[0].x && this.x < entitys[0].x+300 && this.d == 1 && this.x < 1100) {
+                    this.d = -0.8;
+                }
+                
+                ctx.drawImage(this.img,this.x,this.y,this.width,this.height);
+                if (this.x < -100 || this.x > 1300) {
+                    this.killTag = true;
+                }
+            }
+            
+            function deerDead(x,y) {
+                this.y = y+30;
+                this.x = x;
+                this.width = 62;
+                this.height = 60;
+                this.img = new Image();
+                this.img.src = path+'deerPelt.png';
+                this.killTag = 0;
+                this.name = 'pickup';
+                this.effect = 'pelt';
+            }
+            
+            deerDead.prototype.update = function(){
+                this.x -= currentSpeed;
+                ctx.drawImage(this.img,this.x,this.y,this.width,this.height);
+                if (this.x+this.width < 0) {
+                    this.killTag = 1;
+                }
+            }
+            
+            function pickup(x,y,img,effect) {
+                this.y = y-10;
+                this.x = x;
+                this.width = 70;
+                this.height = this.width;
+                this.img = new Image();
+                this.img.src = path+''+img+'.png';
+                this.killTag = 0;
+                this.name = 'p';
+                this.effect = effect;
+                this.name = 'pickup';
+                
+                if (this.effect == 'target'){
+                    this.name = 'baddy';
+                    this.health = 1;
+                } else if (this.effect == 'eliteTarget'){
+                    this.name = 'baddy';
+                    this.health = 3;
+                }
+            }
+            
+            pickup.prototype.update = function(){
+                if (this.effect == 'target' && this.health < 1){
+                    this.killTag = 1;
+                    for (var i = 0; i < 3; i++){
+                        spawnPowerup();
+                    }
+                    
+                    return;
+                } else if (this.effect == 'eliteTarget' && this.health < 1){
+                    this.killTag = 1;
+                    for (var i = 0; i < 7; i++){
+                        spawnPowerup();
+                    }
+                    
+                    return;
+                }
+                
+                this.x -= currentSpeed;
+                ctx.drawImage(this.img,this.x,this.y,this.width,this.height);
+                if (this.x+this.width < 0) {
+                    this.killTag = 1;
+                }
+            }
+            
+            function staticEntity(y,img,w,h) {
+                this.y = y;
+                this.x = width;
+                this.img = new Image();
+                this.img.src = path+''+img;
+                this.width = w;
+                this.height = h;
+                this.type = 'B'; // Background
+                this.killTag = 0;
+                if (y > height - h) {
+                    this.y = height - h;
+                }
+            }
+            
+            staticEntity.prototype.update = function(){
+                this.x -= currentSpeed;
+                ctx.drawImage(this.img,this.x,this.y,this.width,this.height);
+                if (this.x+this.width < 0) {
+                    this.killTag = 1;
+                }
+            };
+            
+            function bossText(txt,after=function(){}){
+                this.y = height/2;
+                this.x = width/2;
+                this.width = 0;
+                this.height = 0;
+                this.type = 'B';
+                this.killTag = 0;
+                
+                this.time = 1;
+                this.txtIndex = 0;
+                this.txt = txt;
+                this.currentTxt = "";
+                this.alpha = 1;
+                this.after = after;
+            }
+            
+            bossText.prototype.update = function(){
+                ctx.font = '36px Consolas';
+                ctx.fillStyle = 'white';
+                ctx.textAlign = 'center';
+                ctx.globalAlpha = this.alpha;
+                ctx.fillText(this.currentTxt,this.x,this.y);
+                ctx.globalAlpha = 1;
+                ctx.textAlign = 'start';
+                
+                if (this.txtIndex > this.txt.length){
+                    this.alpha -= 0.01;
+                    if (this.alpha < 0){
+                        this.killTag = 1;
+                        this.after();
+                    }
+                }
+                
+                this.time -= 1;
+                if (this.time == 0){
+                    this.time = random(5,15);
+                    this.currentTxt += this.txt.charAt(this.txtIndex);
+                    this.txtIndex += 1;
+                }
+            };
+            
+            var keysDown = {};
+            
+            addEventListener("keyup", function (e) {
+                delete keysDown[e.keyCode];
+            }, false);
+            
+            function start() {
+                loadData();
+                loadAudio();
+                music["Title Theme"].oncanplaythrough = function(){
+                    music["Title Theme"].oncanplaythrough = function(){}
+                    changeMusic("Title Theme");
+                };
+                canvas = document.getElementById('game');
+                ctx = canvas.getContext('2d');
+                width = canvas.width;
+                height = canvas.height;
+                canvas.addEventListener("click", checkClick);
+                
+                document.body.onmousemove = function(event){
+                    mouseX = event.clientX-10;
+                    mouseY = event.clientY-10;
+                }
+                
+                updateMainMenu();
+            }
+            
+            function random(min,max){
+                return min + Math.floor(Math.random() * (max + 1 - min));
+            }
+            
+            var sunImg = new Image();
+            sunImg.src = path+'sun.png';
+            
+            function background(type) {
+                if (type == 'dayGrass') {
+                    ctx.fillStyle = 'rgb(15,255,15)';
+                } else if (type == 'storm') {
+                    ctx.fillStyle = 'rgb(0,200,0)';
+                }
+                ctx.fillRect(0,0,width,height);
+                
+                if (type == 'dayGrass') {
+                    ctx.fillStyle = 'rgb(0,100,255)';
+                } else if (type == 'storm') {
+                    ctx.fillStyle = 'rgb(150,50,205)';
+                }
+                ctx.fillRect(0,0,width,100);
+                
+                ctx.drawImage(sunImg,0,0,70,70);
+            }
+            
+            xImg = new Image();
+            xImg.src = path+'xImg.png';
+            
+            randomMsg = pick([
+                'Now featuring Rob the bandit!','Experience all new Cat-astrophes!',
+                'Bigger. Better. Cattier.','It\'s raining cats and cats!',
+                'Now with more bandits!','Choose your cats and defeat the deer!',
+                'Now with more music!'
+            ]);
+            
+            function updateMainMenu() {
+                if (state != 'main menu') {
+                    return;
+                } else if (currentMusic && currentMusic.paused){
+                    currentMusic.play();
+                } else if (currentMusic != music["Title Theme"]){
+                    changeMusic("Title Theme");
+                }
+
+                background('dayGrass');
+                ticksUntilPing -= currentSpeed;
+                if (ticksUntilPing < 1) {
+                    ticksUntilPing = 50;
+                    cImg = ['grass.png','flower1.png','flower2.png','flower3.png'][random(0,3)]
+                    entitys.push(new staticEntity(random(100,height-70),cImg,70,70));
+                }
+                
+                for (var i = 0; i < entitys.length; i++){
+                    entitys[i].update();
+                }
+                
+                j = 0;
+                while (j < entitys.length) {
+                    if (entitys[j].killTag == 1) {
+                        entitys.splice(j,1);
+                    } else {
+                        j++;
+                    }
+                }
+                
+                ctx.globalAlpha = 1;
+                ctx.fillStyle = 'black';
+                ctx.font = '60px Arial';
+                ctx.fillText('Super Amazing Cat Adventures!',150,70);
+                
+                ctx.font = '30px Arial';
+                ctx.fillStyle = 'blue';
+                ctx.fillText(randomMsg,300,175);
+                
+                ctx.globalAlpha = 0.8;
+                ctx.font = '36px Helvetica';
+                
+                buttons = [];
+                
+                for (var profile in profiles){
+                    buttons.push(profile);
+                }
+                
+                buttons.push('Create New Profile');
+                
+                for (var i = 0; i < buttons.length; i++) {
+                    ctx.fillStyle = 'rgb(100,100,100)';
+                    ctx.fillRect(350,250+i*110,400,100);
+                    ctx.fillStyle = 'rgb(0,0,0)';
+                    ctx.fillText(buttons[i],400,250+i*110+50);
+                    if (buttons[i] != 'Create New Profile'){
+                        ctx.drawImage(xImg,800,275+i*110,50,50);
+                    }
+                }
+                
+                requestAnimationFrame(updateMainMenu);
+            }
+            
+            function updateMenu() {
+                if (state != 'menu') {
+                    return;
+                } else if (currentMusic != music["Title Theme"]){
+                    changeMusic("Title Theme");
+                }
+                
+                background('dayGrass');
+                ticksUntilPing -= currentSpeed;
+                if (ticksUntilPing < 1) {
+                    ticksUntilPing = 50;
+                    cImg = ['grass.png','flower1.png','flower2.png','flower3.png'][random(0,3)];
+                    entitys.push(new staticEntity(random(100,height-70),cImg,70,70));
+                }
+                
+                for (var i = 0; i < entitys.length; i++){
+                    entitys[i].update();
+                }
+                
+                j = 0;
+                while (j < entitys.length) {
+                    if (entitys[j].killTag == 1) {
+                        entitys.splice(j,1);
+                    } else {
+                        j++;
+                    }
+                }
+                
+                ctx.globalAlpha = 0.8;
+                ctx.font = '36px Helvetica';
+                
+                buttons = ['Start Game','Adventure','Survival','Random','Quit'];
+                for (var i = 0; i < buttons.length; i++) {
+                    ctx.fillStyle = 'rgb(100,100,100)';
+                    ctx.fillRect(350,50+i*110,400,100);
+                    ctx.fillStyle = 'rgb(0,0,0)';
+                    ctx.fillText(buttons[i],450,50+i*110+50);
+                }
+                
+                requestAnimationFrame(updateMenu);
+            }
+        </script>
+    </head>
+    
+    <body onload='start()'>
+        <canvas id='game' width='1200' height='600'></canvas>
+    </body>
+</html>

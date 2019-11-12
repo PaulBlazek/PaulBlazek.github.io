@@ -44,12 +44,13 @@
                 float: none;
             }
         </style>
+        <link rel="shortcut icon" href="./favicon.ico">
         <script>
             yScroll = 0;
             function start(){
                 imgs = document.getElementsByTagName('img');
                 for (var i = 1; i < imgs.length; i++){
-                    console.log('showLargePict("'+imgs[i].src+'");');
+                    //console.log('showLargePict("'+imgs[i].src+'");');
                     imgs[i].setAttribute('onclick','showLargePict("'+imgs[i].src+'");');
                 }
                 
@@ -80,6 +81,19 @@
         <div id='content'>
             <h1>The Blazek Gazette</h1>
             <p><i>Click on any image to blow it up larger.</i></p>
+            <article>
+                <h2>A lego animation from The Cinema</h2>
+                <h3><i>Videos - The Cinema</i></h3>
+                <h4>A lego animation by CoderBlaze</h4>
+                <br/>
+                <p>
+                    Here is another short animation from The Cinema!
+                    <video src="videos/SwordBattle.mp4" controls title="By Paul Blazek - Made with Windows Movie Maker"></video>
+                </p>
+                <br/>
+                
+                <i>Paul Blazek, September 11, 2019 - 11:21 PM</i>
+            </article>
             <article>
                 <h2>Introducing CB12 Studios Games</h2>
                 <h3><i>Games - CB12 Studios</i></h3>

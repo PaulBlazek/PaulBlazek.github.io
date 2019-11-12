@@ -20,6 +20,11 @@
             Contact me at kol.trogdor@gmail.com if you have any problems with content.
         -->
         
+        <style>
+            * {
+                text-align: center;
+            }
+        </style>
         <script src="jquery-3.3.1.min.js"></script>
         <script src="PxGamepad.js"></script>
         <link rel="shortcut icon" href="./favicon.ico">
@@ -294,6 +299,7 @@
             var rand = false;
             var chosenCompanions = ['Super Cat'];
             function startGame(survival) {
+                $("#infoBar").hide();
                 pelts = 0;
                 ctx.globalAlpha = 1;
                 state = 'game';
@@ -3945,5 +3951,11 @@
     
     <body onload='start()'>
         <canvas id='game' width='1200' height='600'></canvas>
+        <div id="infobar">
+            <p>This game is gamepad compatable!</p>
+            <h1>News</h1>
+            <p>I have just added a news panel for posts about new game information.</p>
+            <a href="../../index.html"><i>Back to homepage of the Blazek Gazette</i></a>
+        </div>
     </body>
 </html>

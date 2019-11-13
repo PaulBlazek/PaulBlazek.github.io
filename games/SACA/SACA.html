@@ -52,7 +52,9 @@
             var currentMusic = 0;
             
             var soundSrcs = [
-                ['gunshot.ogg','gunshot',0.8]
+                ['gunshot.ogg','gunshot',0.8],
+                ['hurt.ogg','hurt',0.5],
+                ['powerup.ogg','powerup',0.6]
             ];
             var soundEffects = {};
 
@@ -1367,6 +1369,7 @@
                         if (entitys[0].health < entitys[0].maxHealth){
                             entitys[0].health += 1;
                         }
+                        playSound("powerup");
                     }
                 },
                 'preLeave':function(){
@@ -1682,6 +1685,7 @@
                         if (entitys[0].health < entitys[0].maxHealth){
                             entitys[0].health += 1;
                         }
+                        playSound("powerup");
                     }
                 },
                 'onLeave':function(){
@@ -2029,7 +2033,10 @@
                 if (this.health < this.lastHealth && this.shields > 0){
                     this.health = this.lastHealth;
                     this.shields -= 1;
+                } else if (this.health < this.lastHealth) {
+                    //playSound("hurt");
                 }
+
                 this.lastHealth = this.health;
                 
                 if (this.name == 'Normal Cat'){
@@ -2384,6 +2391,10 @@
                                 spawnPowerup(true);
                             } else {
                                 this.addEffect(entity.effect,300);
+                            }
+
+                            if (entity.effect != 'pelt'){
+                                playSound("powerup");
                             }
                         }
                     }
@@ -3147,6 +3158,7 @@
                             entity.lastHit = 'butter';
                             this.killTag = 1;
                             entity.freeze = 50;
+                            playSound("hurt");
                             return;
                         }
                     }
@@ -3214,6 +3226,7 @@
                             entity.health -= 4;
                             entity.lastHit = 'cannonball';
                             this.killTag = 1;
+                            playSound("hurt");
                             return;
                         }
                     }
@@ -3252,6 +3265,7 @@
                             entity.health -= 1;
                             entity.lastHit = 'fire';
                             this.killTag = 1;
+                            playSound("hurt");
                             return;
                         }
                     }
@@ -3325,7 +3339,9 @@
                             entity.health -= 1;
                             entity.lastHit = 'bullet';
                             this.killTag = 1;
+                            playSound("hurt");
                             if (this.frag){
+                                playSound("gunshot");
                                 spawns.push(new bullet(this.x+1,this.y+1,this.x,this.y,this.foeNames));
                                 spawns.push(new bullet(this.x-1,this.y,this.x,this.y,this.foeNames));
                                 spawns.push(new bullet(this.x+1,this.y-1,this.x,this.y,this.foeNames));
@@ -3487,6 +3503,7 @@
                             entity.health -= 1;
                             entity.lastHit = 'boulder';
                             this.killTag = 1;
+                            playSound("hurt");
                             return;
                         }
                     }
@@ -3530,7 +3547,7 @@
                             entity.health -= 2;
                             entity.lastHit = 'cherrybomb';
                             this.killTag = 1;
-                            playSound("gunshot");
+                            playSound("hurt");
                             return;
                         }
                     }
@@ -3580,6 +3597,7 @@
                             entity.lastHit = 'deer';
                             this.pelt = 0;
                             this.health = 0;
+                            playSound("hurt");
                             return;
                         }
                     }

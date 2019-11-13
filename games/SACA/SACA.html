@@ -1939,6 +1939,7 @@
                             entity.health -= 1;
                             entity.lastHit = 'lightning';
                             this.state = 'reset';
+                            playSound("hurt");
                         }
                     }
                 }

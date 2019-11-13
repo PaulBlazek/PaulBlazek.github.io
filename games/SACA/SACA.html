@@ -2096,17 +2096,28 @@
                                 deathMsg = cDeath[random(0,cDeath.length-1)];
                                 if (typeof deathMsg == String){
                                     deathMsg = deathMsg.replace('CURRENTPLAYER',this.name);
+                                    areaInfo(['The journey ended there.',deathMsg],3000,function(){
+                                        areaInfo(['GAME OVER'],2000,function(){
+                                            state = 'menu';
+                                            updateMenu();
+                                            var killId = setTimeout(function() {
+                                                for (var i = killId; i > 0; i--) {clearInterval(i);}
+                                            }, 11);
+                                        });
+                                    },false,false,false);
+                                } else {
+                                    areaInfo(['The journey ended there.'].concat(deathMsg),3000,function(){
+                                        areaInfo(['GAME OVER'],2000,function(){
+                                            state = 'menu';
+                                            updateMenu();
+                                            var killId = setTimeout(function() {
+                                                for (var i = killId; i > 0; i--) {clearInterval(i);}
+                                            }, 11);
+                                        });
+                                    },false,false,false);
                                 }
                                 
-                                areaInfo(['The journey ended there.',deathMsg],3000,function(){
-                                    areaInfo(['GAME OVER'],2000,function(){
-                                        state = 'menu';
-                                        updateMenu();
-                                        var killId = setTimeout(function() {
-                                            for (var i = killId; i > 0; i--) {clearInterval(i);}
-                                        }, 11);
-                                    });
-                                },false,false,false);
+                                
                             } else {
                                 changeCharacter(true);
                             }

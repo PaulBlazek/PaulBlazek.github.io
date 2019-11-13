@@ -781,7 +781,12 @@
                     backgroundEntitys.unshift(new staticEntity(random(100,height-70),cImg,70,70));
                     
                     if (hunt && random(1,3) == 3) {
-                        entitys.push(new deer());
+                        if (random(1,2) == 1){
+                            entitys.push(new squirrel());
+                            entitys.push(new squirrel());
+                        } else {
+                            entitys.push(new deer());
+                        }
                     }
                 }
                 
@@ -3837,6 +3842,38 @@
                     this.killTag = true;
                 }
             }
+
+            function squirrel(){
+                this.y = random(100,height-100);
+                this.x = 1300;
+                this.width = 9*4;
+                this.height = 7*4;
+                this.img = new Image();
+                this.img.src = path+'squirrel.png';
+                this.killTag = 0;
+                this.name = 'animal';
+                this.health = 1;
+                this.d = 1;
+            }
+
+            squirrel.prototype.update = function(){
+                if (this.health < 1) {
+                    this.killTag = 1;
+                    spawnDots('red',this.x+this.width/2,this.y+this.height/2);
+                    spawns.push(new squirrelDead(this.x,this.y));
+                    return;
+                }
+                
+                this.x -= 6*this.d;
+                if (Math.abs(entitys[0].y - this.y) < 300 && this.x > entitys[0].x && this.x < entitys[0].x+300 && this.d == 1 && this.x < 1100) {
+                    this.d = -0.7;
+                }
+                
+                ctx.drawImage(this.img,this.x,this.y,this.width,this.height);
+                if (this.x < -100 || this.x > 1300) {
+                    this.killTag = true;
+                }
+            }
             
             function deerDead(x,y) {
                 this.y = y+30;
@@ -3851,6 +3888,26 @@
             }
             
             deerDead.prototype.update = function(){
+                this.x -= currentSpeed;
+                ctx.drawImage(this.img,this.x,this.y,this.width,this.height);
+                if (this.x+this.width < 0) {
+                    this.killTag = 1;
+                }
+            }
+
+            function squirrelDead(x,y) {
+                this.y = y+30;
+                this.x = x;
+                this.width = 9*4;
+                this.height = 7*4;
+                this.img = new Image();
+                this.img.src = path+'squirrelDead.png';
+                this.killTag = 0;
+                this.name = 'pickup';
+                this.effect = 'pelt';
+            }
+            
+            squirrelDead.prototype.update = function(){
                 this.x -= currentSpeed;
                 ctx.drawImage(this.img,this.x,this.y,this.width,this.height);
                 if (this.x+this.width < 0) {
@@ -4140,9 +4197,10 @@
         <div id="infobar">
             <p>This game is gamepad compatable!</p>
             <h1>News</h1>
-            <p>There is now a new pickup which gives the character that picks it up a special weapon! 11/13/2019</p>
-            <p>Hit and Powerup sounds have been added to SACA! 11/13/2019</p>
-            <p>I have just added a news panel for posts about new game information. 11/12/2019</p>
+            <p>SQUIRRELS! <i>11/13/2019</i></p>
+            <p>There is now a new pickup which gives the character that picks it up a special weapon! <i>11/13/2019</i></p>
+            <p>Hit and Powerup sounds have been added to SACA! <i>11/13/2019</i></p>
+            <p>I have just added a news panel for posts about new game information. <i>11/12/2019</i></p>
             <a href="../../index.html"><i>Back to homepage of the Blazek Gazette</i></a>
         </div>
     </body>

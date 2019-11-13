@@ -433,7 +433,7 @@
                     y = entitys[0].y;
                 }
                 
-                r = weightedChoice({
+                r = {
                     'health+1':10,
                     'nuke':1,
                     'confused':3,
@@ -450,8 +450,15 @@
                     'eliteTarget':1,
                     'fire':4,
                     'random':5,
-                    'lightning':5
-                });
+                    'lightning':5,
+                    'bow':1
+                };
+
+                if (entitys[0].weapon[0] != 'bow' && entitys[0].weapon[0] != 'bowLoaded'){
+                    r['bow'] += 2;
+                }
+
+                r = weightedChoice(r);
                 
                 if (randomP){
                     r = pick(['health+1','nuke','confused','tripleShot','frag',
@@ -463,6 +470,8 @@
                     entitys.push(new pickup(x,y,'healthPowerup','health+1'));
                 } else if (r == 'nuke'){
                     entitys.push(new pickup(x,y,'nukePowerup','nuke'));
+                } else if (r == 'bow'){
+                    entitys.push(new pickup(x,y,'bowPowerup','bow'));
                 } else if (r == 'confused'){
                     entitys.push(new pickup(x,y,'confusedPowerup','confused'));
                 } else if (r == 'tripleShot'){
@@ -1975,6 +1984,18 @@
             shieldImg.src = path+'shield.png';
             maxShieldImg = new Image();
             maxShieldImg.src = path+'maxShield.png';
+
+            function createImage(src){
+                i = new Image();
+                i.src = src;
+                return i;
+            }
+
+            weaponImages = {
+                "gun":createImage(path+"gun1.png"),
+                "bow":createImage(path+"bow.png"),
+                "bowLoaded":createImage(path+"bowLoaded.png")
+            };
             
             function playerCharacter(name) {
                 this.x = 150;
@@ -1982,14 +2003,12 @@
                 this.cSpeed = 5;
                 this.health = 12;
                 this.healthShow = true;
-                this.weapon = ['Gun',999];
+                this.weapon = ['gun',999];
                 this.reloadTimer = 0;
                 this.width = 85;
                 this.height = 80;
                 this.img = new Image();
                 this.img.src = path+'superCat.gif';
-                this.gunImg = new Image();
-                this.gunImg.src = path+'gun1.png';
                 this.freeze = false;
                 this.regenTick = 0;
                 this.name = name;
@@ -2134,6 +2153,8 @@
                         return;
                     }
                 }
+
+                this.gunImg = weaponImages[this.weapon[0]];
                 
                 if (!inRiver || bridge) {
                     ctx.drawImage(this.img,this.x,this.y,this.width,this.height);
@@ -2240,7 +2261,7 @@
                     this.x += this.cSpeed;
                 } if (40 in keysDown || gamepad1.leftStick.y >= 0.5) {
                     this.y += this.cSpeed;
-                } if ((32 in keysDown || gamepad1.buttons.a) && this.reloadTimer < 1) {
+                } if ((32 in keysDown || gamepad1.buttons.a) && this.reloadTimer < 1 && this.weapon[0] != "bow") {
                     this.reloadTimer = 30;
                     playSound("gunshot");
                     if (this.name == 'Super Cat'){
@@ -2276,6 +2297,8 @@
                     if (this.effects.laser > 0){
                         this.reloadTimer = 1;
                     }
+
+                    if (this.weapon[0] == "bowLoaded"){this.weapon[0] = "bow";}
                     
                     fragBullets = false;
                     if (this.effects.frag){
@@ -2283,11 +2306,11 @@
                     }
                     
                     if (this.name == 'Crazy Cat' || this.effects.confused > 0){
-                        entitys.push(new bullet(this.x+70,this.y+40,this.x+1000,random(this.y-100,this.y+150),['bandit','boss','baddy','animal']));
+                        this.fireProjectile(this.x+70,this.y+40,this.x+1000,random(this.y-100,this.y+150),['bandit','boss','baddy','animal']);
                         
                         if (this.effects.tripleShot > 0){
-                            entitys.push(new bullet(this.x+70,this.y+40,this.x+1000,random(this.y-200,this.y+0),['bandit','boss','baddy','animal']));
-                            entitys.push(new bullet(this.x+70,this.y+40,this.x+1000,random(this.y+100,this.y+300),['bandit','boss','baddy','animal']));
+                            this.fireProjectile(this.x+70,this.y+40,this.x+1000,random(this.y-200,this.y+0),['bandit','boss','baddy','animal']);
+                            this.fireProjectile(this.x+70,this.y+40,this.x+1000,random(this.y+100,this.y+300),['bandit','boss','baddy','animal']);
                         }
                     } else {
                         if (this.hasEffect('aim')){
@@ -2305,22 +2328,58 @@
                             }
                             
                             if (!closest){
-                                entitys.push(new bullet(this.x+70,this.y+40,this.x+10000,this.y+50,['bandit','boss','baddy','animal']));
+                                this.fireProjectile(this.x+70,this.y+40,this.x+10000,this.y+50,['bandit','boss','baddy','animal']);
                             } else {
-                                entitys.push(new bullet(this.x+70,this.y+40,closest.x+25,closest.y+25,['bandit','boss','baddy','animal']));
+                                this.fireProjectile(this.x+70,this.y+40,closest.x+25,closest.y+25,['bandit','boss','baddy','animal']);
                             }
                         } else {
-                            entitys.push(new bullet(this.x+70,this.y+40,this.x+10000,this.y+50,['bandit','boss','baddy','animal']));
+                            this.fireProjectile(this.x+70,this.y+40,this.x+10000,this.y+50,['bandit','boss','baddy','animal']);
                         }
                         
                         if (this.effects.tripleShot > 0){
-                            entitys.push(new bullet(this.x+70,this.y+40,this.x+1000,this.y-100,['bandit','boss','baddy','animal']));
-                            entitys.push(new bullet(this.x+70,this.y+40,this.x+1000,this.y+200,['bandit','boss','baddy','animal']));
+                            this.fireProjectile(this.x+70,this.y+40,this.x+1000,this.y-100,['bandit','boss','baddy','animal']);
+                            this.fireProjectile(this.x+70,this.y+40,this.x+1000,this.y+200,['bandit','boss','baddy','animal']);
                         }
                     }
                     
                     fragBullets = false;
                     
+                } else if ((32 in keysDown || gamepad1.buttons.a) && this.reloadTimer < 1 && this.weapon[0] == "bow") {
+                    this.weapon[0] = "bowLoaded";
+                    this.reloadTimer = 30;
+                    if (this.name == 'Super Cat'){
+                        this.reloadTimer -= 10;
+                    } else if (this.name == 'Crazy Cat'){
+                        this.reloadTimer -= random(2,8);
+                    } else if (this.name == 'Normal Cat'){
+                        this.reloadTimer += 15;
+                    } else if (this.name == 'Rob the Bandit'){
+                        this.reloadTimer += 10;
+                    }
+                    
+                    if (globalSurvival) {
+                        this.reloadTimer -= 10;
+                    }
+                    
+                    if (this.effects.machineGun > 0){
+                        if (this.reloadTimer > 10){
+                            this.reloadTimer = 10;
+                        } else {
+                            this.reloadTimer /= 2;
+                        }
+                    }
+                    
+                    if (this.hasEffect('coffee')){
+                        if (this.reloadTimer > 5){
+                            this.reloadTimer -= 5;
+                        } else {
+                            this.reloadTimer /= 2;
+                        }
+                    }
+                    
+                    if (this.effects.laser > 0){
+                        this.reloadTimer = 1;
+                    }
                 } if ((16 in keysDown || gamepad1.buttons.y) && !this.isChanging){
                     this.isChanging = 1;
                 }
@@ -2390,6 +2449,9 @@
                                 this.shields += 2+(this.name == 'Shield Cat');
                             } else if (entity.effect == 'random'){
                                 spawnPowerup(true);
+                            } else if (entity.effect == 'bow'){
+                                this.weapon[0] = 'bow';
+                                this.weapon[1] = 20;
                             } else {
                                 this.addEffect(entity.effect,300);
                             }
@@ -2401,6 +2463,14 @@
                     }
                 }
             };
+
+            playerCharacter.prototype.fireProjectile = function(x,y,targetX,targetY,foeNames){
+                if (this.weapon[0] == "bow"){
+                    entitys.push(new arrow(x,y,targetX,targetY,foeNames));
+                    return;
+                }
+                entitys.push(new bullet(x,y,targetX,targetY,foeNames));
+            }
             
             playerCharacter.prototype.addEffect = function(name,duration){
                 this.effects[name] = duration;
@@ -2670,7 +2740,7 @@
                 this.name = 'boss';
                 this.x = 1200;
                 this.y = height / 2;
-                this.health = 0;
+                this.health = 1;
                 this.stage = 1;
                 this.img = new Image();
                 this.img.src = path+'RobBoss.png';
@@ -2809,8 +2879,8 @@
                                 }
                             } else {
                                 this.actionTime -= 1;
-                                if (this.health < 0){
-                                    this.trueHealth += this.health;
+                                if (this.health < 1){
+                                    this.trueHealth += this.health-1;
                                 }
                                 if (this.actionTime < 1){
                                     this.currentAction = '';
@@ -2819,8 +2889,8 @@
                         }
                     }
                 } else if (this.stage == 5){
-                    if (this.health < 0){
-                        this.trueHealth += this.health;
+                    if (this.health < 1){
+                        this.trueHealth += this.health-1;
                         if (this.trueHealth < 1){
                             this.stage += 1;
                             changeMusic('Title Theme');
@@ -2914,7 +2984,7 @@
                     ctx.fillRect(1010,592,180*(this.trueHealth/50),6);
                     ctx.globalAlpha = 1;
                 }
-                this.health = 0;
+                this.health = 1;
             };
             
             function bandit(y,smart) {
@@ -3350,6 +3420,92 @@
                                 spawns.push(new bullet(this.x,this.y-1,this.x,this.y,this.foeNames));
                                 spawns.push(new bullet(this.x-1,this.y+1,this.x,this.y,this.foeNames));
                                 spawns.push(new bullet(this.x-1,this.y-1,this.x,this.y,this.foeNames));
+                            }
+                            return;
+                        }
+                    }
+                }
+            }
+
+            function arrow(x,y,foeX,foeY,foeNames) {
+                this.name = 'bullet';
+                this.x = x;
+                this.y = y;
+                this.angle = 0;
+                this.targetX = foeX;
+                this.targetY = foeY;
+                this.baseX = x;
+                this.baseY = y;
+                this.flash = 0;
+                this.width = 53;
+                this.height = 10;
+                this.img = new Image();
+                this.img.src = path+"arrow.png";
+                this.damage = 3;
+                
+                this.shotDist = Math.sqrt((foeX-x)*(foeX-x)+(foeY-y)*(foeY-y));
+                this.angle = Math.acos((foeX-x)/this.shotDist); // In Radians
+                
+                if (foeY < this.baseY) {
+                    this.angle += Math.PI;
+                    this.angle = Math.PI - this.angle;
+                }
+                
+                this.foeNames = foeNames;
+                
+                this.frag = fragBullets;
+                if (fragBullets){
+                    this.width = 53*1.2;
+                    this.height = 12;
+                }
+            }
+            
+            arrow.prototype.update = function(){
+                ctx.save();
+                ctx.translate(this.x,this.y);
+                ctx.rotate(this.angle);
+                ctx.drawImage(this.img, 0, 0,this.width,this.height);
+                ctx.rotate(-this.angle);
+                ctx.translate(-this.x,-this.y);
+                ctx.restore();
+                
+                xChange = Math.cos(this.angle)*15;
+                yChange = Math.sin(this.angle)*15;
+                
+                this.x += xChange;
+                this.y += yChange;
+                
+                if (this.x < -10 || this.y < -10 || this.x > 1200 || this.y > 600) {
+                    this.killTag = 1;
+                }
+                
+                for (var i = 0; i < entitys.length; i++){
+                    entity = entitys[i];
+                    // Overlapping Check
+                    if (this.x+this.width >= entity.x &&
+                        this.x <= entity.x+entity.width && 
+                        this.y+this.height >= entity.y &&
+                        this.y <= entity.y+entity.height
+                       ){
+                        if ((isIn(entity.name,this.foeNames) || (entity == entitys[0] && isIn('player',this.foeNames))) && entity.health > 0) {
+                            this.damage -= entity.health;
+                            console.log(this.damage);
+                            entity.health -= this.damage+entity.health;
+                            entity.lastHit = 'arrow';
+                            playSound("hurt");
+                            if (this.frag){
+                                playSound("gunshot");
+                                spawns.push(new arrow(this.x+1,this.y+1,this.x,this.y,this.foeNames));
+                                spawns.push(new arrow(this.x-1,this.y,this.x,this.y,this.foeNames));
+                                spawns.push(new arrow(this.x+1,this.y-1,this.x,this.y,this.foeNames));
+                                spawns.push(new arrow(this.x,this.y+1,this.x,this.y,this.foeNames));
+                                spawns.push(new arrow(this.x,this.y-1,this.x,this.y,this.foeNames));
+                                spawns.push(new arrow(this.x-1,this.y+1,this.x,this.y,this.foeNames));
+                                spawns.push(new arrow(this.x-1,this.y-1,this.x,this.y,this.foeNames));
+                            }
+
+                            if (this.damage <= 0 || entity.health > 0 || entity.trueHealth > 0){
+                                this.killTag = 1;
                             }
                             return;
                         }
@@ -3984,6 +4140,7 @@
         <div id="infobar">
             <p>This game is gamepad compatable!</p>
             <h1>News</h1>
+            <p>There is now a new pickup which gives the character that picks it up a special weapon! 11/13/2019</p>
             <p>Hit and Powerup sounds have been added to SACA! 11/13/2019</p>
             <p>I have just added a news panel for posts about new game information. 11/12/2019</p>
             <a href="../../index.html"><i>Back to homepage of the Blazek Gazette</i></a>

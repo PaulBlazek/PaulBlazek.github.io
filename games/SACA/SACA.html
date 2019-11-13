@@ -54,7 +54,8 @@
             var soundSrcs = [
                 ['gunshot.ogg','gunshot',0.8],
                 ['hurt.ogg','hurt',0.5],
-                ['Powerup.ogg','powerup',0.6]
+                ['Powerup.ogg','powerup',0.6],
+                ['achievement.ogg','achievement',0.6]
             ];
             var soundEffects = {};
 
@@ -93,7 +94,8 @@
             function newProfile(){
                 p = {
                     'unlockedChars':['Super Cat'],
-                    'unlockedPowers':['Health+1']
+                    'unlockedPowers':['Health+1'],
+                    'achievements':{}
                 };
                 
                 return p;
@@ -567,6 +569,12 @@
             var charImgs = {};
             
             function loadProfile(){
+                if (!profiles[profile].achievements){
+                    profiles[profile].achievements = {};
+                } else if (typeof profiles[profile].achievements == Array){
+                    profiles[profile].achievements = {};
+                }
+
                 charOptions = [];
                 for (var i = 0; i < profiles[profile].unlockedChars.length; i++){
                     cChar = profiles[profile].unlockedChars[i];
@@ -1002,6 +1010,7 @@
                 'onEnter':function(){
                     objective = 'defeat';
                     entitys.push(new chargingDeer());
+                    entitys.push(new achievementUnlocked("deer"))
                 },
                 'onUpdate':function(){
                     this.tickMax = 10;
@@ -1406,6 +1415,7 @@
                     backgroundEntitys = [];
                     day += random(1,5);
                     river = true;
+                    entitys.push(new achievementUnlocked("novice"));
                 },
                 'onUpdate':function(){
                     this.tickMax = 350;
@@ -2456,6 +2466,7 @@
                                 spawnPowerup(true);
                             } else if (entity.effect == 'bow'){
                                 this.weapon[0] = 'bow';
+                                entitys.push(new achievementUnlocked("bow"));
                                 this.weapon[1] = 20;
                             } else {
                                 this.addEffect(entity.effect,300);
@@ -3981,6 +3992,44 @@
                     this.killTag = 1;
                 }
             };
+
+            achievementImgs = {
+                'bow':createImage(path+"bowAchieve.png"),
+                'deer':createImage(path+"deerAchieve.png"),
+                'novice':createImage(path+"noviceAchieve.png")
+            };
+
+            function achievement(a){
+                entitys.push(new achievementUnlocked(a));
+            }
+
+            function achievementUnlocked(a){
+                this.killTag = 1;
+                if (profiles[profile].achievements[a] || rand || globalSurvival == "bandit"){return false;}
+                this.y = 0;
+                this.width = 300;
+                this.x = width-this.width;
+                this.type = 'B';
+                this.killTag = 0;
+                this.time = 500;
+                this.img = achievementImgs[a];
+                this.height = this.img.height/this.img.width*this.width;
+                playSound("achievement");
+                this.alpha = 1;
+                profiles[profile].achievements[a] = true;
+                saveData();
+            }
+
+            achievementUnlocked.prototype.update = function(){
+                if (this.killTag){return;}
+                ctx.globalAlpha = this.alpha;
+                ctx.drawImage(this.img,this.x,this.y,this.width,this.height);
+                ctx.globalAlpha = 1;
+                this.time -= 1;
+                if (this.time < 1){
+                    this.killTag = true;
+                }
+            }
             
             function bossText(txt,after=function(){}){
                 this.y = height/2;

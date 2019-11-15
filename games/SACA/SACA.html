@@ -198,6 +198,7 @@
                         // Achievements
                         state = "achievements";
                         manualScroll = 0;
+                        $("#infobar").hide();
                         updateAchievements();
                     }
                 } else if (state == 'main menu'){
@@ -604,12 +605,12 @@
                 
                 if (state == "achievements"){
                     if (e.keyCode == 38){
-                        manualScroll -= 5;
+                        manualScroll -= 20;
                         if (manualScroll < 0){
                             manualScroll = 0;
                         }
                     } else if (e.keyCode == 40){
-                        manualScroll += 5;
+                        manualScroll += 20;
                     }
                 } else if (state == 'chooseCharacters'){
                     if (e.keyCode == 37){ // Left

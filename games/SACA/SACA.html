@@ -16,6 +16,7 @@
             Scratch Cat by Scratch
             Gun from images
             Heart from Minecraft
+            Certain parts of images from Google images.
             
             Contact me at kol.trogdor@gmail.com if you have any problems with content.
         -->
@@ -190,6 +191,10 @@
                     } else if (x < 750 && x > 350 && y > 490 && y < 590) {
                         state = 'main menu';
                         updateMainMenu();
+                    } else if (x > 1100 && x < 1190 && y > 10 && y < 100){
+                        // Achievements
+                        state = "achievements";
+                        updateAchievements();
                     }
                 } else if (state == 'main menu'){
                     if (x < 750 && x > 350 && y > 50) {
@@ -2063,6 +2068,12 @@
                 
                 if (this.shields > this.maxShields){
                     this.shields = this.maxShields;
+                } else if (this.shields == this.maxShields){
+                    achievement("shield");
+                    if (!(isIn("Shield Cat",profiles[profile].unlockedChars) || rand)){
+                        unlockChar("Shield Cat",function(){});
+                        return;
+                    }
                 }
                 
                 if (this.health < this.lastHealth && this.shields > 0){
@@ -3996,8 +4007,14 @@
             achievementImgs = {
                 'bow':createImage(path+"bowAchieve.png"),
                 'deer':createImage(path+"deerAchieve.png"),
-                'novice':createImage(path+"noviceAchieve.png")
+                'novice':createImage(path+"noviceAchieve.png"),
+                'shield':createImage(path+"shieldAchieve.png")
             };
+
+            var totalAchievements = 0;
+            for (var i in achievementImgs){
+                totalAchievements += 1;
+            }
 
             function achievement(a){
                 entitys.push(new achievementUnlocked(a));
@@ -4133,6 +4150,122 @@
                 'Now with more bandits!','Choose your cats and defeat the deer!',
                 'Now with more music!'
             ]);
+
+            function updateAchievements(){
+                if (state != "achievements"){
+                    return;
+                } else if (currentMusic && currentMusic.paused){
+                    currentMusic.play();
+                } else if (currentMusic != music["Title Theme"]){
+                    changeMusic("Title Theme");
+                }
+
+                background('dayGrass');
+                ticksUntilPing -= currentSpeed;
+                if (ticksUntilPing < 1) {
+                    ticksUntilPing = 50;
+                    cImg = ['grass.png','flower1.png','flower2.png','flower3.png'][random(0,3)]
+                    entitys.push(new staticEntity(random(100,height-70),cImg,70,70));
+                }
+                
+                for (var i = 0; i < entitys.length; i++){
+                    entitys[i].update();
+                }
+                
+                j = 0;
+                while (j < entitys.length) {
+                    if (entitys[j].killTag == 1) {
+                        entitys.splice(j,1);
+                    } else {
+                        j++;
+                    }
+                }
+
+                ctx.globalAlpha = 0.8;
+
+                cX = 140;
+                cY = 50;
+                var unlockedAchievements = 0;
+                for (var a in profiles[profile].achievements){
+                    ctx.drawImage(achievementImgs[a],cX,cY,300,196);
+                    cX += 310
+                    if (cX >= 1000){
+                        cX = 140;
+                        cY += 206;
+                    }
+
+                    unlockedAchievements += 1;
+                }
+
+                ctx.fillStyle = 'black';
+                ctx.font = '30px Arial';
+                ctx.fillText("Achievements: "+unlockedAchievements+" / "+totalAchievements,480,30);
+
+                ctx.globalAlpha = 1;
+                requestAnimationFrame(updateAchievements);
+            }
+
+            var achieveImg = createImage(path+"achievements.png");
+            function updateMenu() {
+                if (state != 'menu') {
+                    return;
+                } else if (currentMusic != music["Title Theme"]){
+                    changeMusic("Title Theme");
+                }
+                
+                background('dayGrass');
+                ticksUntilPing -= currentSpeed;
+                if (ticksUntilPing < 1) {
+                    ticksUntilPing = 50;
+                    cImg = ['grass.png','flower1.png','flower2.png','flower3.png'][random(0,3)];
+                    entitys.push(new staticEntity(random(100,height-70),cImg,70,70));
+                }
+                
+                for (var i = 0; i < entitys.length; i++){
+                    entitys[i].update();
+                }
+                
+                j = 0;
+                while (j < entitys.length) {
+                    if (entitys[j].killTag == 1) {
+                        entitys.splice(j,1);
+                    } else {
+                        j++;
+                    }
+                }
+                
+                ctx.globalAlpha = 1;
+                ctx.fillStyle = 'black';
+                ctx.font = '60px Arial';
+                ctx.fillText('Super Amazing Cat Adventures!',150,70);
+                
+                ctx.font = '30px Arial';
+                ctx.fillStyle = 'blue';
+                ctx.fillText(randomMsg,300,175);
+                
+                ctx.globalAlpha = 0.8;
+                ctx.font = '36px Helvetica';
+                
+                buttons = [];
+                
+                for (var profile in profiles){
+                    buttons.push(profile);
+                }
+                
+                buttons.push('Create New Profile');
+                
+                for (var i = 0; i < buttons.length; i++) {
+                    ctx.fillStyle = 'rgb(100,100,100)';
+                    ctx.fillRect(350,250+i*110,400,100);
+                    ctx.fillStyle = 'rgb(0,0,0)';
+                    ctx.fillText(buttons[i],400,250+i*110+50);
+                    if (buttons[i] != 'Create New Profile'){
+                        ctx.drawImage(xImg,800,275+i*110,50,50);
+                    }
+                }
+                
+                requestAnimationFrame(updateMenu);
+            }
             
             function updateMainMenu() {
                 if (state != 'main menu') {
@@ -4196,7 +4329,8 @@
                 
                 requestAnimationFrame(updateMainMenu);
             }
-            
+
+            var achieveImg = createImage(path+"achievements.png");
             function updateMenu() {
                 if (state != 'menu') {
                     return;
@@ -4235,6 +4369,11 @@
                     ctx.fillStyle = 'rgb(0,0,0)';
                     ctx.fillText(buttons[i],450,50+i*110+50);
                 }
+
+                ctx.fillStyle = 'rgb(100,100,100)';
+                ctx.fillRect(1100,10,90,90);
+                ctx.drawImage(achieveImg,1100,10,90,90);
+                ctx.globalAlpha = 1;
                 
                 requestAnimationFrame(updateMenu);
             }

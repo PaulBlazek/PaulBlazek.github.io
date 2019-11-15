@@ -168,7 +168,10 @@
                 x = event.clientX-10-65;
                 y = event.clientY-10;
                 
-                if (state == 'chooseCharacters'){
+                if (state == 'achievements'){
+                    state = 'menu';
+                    updateMenu();
+                } else if (state == 'chooseCharacters'){
                     //ctx.fillRect(800,450,250,100);
                     if (x >= 800 && x <= 1050 && y >= 450 && y <= 550 && (chosenCompanions.length == 3 || (chosenCompanions.length < 3 && chosenCompanions.length == profiles[profile].unlockedChars.length))){ // Start Game
                         startGame(false);
@@ -883,6 +886,7 @@
             }
             
             Location.prototype.preEnter = function(){
+                cLocDeaths = 0;
                 if (this.areaTexts){
                     this.areaText = pick(this.areaTexts);
                     if (typeof this.areaText == 'object'){
@@ -1249,6 +1253,7 @@
                 'areaTextLines':['The bandit leader comes out to put','a stop to you once and for all.'],
                 'textDuration':4000,
                 'onEnter':function(){
+                    achievement('meetRob');
                     day += random(1,5);
                     entitys.push(new RobBoss());
                     cDeath = ['Rob became the most feared bandit in the land.',['Rob would always be remembered for his', 'victory against catkind.']];
@@ -2121,6 +2126,7 @@
                 if (this.health < 1) {
                     this.dead = true;
                     txt = [];
+                    cLocDeaths += 1;
                     if (this.lastHit == 'bullet') {
                         txt.push([this.name+' died from a bullet wound.','A bullet hit '+this.name+' in the head.'][random(0,1)]);
                     } else if (this.lastHit == 'lightning') {
@@ -2156,6 +2162,9 @@
                                             var killId = setTimeout(function() {
                                                 for (var i = killId; i > 0; i--) {clearInterval(i);}
                                             }, 11);
+                                            if (cLocDeaths >= 3){
+                                                achievement("tpk");
+                                            }
                                         });
                                     },false,false,false);
                                 } else {
@@ -2166,6 +2175,9 @@
                                             var killId = setTimeout(function() {
                                                 for (var i = killId; i > 0; i--) {clearInterval(i);}
                                             }, 11);
+                                            if (cLocDeaths >= 3){
+                                                achievement("tpk");
+                                            }
                                         });
                                     },false,false,false);
                                 }
@@ -3638,6 +3650,7 @@
                 ctx.drawImage(this.img,this.x,this.y,this.width,this.height);
                 if (this.y > this.finalY) {
                     this.killTag = true;
+                    achievement("nuke");
                     entitys.push(new nukeExplosion(this.x, this.y));
                     
                     for (var i = 0; i < entitys.length; i++){
@@ -4008,7 +4021,10 @@
                 'bow':createImage(path+"bowAchieve.png"),
                 'deer':createImage(path+"deerAchieve.png"),
                 'novice':createImage(path+"noviceAchieve.png"),
-                'shield':createImage(path+"shieldAchieve.png")
+                'shield':createImage(path+"shieldAchieve.png"),
+                'meetRob':createImage(path+"robAchieve.png"),
+                'nuke':createImage(path+"nukeAchieve.png"),
+                'tpk':createImage(path+"tpkAchieve.png")
             };
 
             var totalAchievements = 0;

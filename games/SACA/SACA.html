@@ -936,6 +936,10 @@
                     t.unshift('Day '+day);
                     areaInfo(t,this.textDuration,this.onEnter);
                 }
+
+                if (day > 100){
+                    achievement("100days");
+                }
             };
             
             Location.prototype.leave = function(){
@@ -4081,7 +4085,8 @@
                 'meetRob':createImage(path+"robAchieve.png"),
                 'nuke':createImage(path+"nukeAchieve.png"),
                 'tpk':createImage(path+"tpkAchieve.png"),
-                'rich':createImage(path+"richAchieve.png")
+                'rich':createImage(path+"richAchieve.png"),
+                '100days':createImage(path+"100daysAchieve.png"),
             };
 
             var totalAchievements = 0;

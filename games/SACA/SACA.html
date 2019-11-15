@@ -197,6 +197,7 @@
                     } else if (x > 1100 && x < 1190 && y > 10 && y < 100){
                         // Achievements
                         state = "achievements";
+                        manualScroll = 0;
                         updateAchievements();
                     }
                 } else if (state == 'main menu'){
@@ -461,7 +462,8 @@
                     'fire':4,
                     'random':5,
                     'lightning':5,
-                    'bow':1
+                    'bow':1,
+                    'damage':1
                 };
 
                 if (entitys[0].weapon[0] != 'bow' && entitys[0].weapon[0] != 'bowLoaded'){
@@ -473,11 +475,13 @@
                 if (randomP){
                     r = pick(['health+1','nuke','confused','tripleShot','frag',
                               'laser','machineGun','coffee','aim','shield1',
-                              'shield2','deer','fire','lightning']);
+                              'shield2','deer','fire','lightning','damage']);
                 }
                 
                 if (r == 'health+1') {
                     entitys.push(new pickup(x,y,'healthPowerup','health+1'));
+                } else if (r == 'damage') {
+                    entitys.push(new pickup(x,y,'oneDamagePowerup','damage'));
                 } else if (r == 'nuke'){
                     entitys.push(new pickup(x,y,'nukePowerup','nuke'));
                 } else if (r == 'bow'){
@@ -598,7 +602,16 @@
             addEventListener("keydown", function (e) {
                 keysDown[e.keyCode] = true;
                 
-                if (state == 'chooseCharacters'){
+                if (state == "achievements"){
+                    if (e.keyCode == 38){
+                        manualScroll -= 5;
+                        if (manualScroll < 0){
+                            manualScroll = 0;
+                        }
+                    } else if (e.keyCode == 40){
+                        manualScroll += 5;
+                    }
+                } else if (state == 'chooseCharacters'){
                     if (e.keyCode == 37){ // Left
                         selectedChar -= 1;
                         if (selectedChar < 0){
@@ -1005,8 +1018,11 @@
                     hunt = false;
                     this.tick = 0;
                     
-                    if (random(1,6) >= 5 && (pelts-startingPelts) >= 10){
+                    r = random(1,10);
+                    if (r >= 8 && (pelts-startingPelts) >= 10){
                         this.leaveLoc = 'Grassland 1-2B';
+                    } else if (r <= 2){
+                        this.leaveLoc = 'Grassland 1-2D';
                     } else {
                         this.leaveLoc = 'Grassland 1-3';
                     }
@@ -1090,6 +1106,38 @@
                     this.tick = 0;
                     this.tick2 = 0;
                     objective = '';
+                },
+                'leaveLoc':'Grassland 1-3'
+            });
+
+            new Location('Grassland 1-2D',{
+                'areaTexts':['There were a lot of squirrels','CURRENTPLAYER encountered some squirrels.'],
+                'onEnter':function(){
+                    day += random(1,3);
+                },
+                'onUpdate':function(){
+                    this.tickMax = 1000;
+                    this.ticksMax = 30;
+                    
+                    if (!this.tick){
+                        this.tick = 0;
+                    }
+
+                    if (!this.ticks){
+                        this.ticks = 0;
+                    }
+                    
+                    this.tick += 1;
+                    if (this.tick > this.tickMax){
+                        this.leave();
+                    }
+                    
+                    this.ticks -= 1;
+                    if (this.ticks <= 0){
+                        entitys.push(new squirrel());
+                        entitys.push(new squirrel());
+                        this.ticks = this.ticksMax;
+                    }
                 },
                 'leaveLoc':'Grassland 1-3'
             });
@@ -2455,9 +2503,16 @@
                             entity.killTag = 1;
                             if (entity.effect == 'pelt') {
                                 pelts += 1;
+                                if (pelts >= 100){
+                                    achievement("rich");
+                                }
                             } else if (entity.effect == 'health+1') {
                                 if (this.health < this.maxHealth) {
                                     this.health += 1;
+                                }
+                            } else if (entity.effect == 'health+1') {
+                                if (this.health > 1) {
+                                    this.health -= 1;
                                 }
                             } else if (entity.effect == 'machineGun'){
                                 this.effects.machineGun = 500;
@@ -4024,7 +4079,8 @@
                 'shield':createImage(path+"shieldAchieve.png"),
                 'meetRob':createImage(path+"robAchieve.png"),
                 'nuke':createImage(path+"nukeAchieve.png"),
-                'tpk':createImage(path+"tpkAchieve.png")
+                'tpk':createImage(path+"tpkAchieve.png"),
+                'rich':createImage(path+"richAchieve.png")
             };
 
             var totalAchievements = 0;
@@ -4166,6 +4222,8 @@
                 'Now with more bandits!','Choose your cats and defeat the deer!',
                 'Now with more music!'
             ]);
+            
+            var manualScroll = 0;
 
             function updateAchievements(){
                 if (state != "achievements"){
@@ -4200,7 +4258,7 @@
                 ctx.globalAlpha = 0.8;
 
                 cX = 140;
-                cY = 50;
+                cY = 50-manualScroll;
                 var unlockedAchievements = 0;
                 for (var a in profiles[profile].achievements){
                     ctx.drawImage(achievementImgs[a],cX,cY,300,196);

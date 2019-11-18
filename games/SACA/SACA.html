@@ -91,6 +91,24 @@
                     soundEffects[soundSrcs[j][1]].volume = soundSrcs[j][2];
                 }
             }
+
+            function christmas(today=new Date()){
+                if (today.getMonth() == 12 && today.getDate() == 25){
+                    return true;
+                }
+
+                return false;
+            }
+
+            function christmasSeason(today=new Date()){
+                // From 6th Dec - 5th January Inclusive
+                if ((today.getMonth() == 12 && today.getDate() > 5) ||
+                    (today.getMonth() == 1 && today.getDate() < 6)){
+                    return true;
+                }
+
+                return false;
+            }
             
             function newProfile(){
                 p = {
@@ -4226,7 +4244,8 @@
                 'Now featuring Rob the bandit!','Experience all new Cat-astrophes!',
                 'Bigger. Better. Cattier.','It\'s raining cats and cats!',
                 'Now with more bandits!','Choose your cats and defeat the deer!',
-                'Now with more music!'
+                'Now with more music!','SQUIRRELS','Achievements have been added!',
+                'You can actually unlock Shield Cat!'
             ]);
             
             var manualScroll = 0;
@@ -4321,6 +4340,7 @@
                 
                 ctx.font = '30px Arial';
                 ctx.fillStyle = 'blue';
+                if (christmas()){randomMsg = 'Merry Christmas!';}
                 ctx.fillText(randomMsg,300,175);
                 
                 ctx.globalAlpha = 0.8;
@@ -4384,6 +4404,7 @@
                 
                 ctx.font = '30px Arial';
                 ctx.fillStyle = 'blue';
+                if (christmas()){randomMsg = 'Merry Christmas!';}
                 ctx.fillText(randomMsg,300,175);
                 
                 ctx.globalAlpha = 0.8;

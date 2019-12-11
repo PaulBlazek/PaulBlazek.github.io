@@ -66,7 +66,7 @@ function nextTurn(){
     
     currentTurn++;
     if (currentTurn >= players.length){currentTurn = 0;}
-    if (!options["hotseat"] && players[currentTurn] != cAccount){
+    if (!options["hotseat"] && players[currentTurn] != cAccount && !gameover){
         exportNextTurn();
         return;
     }
@@ -192,6 +192,7 @@ function exportGame(){
     return JSON.stringify(data);
 }
 
+var gameover = false;
 function loadGameData(){
     data = document.getElementById("loadData").value;
     if (data == undefined){return alert("Please paste the load data in first!")}
@@ -203,6 +204,7 @@ function loadGameData(){
     currentTurn = data.currentTurn-1;
     playerEmails = data.playerEmails;
     log = data.log;
+    gameover = !(winner == -1);
     for (var i = 0; i < log.length; i++){
         log[i] = log[i].replace('   ',' + ')
     }

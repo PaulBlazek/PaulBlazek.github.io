@@ -104,7 +104,7 @@ function showGame(){
     ctx.font = '15px Arial';
     for (var i = 0; i < log.length; i++) {
         ctx.fillText(log[i],150,550 - i * 30);
-        if (i > 6) {
+        if (i > 15) {
             break;
         }
     }

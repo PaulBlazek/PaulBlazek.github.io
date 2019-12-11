@@ -63,7 +63,7 @@ function nextTurn(){
         return;
     }
     
-    log.push("It's "+players[currentTurn]+"'s turn!");
+    log.unshift("It's "+players[currentTurn]+"'s turn!");
     buttons[0].active = true;
     showGame();
 }

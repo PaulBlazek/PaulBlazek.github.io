@@ -171,7 +171,7 @@ function exportNextTurn(){
             if (i == currentTurn){continue;}
             m += ','+playerEmails[i]
         }
-        m += "?subject="+gameName+" - "+winner+" has won!, "+players[currentTurn]+"!&body="+exportGame()
+        m += "?subject="+gameName+" - "+winner+" has won!, "+"Everyone"+"!&body="+exportGame()
         document.getElementById("sendEmail").href = m;
         return;
     }

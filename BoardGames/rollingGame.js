@@ -43,6 +43,11 @@ var numberNames = [
     'one','two','three','four','five','six'
 ];
 var log = [];
+var playerClasses = [];
+var classDesc = {
+    'ranger':'+2 Speed, on doubles, skip a turn.',
+    
+};
 
 // Functions
 journeyPlayers = [];
@@ -154,6 +159,24 @@ function exportNextTurn(){
     $("#game").hide();
     $("#nextTurn").show();
 
+    if (currentTurnState == 'gameOver'){
+        cAccountI = 0;
+        while (true){
+            cAccountI += 1;
+            if (players[cAccountI] == cAccount){
+                break;
+            }
+        }
+        document.getElementById("whoseTurn").innerHTML = "You've won, just tell all the other players about it!";
+        var m = "mailto:"+playerEmails[currentTurn];
+        for (var i = 0; i < playerEmails.length; i++){
+            if (i == currentTurn || i == cAccountI){continue;}
+            m += ','+playerEmails[i]
+        }
+        m += "?subject="+gameName+" - "+winner+" has won!, "+players[currentTurn]+"!&body="+exportGame()
+        document.getElementById("sendEmail").href = m;
+        return;
+    }
     document.getElementById("whoseTurn").innerHTML = "It's "+players[currentTurn]+"'s Turn!";
     document.getElementById("sendEmail").href = "mailto:"+playerEmails[currentTurn]+"?subject="+gameName+" - It's Your Turn, "+players[currentTurn]+"!&body="+exportGame();
 }
@@ -232,8 +255,9 @@ function updateDice(){
         if (currentTurnState == 'endTurn'){
             window.setTimeout(nextTurn,3000);
             return;
-        } else {
-
+        } else if (!options.hotseat) {
+            window.setTimeout(nextTurn,3000);
+            return;
         }
     }
 }

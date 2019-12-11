@@ -89,7 +89,7 @@ $(document).ready(function(){
     document.getElementById("newGameMenu").innerHTML += '</form>';
 
     document.getElementById("nextTurn").innerHTML += '<h1 id="whoseTurn"></h1>';
-    document.getElementById("nextTurn").innerHTML += '<p><a id="sendEmail">Send Email</a></p>';
+    document.getElementById("nextTurn").innerHTML += '<p><a target="_blank" id="sendEmail">Send Email</a></p>';
 
     document.getElementById("loadGame").innerHTML += '<h1>Load Game</h1>';
     document.getElementById("loadGame").innerHTML += '<p><textarea style="width:400px;height:170px; placeholder="Paste load data here" id="loadData"></textarea></p>';

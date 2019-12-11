@@ -164,7 +164,7 @@ function exportGame(){
         "journeyPlayers":journeyPlayers,
         "options":options,
         "currentTurn":currentTurn,
-        "emails":playerEmails,
+        "playerEmails":playerEmails,
         "log":log,
         "winner":winner
     }

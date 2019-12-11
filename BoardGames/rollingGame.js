@@ -163,17 +163,10 @@ function exportNextTurn(){
     $("#nextTurn").show();
 
     if (currentTurnState == 'gameOver'){
-        cAccountI = 0;
-        while (true){
-            cAccountI += 1;
-            if (players[cAccountI] == cAccount){
-                break;
-            }
-        }
         document.getElementById("whoseTurn").innerHTML = "You've won, just tell all the other players about it!";
         var m = "mailto:"+playerEmails[currentTurn];
         for (var i = 0; i < playerEmails.length; i++){
-            if (i == currentTurn || i == cAccountI){continue;}
+            if (i == currentTurn){continue;}
             m += ','+playerEmails[i]
         }
         m += "?subject="+gameName+" - "+winner+" has won!, "+players[currentTurn]+"!&body="+exportGame()

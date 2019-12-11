@@ -70,9 +70,11 @@ function nextTurn(){
         exportNextTurn();
         return;
     }
-    
-    log.unshift("It's "+players[currentTurn]+"'s turn!");
-    buttons[0].active = true;
+
+    if (winner == -1){
+        log.unshift("It's "+players[currentTurn]+"'s turn!");
+        buttons[0].active = true;
+    }
     showGame();
 }
 

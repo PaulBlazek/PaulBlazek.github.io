@@ -80,7 +80,12 @@ function showGame(){
     ctx.fillStyle = 'black';
     if (currentTurnState == 'start'){
         ctx.font = '40px Arial';
-        ctx.fillText("It's your turn! Click to roll the dice!",1300/2,50);
+        if (options["hotseat"]){
+            ctx.fillText("It's "+players[currentTurn]+"'s turn! Click to roll the dice!",1300/2,50);
+        } else {
+            ctx.fillText("It's your turn! Click to roll the dice!",1300/2,50);
+        }
+        
     }
 
     ctx.font = '35px Fantasy';

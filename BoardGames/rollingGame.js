@@ -1,8 +1,10 @@
 // Required data for BGLib
-var playerRange = [2,6];
+var playerRange = [2,8];
 var gameName = "Journey";
+var gameImagePath = "JourneyImages/";
 
 function setup(){
+    buttons = [];
     buttons.push(new Button(600,250,100,100,basicImagePath+"rolling-dices.png",click=function(){
         this.active = false;
         currentTurnState = 'rollingDice';
@@ -11,9 +13,78 @@ function setup(){
 }
 
 // Classes
+class ButtonWithDesc extends Button {
+    constructor(x,y,w,h,img,click=function(){},txt='',alpha=1,fill="white",textFill="black",desc="",confirmButtonTxt="Activate"){
+        super(x,y,w,h,img,click=click,txt=txt,alpha=alpha,fill=fill,textFill=textFill);
+        this.desc = reg(desc,18);
+        this.confirmButtonTxt = confirmButtonTxt;
+        this.click = this.toggleDesc;
+        this.finalClick = click;
+        this.descActive = false;
+        this.descButton = new Button(x+25,y-30,50,25,0,this.finalClick,confirmButtonTxt,alpha/2,fill,textFill);
+        buttons.push(this);
+        buttons.push(this.descButton);
+    }
+
+    toggleDesc(){
+        this.descActive = !this.descActive;
+        this.descButton.active = !this.descButton.active;
+        showGame();
+    }
+
+    draw(){
+        super.draw();
+        if (this.descActive){
+            ctx.fillStyle = 'black';
+            ctx.font = '10px Arial';
+            ctx.globalAlpha = this.alpha/2;
+            ctx.fillRect(this.x-10,this.y-120,120,120);
+            ctx.globalAlpha = 1;
+
+            for (var i = 0; i < this.desc.length; i++){
+                ctx.fillText(this.desc[i],this.x+this.w/2,this.y-108+i*15);
+            }
+        }
+    }
+}
+
 function player(user){
     this.user = user;
     this.progress = 0;
+    this.role = '';
+    this.effects = {};
+    this.data = {};
+    this.hp = 10;
+    this.maxHp = this.hp;
+    this.deathStagesLeft = 2;
+}
+
+player.prototype.hasEffect = function(name){
+    var names = [];
+    for (var e in this.effects){
+        names.push(e);
+    }
+    
+    return isIn(name,names);
+}
+
+player.prototype.inflictDamage = function(amount,otherPlayer){
+    otherPlayer.hp -= amount;
+    if (otherPlayer.hp < 1){
+        otherPlayer.hp = 0;
+        msg(otherPlayer.user+" died.");
+    }
+}
+
+player.prototype.heal = function(amount){
+    if (this.hp == 0){return false}
+    if (this.hp >= this.maxHp){
+        return false;
+    }
+
+    this.hp += amount;
+    if (this.hp > this.maxHp){this.hp = this.maxHp;}
+    return true;
 }
 
 function Die(x,y){
@@ -38,6 +109,10 @@ Die.prototype.draw = function(static=false){
 }
 
 // Variables
+var heartImg = new Image();
+heartImg.src = gameImagePath+"heart.png";
+var deathImg = new Image();
+deathImg.src = gameImagePath+"death-skull.png";
 var currentTurnState;
 var numberNames = [
     'one','two','three','four','five','six'
@@ -45,9 +120,19 @@ var numberNames = [
 var log = [];
 var playerClasses = [];
 var classDesc = {
-    'ranger':'+2 Speed, on doubles, skip a turn.',
-    
+    'barbarian':'Do 2 damage whenever you pass an opponent.',
+    'bard':'-1 Speed, opponents within 5 distance have -2 speed.',
+    'cleric':'Heal yourself 2 hp and other players within 3 distance 1 hp each turn.',
+    'fighter':'Strike 3. (During your skill phase, you may do 3 damage to an opponent within 3 distance.)',
+    //'mage':'Mana 10. (You regain 1 mana per turn, and may spend it to cast certain spells.)',
+    'medusa':'Kill any players who is on the same space as you when you start your turn.',
+    'rogue':'-2 HP, +1 Speed, on doubles, players you pass through take 3 damage.',
+    'soldier':'You can never move less than 5 with your main movement.',
+    'sonic':'+3 Speed, -5 HP',
 };
+for (var c in classDesc){
+    playerClasses.push(c);
+}
 
 // Functions
 journeyPlayers = [];
@@ -59,7 +144,12 @@ function startGame(){
     nextTurn();
 }
 
+function msg(m){
+    log.unshift(m);
+}
+
 function nextTurn(){
+    buttons = [buttons[0]];
     if (winner == -1){
         currentTurnState = 'start';
     }
@@ -71,10 +161,50 @@ function nextTurn(){
         return;
     }
 
+    currentPlayer = journeyPlayers[currentTurn];
+    if (currentPlayer.hp <= 0){
+        currentPlayer.deathStagesLeft -= 1;
+        if (currentPlayer.deathStagesLeft >= 0){
+            msg(currentPlayer.name+" is still recovering.");
+            window.setTimeout(nextTurn,2200);
+            return;
+        } else {
+            msg(currentPlayer.name+" has recovered!");
+            currentPlayer.hp = currentPlayer.maxHp;
+            currentPlayer.deathStagesLeft = 2;
+        }
+    }
+
     if (winner == -1){
         log.unshift("It's "+players[currentTurn]+"'s turn!");
         buttons[0].active = true;
     }
+
+    if (currentPlayer.role == 'medusa'){
+        for (var i = 0; i < players.length; i++){
+            if (players[i] == currentPlayer.user){continue;}
+            if (journeyPlayers[i].progress == currentPlayer.progress){
+                journeyPlayers[i].hp = 0;
+                msg(players[i]+" was turned to stone by "+currentPlayer.user);
+            }
+        }
+    } else if (currentPlayer.role == 'cleric'){
+        if (currentPlayer.heal(2)){
+            msg(currentPlayer.user+" heals themself for 2.");
+        }
+
+        for (var i = 0; i < players.length; i++){
+            if (players[i] == currentPlayer.user){continue;}
+            if (Math.abs(journeyPlayers[i].progress-currentPlayer.progress) <= 3){
+                if (journeyPlayers[i].heal(1)){
+                    msg(currentPlayer.user+" kindly heals "+players[i]+" for 1.")
+                }
+            }
+        }
+    } else if (currentPlayer.role == 'fighter'){
+        // Add attack button
+    }
+
     showGame();
 }
 
@@ -91,7 +221,7 @@ function showGame(){
     if (currentTurnState == 'start'){
         ctx.font = '40px Arial';
         if (options["hotseat"]){
-            ctx.fillText("It's "+players[currentTurn]+"'s turn! Click to roll the dice!",1300/2,50);
+            ctx.fillText(players[currentTurn]+"'s turn! Click to roll the dice!",1300/2+10,50);
         } else {
             ctx.fillText("It's your turn! Click to roll the dice!",1300/2,50);
         }
@@ -104,7 +234,25 @@ function showGame(){
     ctx.font = '20px Arial';
     sortedPlayers = sortPlayers(journeyPlayers);
     for (var i = 0; i < sortedPlayers.length; i++){
-        ctx.fillText(sortedPlayers[i].user+" - "+sortedPlayers[i].progress,width-130,80+i*30);
+        var x = ''
+        if (sortedPlayers[i].role != ""){
+            x = " ("+capitalize(sortedPlayers[i].role)+")"
+        }
+        ctx.fillText(sortedPlayers[i].user+x+" - "+sortedPlayers[i].progress,width-130,80+i*30);
+        if (sortedPlayers[i].hp > 0){
+            ctx.drawImage(heartImg,width-260,60+i*30,20,20+2);
+            ctx.font = '15px Arial';
+            ctx.fillText(sortedPlayers[i].hp,width-250,80+i*30-5);
+            ctx.font = '20px Arial';
+        } else {
+            ctx.fillStyle = 'red;'
+            ctx.drawImage(deathImg,width-260,60+i*30,20,20+2);
+            ctx.font = '15px Arial';
+            ctx.fillText(sortedPlayers[i].deathStagesLeft,width-250,80+i*30-5);
+            ctx.font = '20px Arial';
+            ctx.fillStyle = 'black';
+        }
+        
     }
 
     for (var i = 0; i < buttons.length; i++){
@@ -118,8 +266,17 @@ function showGame(){
     ctx.fillStyle = 'black';
     ctx.font = '15px Arial';
     for (var i = 0; i < log.length; i++) {
-        ctx.fillText(log[i],150,550 - i * 30);
-        if (i > 15) {
+        if (typeof log[i] != "string"){
+            ctx.font = '8px Arial';
+            for (var j = 0; j < log[i].length; j++){
+                ctx.fillText(log[i][j],150,550-i*30-10+j*10)
+            }
+            ctx.font = '15px Arial';
+        } else {
+            ctx.fillText(log[i],150,550 - i * 30);
+        }
+
+        if (i > 20) {
             break;
         }
     }
@@ -241,24 +398,131 @@ function updateDice(){
     die2.draw();
     if (die1.randTicksLeft <= 0){
         window.clearInterval(diceInterval);
-        log.unshift(players[currentTurn]+" rolled a "+die1.currentFace+" + "+die2.currentFace);
-        log.unshift("for a total of "+(die1.currentFace+die2.currentFace)+" movement!");
-        journeyPlayers[currentTurn].progress += die1.currentFace+die2.currentFace;
-        currentTurnState = 'endTurn';
+        var l1 = players[currentTurn]+" rolled a "+die1.currentFace+" + "+die2.currentFace;
+        var totalMove = die1.currentFace+die2.currentFace;
+        var l3 = '';
+        var previousSpot = currentPlayer.progress;
+        if (currentPlayer.role == "sonic"){
+            totalMove += 3
+            l3 = "(+3 Move for being Sonic Class)";
+        } else if (currentPlayer.role == "rogue"){
+            totalMove += 1;
+            l3 = "(+1 Move for being Rogue Class)";
+        } else if (currentPlayer.role == "bard"){
+            totalMove -= 1;
+            l3 = "(-1 Move for being Bard Class)";
+        }
+        
+        log.unshift(l1);
+        if (currentPlayer.role != ''){
+            for (var i = 0; i < players.length; i++){
+                if (players[i] == currentPlayer.user){continue;}
+                if (journeyPlayers[i].role == 'bard' && Math.abs(journeyPlayers[i].progress-currentPlayer.progress) <= 5){
+                    totalMove -= 2;
+                    msg("(-2 Move from "+journeyPlayers[i].user+" bardic song.");
+                }
+            }
+        } if (totalMove < 0){
+            totalMove = 0;
+        }
+        log.unshift("for a total of "+totalMove+" movement!");
+        
+        if (currentPlayer.role == "soldier" && totalMove < 5){
+            totalMove = 5;
+            l3 = "(Movement upped to 5 for being Soldier Class)";
+        }
+
+        if (l3 != ''){log.unshift(l3);}
+
+        journeyPlayers[currentTurn].progress += totalMove;
+
+        if (currentPlayer.role == "rogue" && die1.currentFace == die2.currentFace){
+            for (var i = 0; i < players.length; i++){
+                if (players[i] == currentPlayer.user){continue;}
+                if (journeyPlayers[i].progress > previousSpot && journeyPlayers[i].progress < currentPlayer.progress){
+                    msg(currentPlayer.user+" backstabbed "+players[i]+" for 3 damage! (base)");
+                    currentPlayer.inflictDamage(3,journeyPlayers[i]);
+                }
+            }
+        } else if (currentPlayer.role == "barbarian"){
+            for (var i = 0; i < players.length; i++){
+                if (players[i] == currentPlayer.user){continue;}
+                if (journeyPlayers[i].progress > previousSpot && journeyPlayers[i].progress < currentPlayer.progress){
+                    msg(currentPlayer.user+" bashed "+players[i]+" for 2 damage! (base)");
+                    currentPlayer.inflictDamage(2,journeyPlayers[i]);
+                }
+            }
+        }
+
+        currentTurnState = 'adventure';
         if (journeyPlayers[currentTurn].progress >= 50){
             log.unshift(players[currentTurn]+" has won!");
             currentTurnState = 'gameOver';
             winner = players[currentTurn];
         }
+
         showGame();
         die1.draw(true);
         die2.draw(true);
-        if (currentTurnState == 'endTurn'){
-            window.setTimeout(nextTurn,3000);
+        if (currentTurnState == 'adventure'){
+            window.setTimeout(adventure,3000);
             return;
         } else if (!options.hotseat) {
             window.setTimeout(nextTurn,3000);
             return;
         }
     }
+}
+
+function adventure(){
+    if (journeyPlayers[currentTurn].role == ''){
+        pickRole();
+        //window.setTimeout(nextTurn,3000);
+        return;
+    }
+
+    if (die1.currentFace == die2.currentFace){
+        switch (die1.currentFace){
+            case 1:
+                
+            default:
+                break;
+        }
+        //return;
+    }
+    window.setTimeout(nextTurn,3000);
+
+}
+
+var roleButtons;
+function pickRole(){
+    log.unshift(players[currentTurn]+" is choosing their class...");
+    playerClasses = shuffle(playerClasses);
+    roleOptions = [];
+    for (var i = 0; i < 3; i++){roleOptions.push(playerClasses[i])}
+    for (var i = 0; i < roleOptions.length; i++){
+        var b = new ButtonWithDesc(500+i*110,200,100,100,gameImagePath+roleOptions[i]+'.png',function(){roleChosen(this.d)},'',1,'black','black',capitalize(roleOptions[i])+'~'+classDesc[roleOptions[i]],"Choose");
+        b.active = true;
+        buttons[buttons.length-1].d = roleOptions[i];
+    }
+    showGame();
+    window.setTimeout(showGame,100);
+}
+
+function roleChosen(role){
+    journeyPlayers[currentTurn].role = role;
+    switch (role){
+        case 'rogue':
+            currentPlayer.hp -= 2;
+            currentPlayer.maxHp -= 2;
+            break;
+        case 'sonic':
+            currentPlayer.hp -= 5;
+            currentPlayer.maxHp -= 5;
+    }
+    msg(currentPlayer.user+" has chosen the class of "+capitalize(role)+"!");
+    msg(reg("("+classDesc[role]+")",25));
+    window.setTimeout(nextTurn,3000);
+    buttons = [buttons[0]];
+    showGame();
 }

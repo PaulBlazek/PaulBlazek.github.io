@@ -1,4 +1,9 @@
 // Basic Functions
+
+function capitalize(lower){
+    return lower.charAt(0).toUpperCase() + lower.substring(1);
+}
+
 function isIn(item,array) {
     for (var i = 0; i < array.length; i++) {
         if (item == array[i]) {
@@ -13,6 +18,81 @@ function random(min, max) {
     min = Math.ceil(min);
     max = Math.floor(max) - min + 1;
     return Math.floor(Math.random() * max) + min;
+}
+
+function shuffle(array) {
+    var m = array.length, t, i;
+    
+    // While there remain elements to shuffle
+    while (m) {
+        
+        // Pick a remaining element
+        i = Math.floor(Math.random() * m--);
+        
+        // And swap it with the current element.
+        t = array[m];
+        array[m] = array[i];
+        array[i] = t;
+    }
+    
+    return array;
+}
+
+/*function reg3(text,limit) {
+    // Takes a string of text and inserts line breaks at spaces.
+    regulatedText = [];
+    cycles = 0;
+    while (text.length > 0) {
+        if (text.length <= limit+1) {
+            regulatedText.push(text);
+            return regulatedText;
+        }
+        
+        for (var i = limit; i >= 0; i--) {
+            if (text[i] == '~'){
+                regulatedText.push(text.slice(0,i));
+                text = text.slice(i+1,text.length);
+                break;
+            }
+            if (text[i] == ' ') {
+                regulatedText.push(text.slice(0,i));
+                if (i+1 == text.length) {
+                    text = '';
+                    break;
+                }
+                text = text.slice(i+1,text.length);
+                break;
+            }
+        }
+        
+        cycles += 1;
+        if (cycles > 10000) {
+            return false;
+        }
+    }
+}*/
+
+function reg(text,limit){
+    var x = 0
+    regText = []
+    cRegText = ''
+    for (var i = 0; i < text.length; i++){
+        if (text[i] == '~'){
+            regText.push(cRegText);
+            cRegText = '';
+            x = 0;
+            continue;
+        }
+        cRegText += text[i];
+        x += 1;
+        if (x >= limit && text[i] == ' '){
+            regText.push(cRegText);
+            cRegText = '';
+            x = 0;
+        }
+    }
+    regText.push(cRegText);
+    return regText;
 }
 
 // Classes
@@ -32,6 +112,7 @@ function Button(x,y,w,h,img,click=function(){},txt='',alpha=1,fill="white",textF
     this.fill = fill;
     this.textFill = this.textFill;
     this.active = false;
+    this.font = '12px Helvetica';
 }
 
 Button.prototype.draw = function(){
@@ -40,6 +121,9 @@ Button.prototype.draw = function(){
     ctx.fillRect(this.x,this.y,this.w,this.h);
     if (this.isImg){
         ctx.drawImage(this.img,this.x+5,this.y+5,this.w-10,this.h-10);
+    } else {
+        ctx.font = this.font;
+        ctx.fillText(this.txt,this.x+this.w/2,this.y+this.h/2);
     }
 
     ctx.globalAlpha = 1;
@@ -161,7 +245,7 @@ function validateGameOptions(){
         playerEmails.push(e);
     }
 
-    if (!isIn(cAccount,players)){
+    if (!isIn(cAccount,players) && !document.getElementById("isHotseat").checked){
         if (!confirm("Are you sure you want to start a game without playing it?\n(You are not one of the players)")){
             return;
         }

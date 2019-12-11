@@ -180,7 +180,7 @@ function loadGameData(){
     journeyPlayers = data.journeyPlayers;
     options = data.options;
     currentTurn = data.currentTurn-1;
-    emails = data.playerEmails;
+    playerEmails = data.playerEmails;
     log = data.log;
     for (var i = 0; i < log.length; i++){
         log[i] = log[i].replace('   ',' + ')

@@ -204,6 +204,7 @@ function loadGameData(){
     currentTurn = data.currentTurn-1;
     playerEmails = data.playerEmails;
     log = data.log;
+    winner = data.winner;
     gameover = !(winner == -1);
     for (var i = 0; i < log.length; i++){
         log[i] = log[i].replace('   ',' + ')

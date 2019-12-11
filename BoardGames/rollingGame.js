@@ -182,6 +182,9 @@ function loadGameData(){
     currentTurn = data.currentTurn-1;
     emails = data.playerEmails;
     log = data.log;
+    for (var i = 0; i < log.length; i++){
+        log[i] = log[i].replace('   ',' + ')
+    }
     $("#loadGame").hide();
     $("#game").show();
     setup();

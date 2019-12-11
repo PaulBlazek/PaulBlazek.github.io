@@ -60,7 +60,10 @@ function startGame(){
 }
 
 function nextTurn(){
-    currentTurnState = 'start';
+    if (winner == -1){
+        currentTurnState = 'start';
+    }
+    
     currentTurn++;
     if (currentTurn >= players.length){currentTurn = 0;}
     if (!options["hotseat"] && players[currentTurn] != cAccount){

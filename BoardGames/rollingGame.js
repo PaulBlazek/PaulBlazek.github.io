@@ -10,6 +10,8 @@ function setup(){
         currentTurnState = 'rollingDice';
         rollDice();
     }));
+
+    document.getElementById("GameOptions").innerHTML+="<p>Finish Line: <input id='goal' type='text' value='50'></input></p>";
 }
 
 // Classes
@@ -137,6 +139,7 @@ for (var c in classDesc){
 // Functions
 journeyPlayers = [];
 function startGame(){
+    options['goal'] = Number(document.getElementById('goal').value);
     for (var i = 0; i < players.length; i++){
         journeyPlayers.push(new player(players[i]));
     }
@@ -165,11 +168,11 @@ function nextTurn(){
     if (currentPlayer.hp <= 0){
         currentPlayer.deathStagesLeft -= 1;
         if (currentPlayer.deathStagesLeft >= 0){
-            msg(currentPlayer.name+" is still recovering.");
+            msg(currentPlayer.user+" is still recovering.");
             window.setTimeout(nextTurn,2200);
             return;
         } else {
-            msg(currentPlayer.name+" has recovered!");
+            msg(currentPlayer.user+" has recovered!");
             currentPlayer.hp = currentPlayer.maxHp;
             currentPlayer.deathStagesLeft = 2;
         }
@@ -182,7 +185,7 @@ function nextTurn(){
 
     if (currentPlayer.role == 'medusa'){
         for (var i = 0; i < players.length; i++){
-            if (players[i] == currentPlayer.user){continue;}
+            if (players[i] == currentPlayer.user || journeyPlayers[i].hp <= 0){continue;}
             if (journeyPlayers[i].progress == currentPlayer.progress){
                 journeyPlayers[i].hp = 0;
                 msg(players[i]+" was turned to stone by "+currentPlayer.user);
@@ -194,7 +197,7 @@ function nextTurn(){
         }
 
         for (var i = 0; i < players.length; i++){
-            if (players[i] == currentPlayer.user){continue;}
+            if (players[i] == currentPlayer.user || journeyPlayers[i].hp <= 0){continue;}
             if (Math.abs(journeyPlayers[i].progress-currentPlayer.progress) <= 3){
                 if (journeyPlayers[i].heal(1)){
                     msg(currentPlayer.user+" kindly heals "+players[i]+" for 1.")
@@ -245,10 +248,10 @@ function showGame(){
             ctx.fillText(sortedPlayers[i].hp,width-250,80+i*30-5);
             ctx.font = '20px Arial';
         } else {
-            ctx.fillStyle = 'red;'
+            ctx.fillStyle = 'bisque';
             ctx.drawImage(deathImg,width-260,60+i*30,20,20+2);
-            ctx.font = '15px Arial';
-            ctx.fillText(sortedPlayers[i].deathStagesLeft,width-250,80+i*30-5);
+            ctx.font = '25px Arial';
+            ctx.fillText(sortedPlayers[i].deathStagesLeft,width-250,80+i*30-5+5);
             ctx.font = '20px Arial';
             ctx.fillStyle = 'black';
         }
@@ -344,7 +347,8 @@ function exportGame(){
         "currentTurn":currentTurn,
         "playerEmails":playerEmails,
         "log":log,
-        "winner":winner
+        "winner":winner,
+        "options":options
     }
     return JSON.stringify(data);
 }
@@ -362,7 +366,9 @@ function loadGameData(){
     playerEmails = data.playerEmails;
     log = data.log;
     winner = data.winner;
+    options = data.options;
     gameover = !(winner == -1);
+    
     for (var i = 0; i < log.length; i++){
         log[i] = log[i].replace('   ',' + ')
     }
@@ -389,7 +395,7 @@ function rollDice(){
     die1 = new Die(630,280);
     die2 = new Die(670,320);
     updateDice();
-    diceInterval = window.setInterval(updateDice,500);
+    diceInterval = window.setInterval(updateDice,300);
 }
 
 function updateDice(){
@@ -417,7 +423,7 @@ function updateDice(){
         if (currentPlayer.role != ''){
             for (var i = 0; i < players.length; i++){
                 if (players[i] == currentPlayer.user){continue;}
-                if (journeyPlayers[i].role == 'bard' && Math.abs(journeyPlayers[i].progress-currentPlayer.progress) <= 5){
+                if (journeyPlayers[i].role == 'bard' && journeyPlayers[i].hp > 0 && Math.abs(journeyPlayers[i].progress-currentPlayer.progress) <= 5){
                     totalMove -= 2;
                     msg("(-2 Move from "+journeyPlayers[i].user+" bardic song.");
                 }
@@ -438,7 +444,7 @@ function updateDice(){
 
         if (currentPlayer.role == "rogue" && die1.currentFace == die2.currentFace){
             for (var i = 0; i < players.length; i++){
-                if (players[i] == currentPlayer.user){continue;}
+                if (players[i] == currentPlayer.user || journeyPlayers[i].hp <= 0){continue;}
                 if (journeyPlayers[i].progress > previousSpot && journeyPlayers[i].progress < currentPlayer.progress){
                     msg(currentPlayer.user+" backstabbed "+players[i]+" for 3 damage! (base)");
                     currentPlayer.inflictDamage(3,journeyPlayers[i]);
@@ -446,7 +452,7 @@ function updateDice(){
             }
         } else if (currentPlayer.role == "barbarian"){
             for (var i = 0; i < players.length; i++){
-                if (players[i] == currentPlayer.user){continue;}
+                if (players[i] == currentPlayer.user || journeyPlayers[i].hp <= 0){continue;}
                 if (journeyPlayers[i].progress > previousSpot && journeyPlayers[i].progress < currentPlayer.progress){
                     msg(currentPlayer.user+" bashed "+players[i]+" for 2 damage! (base)");
                     currentPlayer.inflictDamage(2,journeyPlayers[i]);
@@ -455,7 +461,7 @@ function updateDice(){
         }
 
         currentTurnState = 'adventure';
-        if (journeyPlayers[currentTurn].progress >= 50){
+        if (journeyPlayers[currentTurn].progress >= options['goal']){
             log.unshift(players[currentTurn]+" has won!");
             currentTurnState = 'gameOver';
             winner = players[currentTurn];

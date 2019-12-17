@@ -125,15 +125,24 @@ var classDesc = {
     'barbarian':'Do 2 damage whenever you pass an opponent.',
     'bard':'-1 Speed, opponents within 5 distance have -2 speed.',
     'cleric':'Heal yourself 2 hp and other players within 3 distance 1 hp each turn.',
-    'fighter':'Strike 3. (During your skill phase, you may do 3 damage to an opponent within 3 distance.)',
+    //'fighter':'Strike 3. (During your skill phase, you may do 3 damage to an opponent within 3 distance.)',
     //'mage':'Mana 10. (You regain 1 mana per turn, and may spend it to cast certain spells.)',
-    'medusa':'Kill any players who is on the same space as you when you start your turn.',
+    'medusa':'Kill any players who are on the same space as you when you start your turn.',
     'rogue':'-2 HP, +1 Speed, on doubles, players you pass through take 3 damage.',
     'soldier':'You can never move less than 5 with your main movement.',
     'sonic':'+3 Speed, -5 HP',
 };
 for (var c in classDesc){
     playerClasses.push(c);
+}
+var classStats = {
+    'barbarian':{'strength':2},
+    'bard':{'strength':-1},
+    'cleric':{'strength':0},
+    'medusa':{'strength':-1},
+    'rogue':{'strength':0},
+    'soldier':{'strength':1},
+    'sonic':{'strength':0}
 }
 
 // Functions
@@ -368,7 +377,7 @@ function loadGameData(){
     winner = data.winner;
     options = data.options;
     gameover = !(winner == -1);
-    
+
     for (var i = 0; i < log.length; i++){
         log[i] = log[i].replace('   ',' + ')
     }

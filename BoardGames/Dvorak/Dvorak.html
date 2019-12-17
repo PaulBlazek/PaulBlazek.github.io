@@ -2259,6 +2259,8 @@
                     c.y = 652;
                     c.x = 10;
                     cardsOnTable.push(c);
+                    c.flipped = false;
+                    c.r = 0;
                     if (!currentCardSelect) {
                         currentCardSelect = c;
                     }
@@ -2685,8 +2687,8 @@
                     if (cardsOnTable[i].token) {
                         continue;
                     }
-                    cardsOnTable[i].flipped = false;
-                    cardsOnTable[i].r = 0;
+                    //cardsOnTable[i].flipped = false;
+                    //cardsOnTable[i].r = 0;
                     
                     d1.push(cardsOnTable[i]);
                 }

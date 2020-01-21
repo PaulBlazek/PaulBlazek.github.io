@@ -70,12 +70,14 @@ player.prototype.hasEffect = function(name){
     return isIn(name,names);
 }
 
-player.prototype.inflictDamage = function(amount,otherPlayer){
+player.prototype.inflictDamage = function(amount,otherPlayer,isTrue=false){
     otherPlayer.hp -= amount;
     if (otherPlayer.hp < 1){
         otherPlayer.hp = 0;
         msg(otherPlayer.user+" died.");
     }
+
+    return amount;
 }
 
 player.prototype.heal = function(amount){
@@ -125,12 +127,14 @@ var classDesc = {
     'barbarian':'Do 2 damage whenever you pass an opponent.',
     'bard':'-1 Speed, opponents within 5 distance have -2 speed.',
     'cleric':'Heal yourself 2 hp and other players within 3 distance 1 hp each turn.',
-    //'fighter':'Strike 3. (During your skill phase, you may do 3 damage to an opponent within 3 distance.)',
-    //'mage':'Mana 10. (You regain 1 mana per turn, and may spend it to cast certain spells.)',
     'medusa':'Kill any players who are on the same space as you when you start your turn.',
     'rogue':'-2 HP, +1 Speed, on doubles, players you pass through take 3 damage.',
     'soldier':'You can never move less than 5 with your main movement.',
     'sonic':'+3 Speed, -5 HP',
+    //'fighter':'Strike d6. (During your skill phase, you may do d6 damage to an opponent within 3 distance.)',
+    //'mage':'Mana 10. (You regain 1 mana per turn, and may spend it to cast certain spells.)',
+    //'witch':'You never gain curses. Mana 5. (You regain 1 mana per turn, and may spend it to cast certain spells.)',
+    //'':'',
 };
 for (var c in classDesc){
     playerClasses.push(c);
@@ -144,6 +148,18 @@ var classStats = {
     'soldier':{'strength':1},
     'sonic':{'strength':0}
 }
+var powersAvailable = {
+    'oneCurse':1,
+    'onePower':1,
+    'twoPower':1,
+    'threePower':1,
+    'fourPower':1,
+    'fivePower':1,
+    'sixPower':1
+};
+var game = {
+    'availablePowers':powersAvailable
+};
 
 // Functions
 journeyPlayers = [];
@@ -213,8 +229,6 @@ function nextTurn(){
                 }
             }
         }
-    } else if (currentPlayer.role == 'fighter'){
-        // Add attack button
     }
 
     showGame();
@@ -233,9 +247,11 @@ function showGame(){
     if (currentTurnState == 'start'){
         ctx.font = '40px Arial';
         if (options["hotseat"]){
-            ctx.fillText(players[currentTurn]+"'s turn! Click to roll the dice!",1300/2+10,50);
+            ctx.fillText("It's "+players[currentTurn]+"'s turn!",1300/2+10,50);
+            ctx.fillText("Click to roll the dice!",1300/2+10,100);
         } else {
-            ctx.fillText("It's your turn! Click to roll the dice!",1300/2,50);
+            ctx.fillText("It's your turn!",1300/2,50);
+            ctx.fillText("Click to roll the dice!",1300/2,100);
         }
         
     }
@@ -274,18 +290,18 @@ function showGame(){
     }
 
     ctx.fillStyle = 'white';
-    ctx.fillRect(0,0,300,height)
+    ctx.fillRect(0,0,400,height)
     ctx.fillStyle = 'black';
     ctx.font = '15px Arial';
     for (var i = 0; i < log.length; i++) {
         if (typeof log[i] != "string"){
             ctx.font = '8px Arial';
             for (var j = 0; j < log[i].length; j++){
-                ctx.fillText(log[i][j],150,550-i*30-10+j*10)
+                ctx.fillText(log[i][j],200,550-i*30-10+j*10)
             }
             ctx.font = '15px Arial';
         } else {
-            ctx.fillText(log[i],150,550 - i * 30);
+            ctx.fillText(log[i],200,550 - i * 30);
         }
 
         if (i > 20) {
@@ -296,7 +312,7 @@ function showGame(){
     ctx.fillStyle = 'white';
     for (var j = 400; j > 0; j-=4) {
         ctx.globalAlpha = j / 400;
-        ctx.fillRect(0,400-j,300,4);
+        ctx.fillRect(0,400-j,400,4);
     }
     
     ctx.globalAlpha = 1;
@@ -357,7 +373,8 @@ function exportGame(){
         "playerEmails":playerEmails,
         "log":log,
         "winner":winner,
-        "options":options
+        "options":options,
+        "game":game
     }
     return JSON.stringify(data);
 }
@@ -377,6 +394,7 @@ function loadGameData(){
     winner = data.winner;
     options = data.options;
     gameover = !(winner == -1);
+    game = data.game;
 
     for (var i = 0; i < log.length; i++){
         log[i] = log[i].replace('   ',' + ')
@@ -416,6 +434,7 @@ function updateDice(){
         var l1 = players[currentTurn]+" rolled a "+die1.currentFace+" + "+die2.currentFace;
         var totalMove = die1.currentFace+die2.currentFace;
         var l3 = '';
+        var extraMessages = [];
         var previousSpot = currentPlayer.progress;
         if (currentPlayer.role == "sonic"){
             totalMove += 3
@@ -426,6 +445,24 @@ function updateDice(){
         } else if (currentPlayer.role == "bard"){
             totalMove -= 1;
             l3 = "(-1 Move for being Bard Class)";
+        } if (currentPlayer.effects['onePower'] && (die1.currentFace == 1 || die2.currentFace == 1)){
+            totalMove += 1;
+            extraMessages.push('(+1 Move for the Power of Ones)');
+        } if (currentPlayer.effects['threePower'] && die1.currentFace == 3){
+            totalMove += 1;
+            extraMessages.push("(+1 Move for the Power of Threes)");
+        } if (currentPlayer.effects['threePower'] && die2.currentFace == 3){
+            totalMove += 1;
+            extraMessages.push("(+1 Move for the Power of Threes)");
+        } if (currentPlayer.effects['sixPower'] && die1.currentFace == 6){
+            totalMove += 2;
+            extraMessages.push("(+2 Move for the Power of Sixes)");
+        } if (currentPlayer.effects['sixPower'] && die2.currentFace == 6){
+            totalMove += 2;
+            extraMessages.push("(+2 Move for the Power of Sixes)");
+        } if (currentPlayer.effects['sixCurse'] && (die1.currentFace == 6|| die2.currentFace == 6)){
+            totalMove -= 3;
+            extraMessages.push("(-3 Move for the Curse of Sixes)");
         }
         
         log.unshift(l1);
@@ -434,7 +471,7 @@ function updateDice(){
                 if (players[i] == currentPlayer.user){continue;}
                 if (journeyPlayers[i].role == 'bard' && journeyPlayers[i].hp > 0 && Math.abs(journeyPlayers[i].progress-currentPlayer.progress) <= 5){
                     totalMove -= 2;
-                    msg("(-2 Move from "+journeyPlayers[i].user+" bardic song.");
+                    msg("(-2 Move from "+journeyPlayers[i].user+"'s bardic song.)");
                 }
             }
         } if (totalMove < 0){
@@ -448,6 +485,9 @@ function updateDice(){
         }
 
         if (l3 != ''){log.unshift(l3);}
+        for (m in extraMessages){
+            log.unshift(extraMessages[m]);
+        }
 
         journeyPlayers[currentTurn].progress += totalMove;
 
@@ -455,7 +495,7 @@ function updateDice(){
             for (var i = 0; i < players.length; i++){
                 if (players[i] == currentPlayer.user || journeyPlayers[i].hp <= 0){continue;}
                 if (journeyPlayers[i].progress > previousSpot && journeyPlayers[i].progress < currentPlayer.progress){
-                    msg(currentPlayer.user+" backstabbed "+players[i]+" for 3 damage! (base)");
+                    msg(currentPlayer.user+" backstabbed "+players[i]+" for 3 damage!");
                     currentPlayer.inflictDamage(3,journeyPlayers[i]);
                 }
             }
@@ -463,8 +503,64 @@ function updateDice(){
             for (var i = 0; i < players.length; i++){
                 if (players[i] == currentPlayer.user || journeyPlayers[i].hp <= 0){continue;}
                 if (journeyPlayers[i].progress > previousSpot && journeyPlayers[i].progress < currentPlayer.progress){
-                    msg(currentPlayer.user+" bashed "+players[i]+" for 2 damage! (base)");
+                    msg(currentPlayer.user+" bashed "+players[i]+" for 2 damage!");
                     currentPlayer.inflictDamage(2,journeyPlayers[i]);
+                }
+            }
+        } if (currentPlayer.effects['onePower'] && (die1.currentFace == 1 || die2.currentFace == 1)){
+            for (var i = 0; i < players.length; i++){
+                if (players[i] == currentPlayer.user || journeyPlayers[i].hp <= 0){continue;}
+                if (journeyPlayers[i].progress > previousSpot && journeyPlayers[i].progress < currentPlayer.progress){
+                    msg(currentPlayer.user+" sliced "+players[i]+" for 1 damage with the Power of Ones!");
+                    currentPlayer.inflictDamage(1,journeyPlayers[i],true);
+                }
+            }
+
+            if (currentPlayer.heal(1)){
+                msg(currentPlayer.user+" heals themself 1 hp with the Power of Ones.");
+            };
+        } if (currentPlayer.effects['oneCurse'] && (die1.currentFace == 1)){
+            currentPlayer.inflictDamage(1,currentPlayer,true);
+            msg(currentPlayer.user+" takes a damage from the Curse of Ones.");
+        } if (currentPlayer.effects['oneCurse'] && (die2.currentFace == 1)){
+            currentPlayer.inflictDamage(1,currentPlayer,true);
+            msg(currentPlayer.user+" takes a damage from the Curse of Ones.");
+        } if (currentPlayer.effects['twoPower'] && (die1.currentFace == 2)){
+            if (currentPlayer.heal(1)){
+                msg(currentPlayer.user+" heals themself 1 hp with the Power of Twos")
+            }
+        } if (currentPlayer.effects['twoPower'] && (die2.currentFace == 2)){
+            if (currentPlayer.heal(1)){
+                msg(currentPlayer.user+" heals themself 1 hp with the Power of Twos")
+            }
+        } if (currentPlayer.effects['fourPower'] && (die1.currentFace == 4 || die2.currentFace == 4)){
+            for (var i = 0; i < players.length; i++){
+                if (players[i] == currentPlayer.user || journeyPlayers[i].hp <= 0){continue;}
+                if (journeyPlayers[i].progress > previousSpot && journeyPlayers[i].progress < currentPlayer.progress){
+                    msg(currentPlayer.user+" sliced "+players[i]+" for 1 damage with the Power of Fours!");
+                    currentPlayer.inflictDamage(1,journeyPlayers[i],true);
+                }
+            }
+        } if (currentPlayer.effects['fivePower'] && (die1.currentFace == 5 || die2.currentFace == 5)){
+            leadDist = -1;
+            leaders = [];
+            for (var i = 0; i < players.length; i++){
+                if (journeyPlayers[i].hp < 1){continue;}
+                if (journeyPlayers[i].progress > leadDist){
+                    leadDist = journeyPlayers[i].progress;
+                    leaders = [journeyPlayers[i]];
+                } else if (journeyPlayers[i].progress = leadDist){
+                    leaders.push(journeyPlayers[i]);
+                }
+            }
+
+            if (!isIn(currentPlayer,leaders) && leaders.length > 0){
+                c = pick(leaders);
+                currentPlayer.inflictDamage(1,c);
+                if (currentPlayer.heal(1)){
+                    msg(currentPlayer.user+" leeches 1 hitpoint off of "+c.user+" with the power of fives.");
+                } else {
+                    msg(currentPlayer.user+" slices 1 hitpoint off of "+c.user+" with the power of fives.");
                 }
             }
         }
@@ -496,15 +592,115 @@ function adventure(){
         return;
     }
 
+    if (currentPlayer.hp < 1){
+        window.setTimeout(nextTurn,3000);
+        return;
+    }
+
     if (die1.currentFace == die2.currentFace){
+        gotSomething = true;
         switch (die1.currentFace){
             case 1:
-                
+                // Check Place, last gets Power of 1, other get the curse of one.
+                lastPlace = true;
+                for (var p in journeyPlayers){
+                    if (journeyPlayers[p] == currentPlayer){
+                        continue;
+                    } else if (journeyPlayers[p].progress <= currentPlayer.progress){
+                        lastPlace = false;
+                        break;
+                    }
+                }
+
+                if (lastPlace && game['availablePowers']['onePower'] && !currentPlayer.effects['oneCurse']){
+                    msg(currentPlayer.user+" has unlocked the Power of Ones!");
+                    msg(reg("(Each time "+currentPlayer.user+" rolls at least one 1, they do 1 true damage to other players that they pass and move +1 and heal 1.)",25));
+                    currentPlayer.effects['onePower'] = -1; // -1 means permanent
+                    game['availablePowers']['onePower'] = 0;
+                    gotSomething = true;
+                } else if (!lastPlace && game['availablePowers']['oneCurse'] && !currentPlayer.effects['onePower']){
+                    msg(currentPlayer.user+" has received the Curse of Ones!");
+                    msg(reg("(Each time "+currentPlayer.user+" rolls ones, they take 1 true damage for each one rolled.)",25));
+                    currentPlayer.effects['oneCurse'] = -1; // -1 means permanent
+                    game['availablePowers']['oneCurse'] = 0;
+                    gotSomething = true;
+                }
+                break;
+            case 2:
+                if (game['availablePowers']['twoPower']){
+                    msg(currentPlayer.user+" has unlocked the Power of Twos!");
+                    msg(reg("(Each time "+currentPlayer.user+" rolls at least one 2, they heal 1 for each 2 rolled.)",25));
+                    currentPlayer.effects['twoPower'] = -1; // -1 means permanent
+                    game['availablePowers']['twoPower'] = 0;
+                    gotSomething = true;
+                }
+                break;
+            case 3:
+                if (game['availablePowers']['threePower']){
+                    msg(currentPlayer.user+" has unlocked the Power of Threes!");
+                    msg(reg("(Each time "+currentPlayer.user+" rolls at least one 3, they move an extra space for each 3 rolled.)",25));
+                    currentPlayer.effects['threePower'] = -1; // -1 means permanent
+                    game['availablePowers']['threePower'] = 0;
+                    gotSomething = true;
+                }
+                break;
+            case 4:
+                if (game['availablePowers']['fourPower']){
+                    msg(currentPlayer.user+" has unlocked the Power of Fours!");
+                    msg(reg("(Each time "+currentPlayer.user+" rolls at least one 4, they do 1 true damage to each other player they pass.)",25));
+                    currentPlayer.effects['fourPower'] = -1; // -1 means permanent
+                    game['availablePowers']['fourPower'] = 0;
+                    gotSomething = true;
+                }
+                break;
+            case 5:
+                if (game['availablePowers']['fivePower']){
+                    msg(currentPlayer.user+" has unlocked the Power of Fives!");
+                    msg(reg("(Each time "+currentPlayer.user+" rolls at least one 5, they steal one hp from the player in the lead, ties broken randomly.)",25));
+                    currentPlayer.effects['fivePower'] = -1; // -1 means permanent
+                    game['availablePowers']['fivePower'] = 0;
+                    gotSomething = true;
+                }
+                break;
+            case 6:
+                // Check Place, first gets curse of 6, other get the power of 6.
+                firstPlace = true;
+                for (var p in journeyPlayers){
+                    if (journeyPlayers[p] == currentPlayer){
+                        continue;
+                    } else if (journeyPlayers[p].progress > currentPlayer.progress){
+                        firstPlace = false;
+                        break;
+                    }
+                }
+
+                if (!firstPlace && game['availablePowers']['sixPower'] && !currentPlayer.effects['sixCurse']){
+                    msg(currentPlayer.user+" has unlocked the Power of Sixes!");
+                    msg(reg("(Each time "+currentPlayer.user+" rolls sixes, they move 2 more spaces for each six rolled.)",25));
+                    currentPlayer.effects['sixPower'] = -1; // -1 means permanent
+                    game['availablePowers']['sixPower'] = 0;
+                    gotSomething = true;
+                } else if (firstPlace && game['availablePowers']['sixCurse'] && !currentPlayer.effects['sixPower']){
+                    msg(currentPlayer.user+" has received the Curse of Sixes!");
+                    msg(reg("(Each time "+currentPlayer.user+" rolls at least one 6, they move 3 less spaces.)",25));
+                    currentPlayer.effects['sixCurse'] = -1; // -1 means permanent
+                    game['availablePowers']['sixCurse'] = 0;
+                    gotSomething = true;
+                }
+                break;
             default:
                 break;
         }
-        //return;
+
+        if (gotSomething){
+            showGame();
+            window.setTimeout(nextTurn,3000);
+            return;
+        }
     }
+
+    // RANDOM EVENT
+    
     window.setTimeout(nextTurn,3000);
 
 }

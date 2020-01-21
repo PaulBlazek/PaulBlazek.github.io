@@ -1,0 +1,12 @@
+body{
+    background-color:bisque;
+}
+
+#login {
+    text-align: center;
+}
+
+#login h1 {
+    font-size: 50px;
+    font-family: "Bangers";
+}

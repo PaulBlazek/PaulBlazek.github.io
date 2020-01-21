@@ -20,6 +20,10 @@ function random(min, max) {
     return Math.floor(Math.random() * max) + min;
 }
 
+function pick(array){
+    return array[random(0,array.length-1)];
+}
+
 function shuffle(array) {
     var m = array.length, t, i;
     
@@ -141,6 +145,7 @@ var ctx;
 var width = 1300;
 var height = 600;
 var winner = -1;
+var news = [];
 
 // Main Functions
 $(document).ready(function(){
@@ -154,6 +159,7 @@ $(document).ready(function(){
     ctx = canvas.getContext("2d");
     canvas.addEventListener("click", checkClick);
 
+    document.getElementById("login").innerHTML += '<h1 id="GameName2">'+gameName+'</h1>';
     document.getElementById("login").innerHTML += '<h2>Please Login or Register.</h2>';
     document.getElementById("login").innerHTML += '<p>Username: <input type="text" id="username"/></p>';
     document.getElementById("login").innerHTML += '<p>Password: <input type="password" id="password"></p>';

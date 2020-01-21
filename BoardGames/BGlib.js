@@ -165,6 +165,14 @@ $(document).ready(function(){
     document.getElementById("login").innerHTML += '<p>Password: <input type="password" id="password"></p>';
     document.getElementById("login").innerHTML += '<p><button onclick="register();">Register this as a new account.</button></p>';
     document.getElementById("login").innerHTML += '<p><button onclick="login();">Login</button></p>';
+    if (news.length){
+        document.getElementById("login").innerHTML += '<hr/><h2>NEWS</h2>';
+        document.getElementById("login").innerHTML += '<div id="news"></div>';
+    
+        for (var i = news.length-1; i > -1; i--){
+            document.getElementById("news").innerHTML += '<p>'+news[i]+'</p>';
+        }
+    }
 
     document.getElementById("menu").innerHTML += '<h1 id="GameName">'+gameName+'</h1>';
     document.getElementById("menu").innerHTML += '<p><button onclick="showNewGame();">New Game</button></p>';

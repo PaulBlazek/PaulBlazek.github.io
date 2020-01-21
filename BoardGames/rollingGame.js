@@ -113,6 +113,9 @@ Die.prototype.draw = function(static=false){
 }
 
 // Variables
+var news = [
+    'Rolling doubles can now unlock rare new powers or unleash devastating curses!'
+];
 var heartImg = new Image();
 heartImg.src = gameImagePath+"heart.png";
 var deathImg = new Image();

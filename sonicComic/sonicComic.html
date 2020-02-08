@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            body {
+                text-align: center;
+            }
+            img {
+                width: 800px;
+            }
+            button {
+                height: 50px;
+                width: 50px;
+                font-style: bold;
+            }
+        </style>
+        <script>
+            var comicElement;
+            var comicsAmount = 9;
+            var cComic = 1;
+
+            function refreshComic(){
+                comicElement.src = 'images/'+cComic+'.png';
+            }
+
+            function first(){
+                cComic = 1;
+                refreshComic();
+            }
+
+            function latest(){
+                cComic = comicsAmount;
+                refreshComic();
+            }
+
+            function next(){
+                cComic += 1;
+                if (cComic > comicsAmount){
+                    cComic = comicsAmount;
+                }
+                refreshComic();
+            }
+
+            function previous(){
+                cComic -= 1;
+                if (cComic < 0){
+                    cComic = 0;
+                }
+                refreshComic();
+            }
+        </script>
+    </head>
+    <body>
+        <script>
+            document.body.onload = function(){
+                comicElement = document.getElementById("comic");
+                refreshComic();
+            }
+        </script>
+        <nav>
+            <button onclick='first();'><<</button>
+            <button onclick='previous();'><</button>
+            <button onclick='next();'>></button>
+            <button onclick='latest();'>>></button>
+        </nav>
+        <hr/>
+        <img id='comic' src='' onclick='next();'/>
+    </body>
+</html>

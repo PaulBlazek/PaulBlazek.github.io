@@ -22,6 +22,16 @@
             var comicsAmount = 9;
             var cComic = 1;
 
+            addEventListener("keydown",function(e){
+                var code = e.keyCode;
+                console.log(code);
+                if (code == 37){ // Left
+                    previous();
+                } else if (code == 39){ // Right
+                    next();
+                }
+            })
+
             function refreshComic(){
                 comicElement.src = 'images/'+cComic+'.png';
             }
@@ -46,8 +56,8 @@
 
             function previous(){
                 cComic -= 1;
-                if (cComic < 0){
-                    cComic = 0;
+                if (cComic < 1){
+                    cComic = 1;
                 }
                 refreshComic();
             }

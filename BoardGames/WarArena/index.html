@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>War Arena</title>
+        <style>
+            body, html {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding:0;
+                overflow:hidden;
+            }
+            #myCanvas {
+                position:fixed;
+                left:0;
+                top:0;
+            }
+        </style>
+        <script
+            src="https://code.jquery.com/jquery-3.4.1.min.js"
+            integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+            crossorigin="anonymous">
+        </script>
+        <script src="../BGaccounts.js"></script>
+        <script src="../BGlib.js"></script>
+        <script>
+            var gameName = "War Arena";
+            var playerRange = [1,100];
+            var width,height,canvas,ctx,state;
+            var path = 'images/';
+            var images = [
+                "warArenaLogo"
+            ];
+            var progress = 0;
+            var imageAmount = images.length;
+            var loaded = false;
+
+            $("document").ready(function(){
+                width = window.innerWidth;
+                height = window.innerHeight;
+                $("#game").show();
+                $("#game").attr("width",window.innerWidth);
+                $("#game").attr("height",window.innerHeight);
+                canvas = document.getElementById("game");
+                ctx = canvas.getContext("2d");
+                ctx.textAlign = "center";
+                introScreen();
+            });
+
+            function createImage(src,p=path){
+                var i = new Image();
+                i.src = p+src;
+                return i;
+            }
+            var logoImg = createImage('cb12Logo.png');
+            var warArenaLogo = createImage('warArenaLogo.png');
+
+            function loadImages(){
+                imgsLeft = images.length;
+                images2 = {};
+                for (var i in images){
+                    images2[images[i]] = createImage(images[i]+'.png');
+                }
+
+                images = images2;
+
+                i1 = window.setInterval(function(){
+                    completed = 0;
+                    for (var i in images){
+                        if (images[i].complete){
+                            completed += 1;
+                        }
+                    }
+                    if (progress % 10 == 0 && progress > completed){
+                        // Loading Message
+                    }
+                    progress = completed;
+                    if (progress >= imageAmount){
+                        window.clearInterval(i1);
+                        setupMainMenu();
+                    }
+                },200);
+            }
+
+            function TxtButton(x,y,w,h,txt,click=function(){},alpha=1,fill="white",textFill="black",font="20px Arial",
+                                borderColor="black"){
+                this.x = x;
+                this.y = y;
+                this.w = w;
+                this.h = h;
+                this.click = click;
+                this.txt = txt;
+                this.alpha = alpha;
+                this.fill = fill;
+                this.textFill = textFill;
+                this.active = false;
+                this.font = font;
+                this.borderColor = borderColor;
+                this.bw = 2;
+            }
+
+            TxtButton.prototype.draw = function(){
+                ctx.globalAlpha = this.alpha;
+                ctx.fillStyle = this.borderColor;
+                ctx.fillRect(this.x,this.y,this.w,this.h)
+                ctx.fillStyle = this.fill;
+                ctx.fillRect(this.x+this.bw,this.y+this.bw,this.w-(this.bw*2),this.h-(this.bw*2));
+                ctx.fillStyle = this.textFill;
+                ctx.font = this.font;
+                ctx.fillText(this.txt,this.x+this.w/2,this.y+this.h/2);
+
+                ctx.globalAlpha = 1;
+            }
+
+            function logo(img,rate,dur,trig){
+                this.img = img;
+                this.alpha = 0;
+                this.rate = rate;
+                this.t = 0;
+                this.trigger = trig;
+                this.dur = dur;
+                this.width = width;
+                this.height = this.img.height/this.img.width*width;
+                this.hosted = false;
+                this.update();
+            }
+
+            logo.prototype.update = function(){
+                background('black');
+                this.alpha += this.rate;
+                if (this.alpha > 1){this.alpha = 1;}
+                this.t++;
+                if (this.t == this.trigger){
+                    this.hosted = new slideInText("Presents",height/2+this.height/2+height/10,d=-1,f="50px Arial Italic");
+                }
+                if (this.t > this.dur){
+                    if (this == l){
+                        mainMenuIntro();
+                    } else {
+                        ctx.drawImage(this.img,width/2-this.width/2,height/2-this.height/2,this.width,this.height);
+                        loadImages();
+                    }
+                    return;
+                }
+                if (this.hosted){this.hosted.update();}
+                ctx.globalAlpha = this.alpha;
+                ctx.drawImage(this.img,width/2-this.width/2,height/2-this.height/2,this.width,this.height);
+                ctx.globalAlpha = 1;
+                requestAnimationFrame(this.update.bind(this));
+            }
+
+            function slideInText(txt,y,d=-1,f="20px Arial"){
+                this.txt = txt;
+                this.y = y;
+                this.d = d;
+                if (this.d == -1){
+                    this.x = width+txt.length*20;
+                } else {
+                    this.x = width-txt.length*20;
+                }
+                this.f = f;
+            }
+
+            slideInText.prototype.update = function(){
+                this.x += this.d*10;
+                if (this.d && Math.abs(this.x-(width/2)) < 10){
+                    this.x = width/2;
+                    this.d = 0;
+                }
+                ctx.font = this.f;
+                ctx.fillStyle = 'rgb(200,200,200)';
+                ctx.fillText(this.txt,this.x,this.y);
+            }
+
+            function background(fill){
+                ctx.fillStyle = fill;
+                ctx.fillRect(0,0,width,height);
+            }
+
+            function introScreen(){
+                state = 'intro';
+                l = new logo(logoImg,0.01,300,90);
+            }
+
+            function mainMenuIntro(){
+                l2 = new logo(warArenaLogo,0.01,100,1000);
+                buttons.push(new TxtButton(width/2-(175/2),160,175,80,'New Game',function(){alert('New Game Functionality Coming Soon!');},1,'skyblue','black','20px Arial','blue'));
+                buttons.push(new TxtButton(width/2-(175/2),250,175,80,'Load Game',function(){alert('Load Functionality Coming Soon!');},1,'skyblue','black','20px Arial','blue'));
+                buttons.push(new TxtButton(width/2-(175/2),340,175,80,'News',function(){alert("News coming REALLY soon!")},1,'skyblue','black','20px Arial','blue'));
+                buttons.push(new TxtButton(width/2-(175/2),430,175,80,'Play Tutorial',function(){alert('Tutorial Coming Soon!');},1,'skyblue','black','20px Arial','blue'));
+                
+            }
+
+            buttons = [];
+            
+            function setupMainMenu(){
+                buttons[0].active = true;
+                buttons[1].active = true;
+                buttons[2].active = true;
+                buttons[3].active = true;
+                state = 'mainMenu';
+                mainMenu();
+            }
+
+            function mainMenu(){
+                background('white');
+                ctx.drawImage(warArenaLogo,width/2-200,50,400,80);
+                for (var i = 0; i < 4; i++){
+                    buttons[i].draw();
+                }
+            }
+
+        </script>
+    </head>
+    <body>
+        <canvas id="game"></canvas>
+    </body>
+</html>

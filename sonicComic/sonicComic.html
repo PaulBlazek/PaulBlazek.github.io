@@ -19,8 +19,9 @@
         </style>
         <script>
             var comicElement;
-            var comicsAmount = 14;
+            var comicsAmount = 18;
             var cComic = 1;
+            var gifs = [15];
 
             addEventListener("keydown",function(e){
                 var code = e.keyCode;
@@ -33,6 +34,12 @@
             })
 
             function refreshComic(){
+                for (var i = 0; i < gifs.length; i++){
+                    if (cComic == gifs[i]){
+                        comicElement.src = 'images/'+cComic+'.gif';
+                        return;
+                    }
+                }
                 comicElement.src = 'images/'+cComic+'.png';
             }
 

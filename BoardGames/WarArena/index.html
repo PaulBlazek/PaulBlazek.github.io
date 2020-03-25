@@ -44,6 +44,7 @@
                 canvas = document.getElementById("game");
                 ctx = canvas.getContext("2d");
                 ctx.textAlign = "center";
+                //document.addEventListener("click",checkClick);
                 introScreen();
             });
 
@@ -93,7 +94,7 @@
                 this.alpha = alpha;
                 this.fill = fill;
                 this.textFill = textFill;
-                this.active = false;
+                this.active = true;
                 this.font = font;
                 this.borderColor = borderColor;
                 this.bw = 2;
@@ -184,20 +185,30 @@
 
             function mainMenuIntro(){
                 l2 = new logo(warArenaLogo,0.01,100,1000);
-                buttons.push(new TxtButton(width/2-(175/2),160,175,80,'New Game',function(){alert('New Game Functionality Coming Soon!');},1,'skyblue','black','20px Arial','blue'));
-                buttons.push(new TxtButton(width/2-(175/2),250,175,80,'Load Game',function(){alert('Load Functionality Coming Soon!');},1,'skyblue','black','20px Arial','blue'));
-                buttons.push(new TxtButton(width/2-(175/2),340,175,80,'News',function(){alert("News coming REALLY soon!")},1,'skyblue','black','20px Arial','blue'));
-                buttons.push(new TxtButton(width/2-(175/2),430,175,80,'Play Tutorial',function(){alert('Tutorial Coming Soon!');},1,'skyblue','black','20px Arial','blue'));
-                
+                // MainMenu Buttons
+                buttons.push(new TxtButton(width/2-(175/2),160,175,80,'New Game',function(){
+                    buttons = setupGameButtons;
+                    setupGame();
+                },1,'skyblue','black','20px Arial','blue'));
+                buttons.push(new TxtButton(width/2-(175/2),250,175,80,'Multiplayer Game',function(){alert('Multiplayer Functionality Coming... In a while.');},1,'skyblue','black','20px Arial','blue'));
+                buttons.push(new TxtButton(width/2-(175/2),340,175,80,'Load Game',function(){alert('Load Functionality Coming Soon!');},1,'skyblue','black','20px Arial','blue'));
+                buttons.push(new TxtButton(width/2-(175/2),430,175,80,'News',function(){alert("News coming REALLY soon!")},1,'skyblue','black','20px Arial','blue'));
+                buttons.push(new TxtButton(width/2-(175/2),520,175,80,'Play Tutorial',function(){alert('Tutorial Coming Soon!');},1,'skyblue','black','20px Arial','blue'));
+                mainMenuButtons = buttons;
+
+                // SetupGame Buttons
+                setupGameButtons.push(new TxtButton(width/2-(175/2),160,175,50,'Map: Arena',function(){
+                    //PICK-MAP
+                    alert("Not Implemented!");
+                },1,'skyblue','black','20px Arial','blue'));
             }
 
+            mainMenuButtons = [];
             buttons = [];
+            setupGameButtons = [];
             
             function setupMainMenu(){
-                buttons[0].active = true;
-                buttons[1].active = true;
-                buttons[2].active = true;
-                buttons[3].active = true;
+                buttons = mainMenuButtons;
                 state = 'mainMenu';
                 mainMenu();
             }
@@ -205,8 +216,30 @@
             function mainMenu(){
                 background('white');
                 ctx.drawImage(warArenaLogo,width/2-200,50,400,80);
-                for (var i = 0; i < 4; i++){
+                for (var i = 0; i < 5; i++){
                     buttons[i].draw();
+                }
+            }
+
+            function setupGame(){
+                state = 'setupGame';
+                background('white');
+                for (var b in buttons){
+                    buttons[b].draw();
+                }
+            }
+
+            function checkClick(e){
+                x = e.clientX;
+                y = e.clientY;
+                console.log("Click at ("+x+","+y+")")
+
+                for (var i = 0; i < buttons.length; i++){
+                    if (buttons[i].active &&
+                        buttons[i].x+buttons[i].w > x && x > buttons[i].x &&
+                        buttons[i].y+buttons[i].h > y && y > buttons[i].y){
+                        buttons[i].click();
+                    }
                 }
             }
 

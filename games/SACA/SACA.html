@@ -44,8 +44,8 @@
             var profiles = {};
             var currentBoss = null;
             var settings = {
-                'musicVol':100,
-                'effectsVol':100
+                'Music Volume':100,
+                'Effects Volume':100
             };
             
             var musicTracks = [
@@ -86,13 +86,26 @@
                 for (var i = 0; i < musicTracks.length; i++){
                     music[musicTracks[i][1]] = new Audio("sounds/"+musicTracks[i][0]);
                     m = music[musicTracks[i][1]];
-                    m.volume = musicTracks[i][2];
+                    m.baseVolume = musicTracks[i][2];
+                    m.volume = m.baseVolume;
                     m.loop = true;
                 }
 
                 for (var j = 0; j < soundSrcs.length; j++){
                     soundEffects[soundSrcs[j][1]] = new Audio("sound/SACA/"+soundSrcs[j][0]);
+                    
+                    soundEffects[soundSrcs[j][1]].baseVolume = soundSrcs[j][2];
                     soundEffects[soundSrcs[j][1]].volume = soundSrcs[j][2];
+                }
+            }
+
+            function applyAudioSettings(){
+                for (var m in music){
+                    music[m].volume = music[m].baseVolume * settings['Music Volume'] / 100;
+                }
+
+                for (var e in soundEffects){
+                    soundEffects[e].volume = soundEffects[e].baseVolume * settings['Effects Volume'] / 100;
                 }
             }
 
@@ -195,6 +208,51 @@
                 if (state == 'achievements'){
                     state = 'menu';
                     updateMenu();
+                } else if (state == 'settings'){
+                    /*
+                    var i = 0;
+                    for (s in settings) {
+                        ctx.fillStyle = 'rgb(100,100,100)';
+                        ctx.fillRect(350,150+i*110,400,100);
+                        ctx.fillStyle = 'rgb(0,0,0)';
+                        ctx.fillText(s+': '+settings[s],400,150+i*110+50);
+                        i++;
+                    }
+                    */
+
+                    if (x < 750 && x > 350 && y > 150){
+                        sIndex = Math.floor((y-150)/110);
+                        //console.log(sIndex);
+                        if (sIndex < 2){
+                            var i = 0;
+                            sName = '';
+                            for (var s in settings) {
+                                sName = s;
+                                if (i == sIndex){break;}
+                                i++;
+                            }
+
+                            c = Number(prompt("New value for "+sName+"? (1-100)", settings[sName]));
+                            if (isNaN(c)){
+                                alert("Invalid Input");
+                            } else if (c < 0 || c > 100){
+                                alert("Input must be between 0 and 100, inclusive.");
+                            } else {
+                                settings[sName] = c;
+                                applyAudioSettings();
+                            }
+
+                            return;
+                        }
+                        
+                    }
+                    state = settingsBack
+                    if (state == 'menu'){
+                        updateMenu();
+                    } else {
+                        updateMainMenu();
+                    }
+                    
                 } else if (state == 'chooseCharacters'){
                     //ctx.fillRect(800,450,250,100);
                     if (x >= 800 && x <= 1050 && y >= 450 && y <= 550 && (chosenCompanions.length == 3 || (chosenCompanions.length < 3 && chosenCompanions.length == profiles[profile].unlockedChars.length))){ // Start Game
@@ -224,6 +282,13 @@
                         manualScroll = 0;
                         $("#infobar").hide();
                         updateAchievements();
+                    } else if (x > 1000 && x < 1090 && y > 10 && y < 100){
+                        // Settings
+                        state = "settings";
+                        manualScroll = 0;
+                        $("#infobar").hide();
+                        settingsBack = 'menu';
+                        updateSettings();
                     }
                 } else if (state == 'main menu'){
                     if (x < 750 && x > 350 && y > 50) {
@@ -244,6 +309,13 @@
                             state = 'menu';
                             updateMenu();
                         }
+                    } else if (x > 1000 && x < 1090 && y > 10 && y < 100){
+                        // Settings
+                        state = "settings";
+                        manualScroll = 0;
+                        $("#infobar").hide();
+                        settingsBack = 'main menu';
+                        updateSettings();
                     }
                     
                     // 800,75+i*110,50,50
@@ -4200,6 +4272,7 @@
             function start() {
                 loadData();
                 loadAudio();
+                applyAudioSettings();
                 music["Title Theme"].oncanplaythrough = function(){
                     music["Title Theme"].oncanplaythrough = function(){}
                     changeMusic("Title Theme");
@@ -4255,6 +4328,48 @@
             ]);
             
             var manualScroll = 0;
+
+            function updateSettings(){
+                if (state != 'settings'){
+                    return;
+                } else if (currentMusic && currentMusic.paused){
+                    currentMusic.play();
+                } else if (currentMusic != music["Title Theme"]){
+                    changeMusic("Title Theme");
+                }
+
+                background('dayGrass');
+                ticksUntilPing -= currentSpeed;
+                if (ticksUntilPing < 1) {
+                    ticksUntilPing = 50;
+                    cImg = ['grass.png','flower1.png','flower2.png','flower3.png'][random(0,3)]
+                    entitys.push(new staticEntity(random(100,height-70),cImg,70,70));
+                }
+                
+                for (var i = 0; i < entitys.length; i++){
+                    entitys[i].update();
+                }
+                
+                j = 0;
+                while (j < entitys.length) {
+                    if (entitys[j].killTag == 1) {
+                        entitys.splice(j,1);
+                    } else {
+                        j++;
+                    }
+                }
+
+                var i = 0;
+                for (s in settings) {
+                    ctx.fillStyle = 'rgb(100,100,100)';
+                    ctx.fillRect(350,150+i*110,400,100);
+                    ctx.fillStyle = 'rgb(0,0,0)';
+                    ctx.fillText(s+': '+settings[s],400,150+i*110+50);
+                    i++;
+                }
+
+                requestAnimationFrame(updateSettings);
+            }
 
             function updateAchievements(){
                 if (state != "achievements"){
@@ -4373,6 +4488,7 @@
                 requestAnimationFrame(updateMenu);
             }
             
+            var settingsImg = createImage(path+'gears.png');
             function updateMainMenu() {
                 if (state != 'main menu') {
                     return;
@@ -4405,7 +4521,7 @@
                 
                 ctx.globalAlpha = 1;
                 ctx.fillStyle = 'black';
-                ctx.font = '60px Arial';
+                ctx.font = '55px Arial';
                 ctx.fillText('Super Amazing Cat Adventures!',150,70);
                 
                 ctx.font = '30px Arial';
@@ -4433,6 +4549,12 @@
                         ctx.drawImage(xImg,800,275+i*110,50,50);
                     }
                 }
+
+                ctx.globalAlpha = 0.8;
+                ctx.fillStyle = 'rgb(100,100,100)';
+                ctx.fillRect(1000,10,90,90);
+                ctx.drawImage(settingsImg,1000,10,90,90);
+                ctx.globalAlpha = 1;
                 
                 requestAnimationFrame(updateMainMenu);
             }
@@ -4477,9 +4599,16 @@
                     ctx.fillText(buttons[i],450,50+i*110+50);
                 }
 
+                ctx.globalAlpha = 0.8;
                 ctx.fillStyle = 'rgb(100,100,100)';
                 ctx.fillRect(1100,10,90,90);
                 ctx.drawImage(achieveImg,1100,10,90,90);
+                ctx.globalAlpha = 1;
+
+                ctx.globalAlpha = 0.8;
+                ctx.fillStyle = 'rgb(100,100,100)';
+                ctx.fillRect(1000,10,90,90);
+                ctx.drawImage(settingsImg,1000,10,90,90);
                 ctx.globalAlpha = 1;
                 
                 requestAnimationFrame(updateMenu);
@@ -4492,6 +4621,7 @@
         <div id="infobar">
             <p>This game is gamepad compatable!</p>
             <h1>News</h1>
+            <p>I've added a new settings menu to allow for changing the music and sound effects volumes. <i>4/5/2020</i></p>
             <p>Achievements have been added, just click the trophy in the profile menu to see all the achievements you have unlocked! <i>11/15/2019</i></p>
             <p>SQUIRRELS! <i>11/13/2019</i></p>
             <p>There is now a new pickup which gives the character that picks it up a special weapon! <i>11/13/2019</i></p>

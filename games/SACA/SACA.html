@@ -839,9 +839,122 @@
                 ctx.fillStyle = 'black';
                 ctx.fillText('Start Game',810,510);
             }
+
+            swapImg = createImage(path+"cycle.png");
+            function mobileInput(){
+                this.basePos = [150,450];
+                this.x = this.basePos[0];
+                this.y = this.basePos[1];
+                this.s = 50;
+                this.maxSlide = this.s;
+                this.stick = [0,0];
+                this.swap = false;
+            }
+
+            mobileInput.prototype.draw = function(){
+                if (state == 'areaPause'){return;}
+                lw = ctx.lineWidth;
+                ctx.lineWidth = 10;
+                ctx.fillStyle = 'rgb(255,238,186)';
+                ctx.globalAlpha = 0.5;
+                ctx.beginPath();
+                ctx.arc(this.basePos[0], this.basePos[1], this.s, 0, 2 * Math.PI);
+                ctx.stroke();
+                //ctx.fill();
+                ctx.lineWidth = lw;
+
+                ctx.globalAlpha = 0.3;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.s-5, 0, 2 * Math.PI);
+                ctx.stroke();
+                ctx.fill();
+
+                ctx.globalAlpha = 0.5;
+                ctx.drawImage(swapImg,this.basePos[0]+200-this.s,this.basePos[1]-this.s,this.s*2,this.s*2);
+
+                ctx.globalAlpha = 1;
+                ctx.fillRect(tX-2,tY-2,4,4);
+            }
+
+            mobileInput.prototype.update = function(){
+                scrollX = 0;
+                scrollY = 0;
+
+                // ctx.drawImage(swapImg,this.basePos[0]+200-this.s,this.basePos[1]-this.s,this.s*2,this.s*2);
+                if (tX > this.basePos[0]+200-this.s && tX < this.basePos[0]+200+this.s && 
+                    tY > this.basePos[1]-this.s && tY < this.basePos[1]+this.s){
+                    this.swap = true;
+                } else {
+                    this.swap = false;
+                }
+
+                if (tX > this.basePos[0]-this.s && tX < this.basePos[0]+this.s){
+                    this.x = tX;
+                } else if (tX > 0){
+                    if (Math.abs(this.basePos[0]-tX) <= this.s*2 && Math.abs(this.basePos[0]-tX) >= this.s){
+                        this.x = this.basePos[0] + this.s + (-this.s*2*(tX < this.basePos[0]));
+                    }
+                } else {
+                    this.x = this.basePos[0];
+                }
+
+                if (tY > this.basePos[1]-this.s && tY < this.basePos[1]+this.s){
+                    this.y = tY;
+                } else if (tY > 0){
+                    if (Math.abs(this.basePos[1]-tY) <= this.s*2 && Math.abs(this.basePos[1]-tY) >= this.s){
+                        this.y = this.basePos[1] + this.s + (-this.s*2*(tY < this.basePos[1]));
+                    }
+                } else {
+                    this.y = this.basePos[1];
+                }
+
+                if (this.x-this.basePos[0] > this.s/3){
+                    this.stick[0] = 1;
+                } else if (this.basePos[0]-this.x > this.s/3){
+                    this.stick[0] = -1;
+                } else {
+                    this.stick[0] = 0;
+                }
+                
+                if (this.y-this.basePos[1] > this.s/3){
+                    this.stick[1] = 1;
+                } else if (this.basePos[1]-this.y > this.s/3){
+                    this.stick[1] = -1;
+                } else {
+                    this.stick[1] = 0;
+                }
+            }
+
+            var tX = -1;
+            var tY = -1;
+            var xDif = -80;
+            function ontouchstart(e){
+                tX = e.clientX+xDif;
+                tY = e.clientY;
+            }
+
+            function ontouchend(e){
+                tX = -1;
+                tY = -1;
+            }
+
+            function ontouchcancel(e){
+                tX = -1;
+                tY = -1;
+            }
+
+            function ontouchmove(e){
+                if (tX < 0){return;}
+                tX = e.clientX+xDif;
+                tY = e.clientY;
+            }
             
+            mobileJoystick = new mobileInput();
             function updateGame() {
                 gamepad1.update();
+                if (mobile){
+                    mobileJoystick.update();
+                }
                 
                 if (cLocation.buttons && state == 'pause'){
                     background('dayGrass');
@@ -961,6 +1074,10 @@
                 
                 if (cLocation[0] != 'BANDITS'){
                     cLocation.update();
+                }
+
+                if (mobile){
+                    mobileJoystick.draw();
                 }
                 
                 requestAnimationFrame(updateGame);
@@ -2440,15 +2557,15 @@
                     return;
                 }
                 
-                if (37 in keysDown || gamepad1.leftStick.x <= -0.5){
+                if (37 in keysDown || gamepad1.leftStick.x <= -0.5 || mobileJoystick.stick[0] == -1){
                     this.x -= this.cSpeed;
-                } if (38 in keysDown || gamepad1.leftStick.y <= -0.5) {
+                } if (38 in keysDown || gamepad1.leftStick.y <= -0.5 || mobileJoystick.stick[1] == -1) {
                     this.y -= this.cSpeed;
-                } if (39 in keysDown || gamepad1.leftStick.x >= 0.5) {
+                } if (39 in keysDown || gamepad1.leftStick.x >= 0.5 || mobileJoystick.stick[0] == 1) {
                     this.x += this.cSpeed;
-                } if (40 in keysDown || gamepad1.leftStick.y >= 0.5) {
+                } if (40 in keysDown || gamepad1.leftStick.y >= 0.5 || mobileJoystick.stick[1] == 1) {
                     this.y += this.cSpeed;
-                } if ((32 in keysDown || gamepad1.buttons.a) && this.reloadTimer < 1 && this.weapon[0] != "bow") {
+                } if ((32 in keysDown || gamepad1.buttons.a || mobile) && this.reloadTimer < 1 && this.weapon[0] != "bow") {
                     this.reloadTimer = 30;
                     playSound("gunshot");
                     if (this.name == 'Super Cat'){
@@ -2531,7 +2648,7 @@
                     
                     fragBullets = false;
                     
-                } else if ((32 in keysDown || gamepad1.buttons.a) && this.reloadTimer < 1 && this.weapon[0] == "bow") {
+                } else if ((32 in keysDown || gamepad1.buttons.a || mobile) && this.reloadTimer < 1 && this.weapon[0] == "bow") {
                     this.weapon[0] = "bowLoaded";
                     this.reloadTimer = 30;
                     if (this.name == 'Super Cat'){
@@ -2567,7 +2684,7 @@
                     if (this.effects.laser > 0){
                         this.reloadTimer = 1;
                     }
-                } if ((16 in keysDown || gamepad1.buttons.y) && !this.isChanging){
+                } if ((16 in keysDown || gamepad1.buttons.y || mobileJoystick.swap) && !this.isChanging){
                     this.isChanging = 1;
                 }
                 
@@ -4268,6 +4385,26 @@
             addEventListener("keyup", function (e) {
                 delete keysDown[e.keyCode];
             }, false);
+
+            mobile = false;
+            cW = -1;
+            cH = -1;
+            function toggleMobile(){
+                mobile = !mobile;
+                if (mobile){
+                    cW = window.innerWidth-50;
+                    cH = cW/1200*600;
+                    $("#mobileToggle").text("Turn Mobile Mode Off");
+                    //canvas.width = cW;
+                    //canvas.height = cH;
+                } else {
+                    cW = 1200;
+                    cH = 600;
+                    $("#mobileToggle").text("Turn Mobile Mode On");
+                    //canvas.width = cW;
+                    //canvas.height = cH;
+                }
+            }
             
             function start() {
                 loadData();
@@ -4287,6 +4424,17 @@
                     mouseX = event.clientX-10;
                     mouseY = event.clientY-10;
                 }
+
+                // Mobile Input
+                document.body.ontouchstart = ontouchstart;
+                document.body.ontouchend = ontouchend;
+                document.body.ontouchcancel = ontouchcancel;
+                document.body.ontouchmove = ontouchmove;
+
+                // TESTING ONLY
+                document.body.onmousedown = ontouchstart;
+                document.body.onmouseup = ontouchend;
+                document.body.onmousemove = ontouchmove;
                 
                 updateMainMenu();
             }
@@ -4620,6 +4768,7 @@
         <canvas id='game' width='1200' height='600'></canvas>
         <div id="infobar">
             <p>This game is gamepad compatable!</p>
+            <button id='mobileToggle' onclick="toggleMobile();">Turn Mobile-Mode On</button>
             <h1>News</h1>
             <p>I've added a new settings menu to allow for changing the music and sound effects volumes. <i>4/5/2020</i></p>
             <p>Achievements have been added, just click the trophy in the profile menu to see all the achievements you have unlocked! <i>11/15/2019</i></p>

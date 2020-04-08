@@ -202,8 +202,8 @@
             }
             
             function checkClick(event) {
-                x = event.clientX-10-65;
-                y = event.clientY-10;
+                x = event.clientX - $('#game').offset().left;
+                y = event.clientY - $('#game').offset().top;
                 
                 if (state == 'achievements'){
                     state = 'menu';
@@ -949,6 +949,8 @@
                 if (tX < 0){return;}
                 tX = e.clientX+xDif;
                 tY = e.clientY;
+                event.preventDefault();
+                event.stopPropagation();
                 //e.preventDefault();
             }
             
@@ -4771,8 +4773,8 @@
         <canvas id='game' width='1200' height='600'></canvas>
         <div id="infobar">
             <p>This game is gamepad compatable!</p>
-            <button onclick="canvas.requestFullscreen();">Fullscreen</button>
-            <button id='mobileToggle' onclick="toggleMobile();">Turn Mobile-Mode On</button>
+            <button ontouchdown="canvas.requestFullscreen();" onclick="canvas.requestFullscreen();">Fullscreen</button>
+            <button id='mobileToggle' ontouchdown="toggleMobile();" onclick="toggleMobile();">Turn Mobile-Mode On</button>
             <h1>News</h1>
             <p>Now mobile-compatable! <i>4/8/2020</i></p>
             <p>I've added a new settings menu to allow for changing the music and sound effects volumes. <i>4/5/2020</i></p>

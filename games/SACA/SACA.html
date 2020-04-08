@@ -949,8 +949,6 @@
                 if (tX < 0){return;}
                 tX = e.clientX+xDif;
                 tY = e.clientY;
-                event.preventDefault();
-                event.stopPropagation();
                 //e.preventDefault();
             }
             
@@ -4412,6 +4410,11 @@
             }
             
             function start() {
+                $(document.body).on("touchmove", function(event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                });
+
                 loadData();
                 loadAudio();
                 applyAudioSettings();

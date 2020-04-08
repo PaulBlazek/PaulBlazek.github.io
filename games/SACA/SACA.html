@@ -4395,11 +4395,12 @@
             function toggleMobile(){
                 mobile = !mobile;
                 if (mobile){
-                    cW = window.innerWidth-50;
+                    cW = window.innerWidth*4/5;
                     cH = cW/1200*600;
+                    
                     $("#mobileToggle").text("Turn Mobile Mode Off");
-                    //canvas.width = cW;
-                    //canvas.height = cH;
+                    canvas.width = cW;
+                    canvas.height = cH;
                 } else {
                     cW = 1200;
                     cH = 600;

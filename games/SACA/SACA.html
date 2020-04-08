@@ -207,6 +207,7 @@
                 
                 if (state == 'achievements'){
                     state = 'menu';
+                    canvas.requestFullscreen();
                     updateMenu();
                 } else if (state == 'settings'){
                     /*
@@ -936,20 +937,20 @@
             function ontouchend(e){
                 tX = -1;
                 tY = -1;
-                e.preventDefault();
+                //e.preventDefault();
             }
 
             function ontouchcancel(e){
                 tX = -1;
                 tY = -1;
-                e.preventDefault();
+                //e.preventDefault();
             }
 
             function ontouchmove(e){
                 if (tX < 0){return;}
                 tX = e.clientX+xDif;
                 tY = e.clientY;
-                e.preventDefault();
+                //e.preventDefault();
             }
             
             mobileJoystick = new mobileInput();

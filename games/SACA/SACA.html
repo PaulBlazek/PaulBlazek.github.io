@@ -207,7 +207,6 @@
                 
                 if (state == 'achievements'){
                     state = 'menu';
-                    canvas.requestFullscreen();
                     updateMenu();
                 } else if (state == 'settings'){
                     /*
@@ -4772,6 +4771,7 @@
         <canvas id='game' width='1200' height='600'></canvas>
         <div id="infobar">
             <p>This game is gamepad compatable!</p>
+            <button onclick="canvas.requestFullscreen();">Fullscreen</button>
             <button id='mobileToggle' onclick="toggleMobile();">Turn Mobile-Mode On</button>
             <h1>News</h1>
             <p>Now mobile-compatable! <i>4/8/2020</i></p>

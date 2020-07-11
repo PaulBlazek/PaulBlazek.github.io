@@ -1,27 +1,46 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Sonic Sprite Wars</title>
-        <!---Content by Josiah Blazek--->
+        <title>Paradoxia</title>
         <style>
             body {
                 text-align: center;
+                font-size: 20px;
+                background-color:cornsilk;
             }
+
             img {
                 width: 800px;
                 cursor: pointer;
             }
+
             button {
                 height: 50px;
                 width: 50px;
                 font-style: bold;
             }
+
+            a {
+                text-decoration: underline blue;
+                color: blue;
+            }
         </style>
         <script>
+            var txtBefore;
             var comicElement;
-            var comicsAmount = 21;
-            var cComic = 1;
-            var gifs = [15];
+            var txtAfter;
+            var linkTxt;
+            var comicsAmount = 1;
+            var cComic = comicsAmount;
+            var gifs = [];
+            var comicText = [
+                [],
+                ['Chapter 1','<p>A boy stands in a room.</p><p>What is this boy\'s name?</p>','Enter Name: ']
+            ];
+            var imgWidths = [
+                null,
+                '400px'
+            ];
 
             addEventListener("keydown",function(e){
                 var code = e.keyCode;
@@ -34,13 +53,28 @@
             })
 
             function refreshComic(){
+                txtBefore.innerHTML = '<h1>'+comicText[cComic][0]+'</h1>';
+
+                txtAfter.innerHTML = comicText[cComic][1];
+                linkTxt.innerHTML = comicText[cComic][2];
+
+                var gif = false;
                 for (var i = 0; i < gifs.length; i++){
                     if (cComic == gifs[i]){
-                        comicElement.src = 'images/'+cComic+'.gif';
-                        return;
+                        comicElement.src = 'images/scene'+cComic+'.gif';
+                        gif = true;
                     }
                 }
-                comicElement.src = 'images/'+cComic+'.png';
+
+                if (!gif){
+                    comicElement.src = 'images/scene'+cComic+'.png';
+                }
+                
+                if (imgWidths[cComic]){
+                    comicElement.style.width = imgWidths[cComic];
+                } else {
+                    comicElement.style.width = '800px';
+                }
             }
 
             function first(){
@@ -74,9 +108,14 @@
         <script>
             document.body.onload = function(){
                 comicElement = document.getElementById("comic");
+                txtBefore = document.getElementById("beforeComic");
+                txtAfter = document.getElementById("afterComic");
+                linkTxt = document.getElementById("nextLink");
                 refreshComic();
             }
         </script>
+        <img src='images/logo.png'/>
+        <hr/>
         <nav>
             <button onclick='first();'><<</button>
             <button onclick='previous();'><</button>
@@ -84,6 +123,9 @@
             <button onclick='latest();'>>></button>
         </nav>
         <hr/>
+        <div id='beforeComic'></div>
         <img id='comic' src='' onclick='next();'/>
+        <div id='afterComic'></div>
+        <p><a id='nextLink' onclick='next();'>></a></p>
     </body>
 </html>

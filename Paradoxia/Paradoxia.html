@@ -23,6 +23,7 @@
             a {
                 text-decoration: underline blue;
                 color: blue;
+                cursor: pointer;
             }
         </style>
         <script>
@@ -30,12 +31,13 @@
             var comicElement;
             var txtAfter;
             var linkTxt;
-            var comicsAmount = 1;
+            var comicsAmount = 2;
             var cComic = comicsAmount;
-            var gifs = [];
+            var gifs = [2];
             var comicText = [
                 [],
-                ['Chapter 1','<p>A boy stands in a room.</p><p>What is this boy\'s name?</p>','Enter Name']
+                ['Chapter 1','<p>A boy stands in a room.</p><p>What is this boy\'s name?</p>','Enter Name'],
+                ['','<p>Your name is CALEB BLAZEK. You are in the COMPUTER ROOM of your BUNKER. Something is supposed to happen today, but you can\'t remember what.</p><p>Someone is trying to message you on your computer.</p>','> ']
             ];
             var imgWidths = [
                 null,

@@ -25,20 +25,57 @@
                 color: blue;
                 cursor: pointer;
             }
+
+            .coder {
+                color: orange;
+            }
+
+            .ortho {
+                color: green;
+            }
+
+            .show {
+                width: 20%;
+            }
+
+            #log {
+                width: 50%;
+                display: none;
+                background-color: #dddddd;
+                font-size: 15px;
+                font-family: monospace;
+                margin: auto;
+            }
         </style>
         <script>
             var txtBefore;
             var comicElement;
             var txtAfter;
             var linkTxt;
-            var comicsAmount = 2;
+            var comicsAmount = 3;
             var cComic = comicsAmount;
-            var gifs = [2];
+            var gifs = [2,3];
             var comicText = [
                 [],
                 ['Chapter 1','<p>A boy stands in a room.</p><p>What is this boy\'s name?</p>','Enter Name'],
-                ['','<p>Your name is CALEB BLAZEK. You are in the COMPUTER ROOM of your BUNKER. Something is supposed to happen today, but you can\'t remember what.</p><p>Someone is trying to message you on your computer.</p>','> ']
+                ['','<p>Your name is CALEB BLAZEK. You are in the COMPUTER ROOM of your BUNKER. Something is supposed to happen today, but you can\'t remember what.</p><p>Someone is trying to message you on your computer.</p>','Answer'],
+                ['','<button class="show">Dialog</button><br/><p id="log"></p>','> ?']
             ];
+            var logs = {
+                3: [
+                    'CoderBlaze12: Hey Caleb?',
+                    'OrthodoxBoy: Yes?',
+                    'CB: Have you got your mail yet today?',
+                    'OB: Why do you ask?',
+                    'CB: You should be receiving the Paradoxia Alpha disks today.',
+                    'CB: I\'ve already downloaded the server on my end, so once you get the client installed we can get started.',
+                    'OB: Ah, I see.',
+                    'OB: I haven\'t checked yet. I\'ll do that.',
+                    'CB: Thanks. Looking forward to trying this thing out.',
+                    'CB: There was a basic manual included with the server disk, but a lot of it is blurred for some reason.'
+                ]
+
+            }
             var imgWidths = [
                 null,
                 '400px'
@@ -76,6 +113,32 @@
                     comicElement.style.width = imgWidths[cComic];
                 } else {
                     comicElement.style.width = '800px';
+                }
+
+                if (document.getElementsByClassName('show').length){
+                    document.getElementsByClassName('show')[0].onclick = showHideLog;
+                    document.getElementsByClassName('show')[0].innerHTML = document.getElementsByClassName('show')[0].innerHTML+' (Show/Hide)';
+                    initializeLog();
+                }
+            }
+
+            function showHideLog(){
+                document.getElementById('log').style.backgroundColor = '#DDDDDD';
+                if (document.getElementById('log').style.display != "block"){
+                    document.getElementById('log').style.display = "block";
+                } else {
+                    document.getElementById('log').style.display = "none";
+                }
+            }
+
+            function initializeLog(){
+                log = document.getElementById("log");
+                log.innerHTML = '';
+                for (var i = 0; i < logs[cComic].length; i++){
+                    cClass = '';
+                    if (logs[cComic][i].search("CB:") != -1 || logs[cComic][i].search("CoderBlaze12:") != -1){cClass = 'coder';}
+                    if (logs[cComic][i].search("OB:") != -1 || logs[cComic][i].search("OrthodoxBoy:") != -1){cClass = 'ortho';}
+                    log.innerHTML += '<p class='+cClass+'>'+logs[cComic][i]+'</p>';
                 }
             }
 
@@ -116,7 +179,7 @@
                 refreshComic();
             }
         </script>
-        <img src='images/logo.png'/>
+        <img src='images/logo.png' onclick='first();'/>
         <hr/>
         <nav>
             <button onclick='first();'><<</button>

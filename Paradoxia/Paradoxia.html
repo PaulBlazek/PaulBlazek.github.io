@@ -52,14 +52,15 @@
             var comicElement;
             var txtAfter;
             var linkTxt;
-            var comicsAmount = 3;
+            var comicsAmount = 4;
             var cComic = comicsAmount;
             var gifs = [2,3];
             var comicText = [
                 [],
                 ['Chapter 1','<p>A boy stands in a room.</p><p>What is this boy\'s name?</p>','Enter Name'],
                 ['','<p>Your name is CALEB BLAZEK. You are in the COMPUTER ROOM of your BUNKER. Something is supposed to happen today, but you can\'t remember what.</p><p>Someone is trying to message you on your computer.</p>','Answer'],
-                ['','<button class="show">Dialog</button><br/><p id="log"></p>','> ?']
+                ['','<button class="show">Dialog</button><br/><p id="log"></p>','> Get the Alpha'],
+                ['','<p>You slide down your awesome quick-descent pole, and take the door on your left to arrive at the postal center.</p><p>This conveyor belt brings mail into your bunker securely and deposits it in the bin.</p>','> ?']
             ];
             var logs = {
                 3: [
@@ -80,6 +81,9 @@
                 null,
                 '400px'
             ];
+            var multiImg = {
+                4: ['scene4-1.gif','scene4-2.png']
+            };
 
             addEventListener("keydown",function(e){
                 var code = e.keyCode;
@@ -96,6 +100,8 @@
 
                 txtAfter.innerHTML = comicText[cComic][1];
                 linkTxt.innerHTML = comicText[cComic][2];
+                imagesElement.innerHTML = "<img id='comic' src='' onclick='next();'/>";
+                comicElement = document.getElementById("comic");
 
                 var gif = false;
                 for (var i = 0; i < gifs.length; i++){
@@ -107,6 +113,13 @@
 
                 if (!gif){
                     comicElement.src = 'images/scene'+cComic+'.png';
+                }
+
+                if (multiImg[cComic]){
+                    imagesElement.innerHTML = '';
+                    for (var i = 0; i < multiImg[cComic].length; i++){
+                        imagesElement.innerHTML += '<img src="images/'+multiImg[cComic][i]+'""/>';
+                    }
                 }
                 
                 if (imgWidths[cComic]){
@@ -173,6 +186,7 @@
         <script>
             document.body.onload = function(){
                 comicElement = document.getElementById("comic");
+                imagesElement = document.getElementById("comicImages");
                 txtBefore = document.getElementById("beforeComic");
                 txtAfter = document.getElementById("afterComic");
                 linkTxt = document.getElementById("nextLink");
@@ -189,7 +203,9 @@
         </nav>
         <hr/>
         <div id='beforeComic'></div>
-        <img id='comic' src='' onclick='next();'/>
+        <div id='comicImages'>
+            <img id='comic' src='' onclick='next();'/>
+        </div>
         <div id='afterComic'></div>
         <p><a id='nextLink' onclick='next();'>></a></p>
     </body>

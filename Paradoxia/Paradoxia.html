@@ -58,7 +58,7 @@
             var comicElement;
             var txtAfter;
             var linkTxt;
-            var comicsAmount = 5;
+            var comicsAmount = 6;
             var cComic = comicsAmount;
             var gifs = [2,3];
             var comicText = [
@@ -67,7 +67,8 @@
                 ['','<p>Your name is CALEB BLAZEK. You are in the COMPUTER ROOM of your BUNKER. Something is supposed to happen today, but you can\'t remember what.</p><p>Someone is trying to message you on your computer.</p>','Answer'],
                 ['','<button class="show">Dialog</button><br/><p id="log"></p>','> Get the Alpha'],
                 ['','<p>You slide down your awesome quick-descent pole, and take the door on your left to arrive at the postal center.</p><p>This conveyor belt brings mail into your bunker securely and deposits it in the bin.</p>','> Pick up Alpha'],
-                ['','<p>You pick up the Alpha and place it in one of your open inventory slots.</p><p>Inventory management can be complicated, but you\'ve gone with the simple approach. Six slots, no restrictions.</p><p>Paul has a complicated inventory system he set up where he can potentially store about one hundred items, though he has major programming-based restrictions built-in.</p>','> ?']
+                ['','<p>You pick up the Alpha and place it in one of your open inventory slots.</p><p>Inventory management can be complicated, but you\'ve gone with the simple approach. Six slots, no restrictions.</p><p>Paul has a complicated inventory system he set up where he can potentially store about one hundred items, though he has major programming-based restrictions built-in.</p>','> Insert the Alpha Disk'],
+                ['','<p>You ascend the stairs to your room and have brief discussion with Paul.</p><p><button class="show">Dialog</button></p><p id="log"></p><p>You insert the client disk and save the server disk for later.</p>','> Run ParadoxiaSetup.exe']
             ];
             var logs = {
                 3: [
@@ -81,6 +82,10 @@
                     'OB: I haven\'t checked yet. I\'ll do that.',
                     'CB: Thanks. Looking forward to trying this thing out.',
                     'CB: There was a basic manual included with the server disk, but a lot of it is blurred for some reason.'
+                ],
+                6: [
+                    'CoderBlaze12: I\'m running the server disk on my end. Just run the client disk and we should be able to get started.',
+                    'OrthodoxBoy: Ok'
                 ]
             }
 
@@ -90,7 +95,8 @@
             ];
 
             var multiImg = {
-                4: ['scene4-1.gif','scene4-2.png']
+                4: ['scene4-1.gif','scene4-2.png'],
+                6: ['scene6-1.png','scene6-2.png']
             };
 
             var inventory = {

@@ -58,7 +58,7 @@
             var comicElement;
             var txtAfter;
             var linkTxt;
-            var comicsAmount = 6;
+            var comicsAmount = 7;
             var cComic = comicsAmount;
             var gifs = [2,3];
             var comicText = [
@@ -68,7 +68,8 @@
                 ['','<button class="show">Dialog</button><br/><p id="log"></p>','> Get the Alpha'],
                 ['','<p>You slide down your awesome quick-descent pole, and take the door on your left to arrive at the postal center.</p><p>This conveyor belt brings mail into your bunker securely and deposits it in the bin.</p>','> Pick up Alpha'],
                 ['','<p>You pick up the Alpha and place it in one of your open inventory slots.</p><p>Inventory management can be complicated, but you\'ve gone with the simple approach. Six slots, no restrictions.</p><p>Paul has a complicated inventory system he set up where he can potentially store about one hundred items, though he has major programming-based restrictions built-in.</p>','> Insert the Alpha Disk'],
-                ['','<p>You ascend the stairs to your room and have brief discussion with Paul.</p><p><button class="show">Dialog</button></p><p id="log"></p><p>You insert the client disk and save the server disk for later.</p>','> Run ParadoxiaSetup.exe']
+                ['','<p>You ascend the stairs to your room and have brief discussion with Paul.</p><p><button class="show">Dialog</button></p><p id="log"></p><p>You insert the client disk and save the server disk for later.</p>','> Run ParadoxiaSetup.exe'],
+                ['','<button class="show">Computer Log</button><br/><p id="log"></p>','> ?']
             ];
             var logs = {
                 3: [
@@ -86,6 +87,11 @@
                 6: [
                     'CoderBlaze12: I\'m running the server disk on my end. Just run the client disk and we should be able to get started.',
                     'OrthodoxBoy: Ok'
+                ],
+                7: [
+                    'Loading Paradoxia....',
+                    'Welcome Orthodoxboy!, connecting you to CoderBlaze\'s server...',
+                    'Game begins now!'
                 ]
             }
 
@@ -103,6 +109,55 @@
                 5:'calebInvScene5.png'
             }
 
+            function scene7canvas(){
+                this.progress = 0;
+                this.soundTrack = new Audio('sounds/LoadingParadoxia.ogg');
+                this.img = new Image();
+                this.img.src = 'images/logo.png';
+                this.stopFlag = false;
+            }
+
+            scene7canvas.prototype.init = function(){
+                this.ctx = document.getElementById('canvas').getContext('2d');
+                this.soundTrack.play();
+                this.stopFlag = false;
+                this.update();
+            }
+
+            scene7canvas.prototype.cancel = function(){
+                this.soundTrack.pause();
+                this.soundTrack.currentTime = 0;
+                this.stopFlag = true;
+            }
+
+            scene7canvas.prototype.update = function(){
+                if (this.stopFlag){return;}
+                canvas[7].ctx.fillStyle = 'white';
+                activeCanvas.progress = canvas[7].soundTrack.currentTime/canvas[7].soundTrack.duration*100;
+                canvas[7].ctx.clearRect(0,0,1000,1000);
+                activeCanvas.ctx.fillRect(0,0,1000,1000);
+                canvas[7].ctx.drawImage(canvas[7].img,80,100,640,200);
+                canvas[7].ctx.fillRect(activeCanvas.progress/100*740,0,1000,1000);
+
+                if (activeCanvas.progress < 100){
+                    window.requestAnimationFrame(canvas[7].update);
+                } else {
+                    activeCanvas.ctx.fillStyle = 'black';
+                    activeCanvas.ctx.font = '40px Monospace';
+                    activeCanvas.ctx.fillText('Ready!',320,350);
+                    return;
+                }
+
+                activeCanvas.ctx.fillStyle = 'black';
+                activeCanvas.ctx.font = '40px Monospace';
+                activeCanvas.ctx.fillText('Loading...',300,350);
+            }
+
+            var activeCanvas = -1;
+            var canvas = {
+                7: new scene7canvas()
+            }
+
             addEventListener("keydown",function(e){
                 var code = e.keyCode;
                 console.log(code);
@@ -114,36 +169,47 @@
             })
 
             function refreshComic(){
+                if (activeCanvas != -1){activeCanvas.cancel();}
+                activeCanvas = -1;
+                buttonElement.innerHTML = "";
                 txtBefore.innerHTML = '<h1>'+comicText[cComic][0]+'</h1>';
 
                 txtAfter.innerHTML = comicText[cComic][1];
                 linkTxt.innerHTML = comicText[cComic][2];
-                imagesElement.innerHTML = "<img id='comic' src='' onclick='next();'/>";
-                comicElement = document.getElementById("comic");
 
-                var gif = false;
-                for (var i = 0; i < gifs.length; i++){
-                    if (cComic == gifs[i]){
-                        comicElement.src = 'images/scene'+cComic+'.gif';
-                        gif = true;
+                if (!canvas[cComic]){
+                    imagesElement.innerHTML = "<img id='comic' src='' onclick='next();'/>";
+                    comicElement = document.getElementById("comic");
+
+                    var gif = false;
+                    for (var i = 0; i < gifs.length; i++){
+                        if (cComic == gifs[i]){
+                            comicElement.src = 'images/scene'+cComic+'.gif';
+                            gif = true;
+                        }
                     }
-                }
 
-                if (!gif){
-                    comicElement.src = 'images/scene'+cComic+'.png';
-                }
-
-                if (multiImg[cComic]){
-                    imagesElement.innerHTML = '';
-                    for (var i = 0; i < multiImg[cComic].length; i++){
-                        imagesElement.innerHTML += '<img src="images/'+multiImg[cComic][i]+'""/>';
+                    if (!gif){
+                        comicElement.src = 'images/scene'+cComic+'.png';
                     }
-                }
-                
-                if (imgWidths[cComic]){
-                    comicElement.style.width = imgWidths[cComic];
+
+                    if (multiImg[cComic]){
+                        imagesElement.innerHTML = '';
+                        for (var i = 0; i < multiImg[cComic].length; i++){
+                            imagesElement.innerHTML += '<img src="images/'+multiImg[cComic][i]+'""/>';
+                        }
+                    }
+                    
+                    if (imgWidths[cComic]){
+                        comicElement.style.width = imgWidths[cComic];
+                    } else {
+                        comicElement.style.width = '800px';
+                    }
                 } else {
-                    comicElement.style.width = '800px';
+                    buttonElement.style.display = 'inline';
+                    imagesElement.innerHTML = "<canvas id='canvas' width='800px' height='500px'/>";
+                    activeCanvas = canvas[cComic];
+                    buttonElement.innerHTML = "<button id='cButton' onclick='startCanvas()'>Start Animation</button>";
                 }
 
                 if (document.getElementsByClassName('show').length){
@@ -158,6 +224,11 @@
                     document.getElementById("showInv").onclick = toggleInv;
                     initializeInv();
                 }
+            }
+
+            function startCanvas(){
+                buttonElement.style.display = 'none';
+                activeCanvas.init();
             }
 
             function initializeInv(){
@@ -230,6 +301,7 @@
                 txtBefore = document.getElementById("beforeComic");
                 txtAfter = document.getElementById("afterComic");
                 linkTxt = document.getElementById("nextLink");
+                buttonElement = document.getElementById("startButton");
                 refreshComic();
             }
         </script>
@@ -242,6 +314,7 @@
             <button onclick='latest();'>>></button>
         </nav>
         <hr/>
+        <div id='startButton'></div>
         <div id='beforeComic'></div>
         <div id='comicImages'>
             <img id='comic' src='' onclick='next();'/>

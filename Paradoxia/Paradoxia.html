@@ -58,9 +58,10 @@
             var comicElement;
             var txtAfter;
             var linkTxt;
-            var comicsAmount = 8;
+            var comicsAmount = 9;
             var cComic = comicsAmount;
             var gifs = [2,3,8];
+            var noImg = 9;
             var comicText = [
                 [],
                 ['Chapter 1','<p>A boy stands in a room.</p><p>What is this boy\'s name?</p>','Enter Name'],
@@ -70,7 +71,8 @@
                 ['','<p>You pick up the Alpha and place it in one of your open inventory slots.</p><p>Inventory management can be complicated, but you\'ve gone with the simple approach. Six slots, no restrictions.</p><p>Paul has a complicated inventory system he set up where he can potentially store about one hundred items, though he has major programming-based restrictions built-in.</p>','> Insert the Alpha Disk'],
                 ['','<p>You ascend the stairs to your room and have brief discussion with Paul.</p><p><button class="show">Dialog</button></p><p id="log"></p><p>You insert the client disk and save the server disk for later.</p>','> Run ParadoxiaSetup.exe'],
                 ['','<button class="show">Computer Log</button><br/><p id="log"></p>','> [...]'],
-                ['','<p>Huh. Somehow you were expecting a lot more from this so-called game.</p><p>Paul starts messaging you.</p><br/><button class="show">Dialog</button><br/><p id="log"></p>','> ?']
+                ['','<p>Huh. Somehow you were expecting a lot more from this so-called game.</p><p>Paul starts messaging you.</p><br/><button class="show">Dialog</button><br/><p id="log"></p>','> Tell Paul'],
+                ['','<button class="show">Dialog</button><br/><p id="log"></p><p>You look at the image.</p><p>...</p><p>That image looks rather familiar...</p>','> ?']
             ];
             var logs = {
                 3: [
@@ -99,6 +101,14 @@
                     'CB: I\'ve got a tutorial popup here saying that apparently as the server player I don\'t directly control a character.',
                     'CB: Huh. I can see your character, but he doesn\'t seem to be doing anything yet...',
                     'CB: Are you in the game yet? Is there some lag?'
+                ],
+                9: [
+                    "OrthodoxBoy: Nothing is happening. I don't even see the game, just a command-prompt window saying 'Paradoxia client is running'.",
+                    'CB: Hm... Weird. Mine is working fine. Probably a lag issue or something. I\'ll send you a snipped screenshot of my screen while you wait.',
+                    'CB: Here: <a href="images/scene9.png">snippet1.png</a>',
+                    'CB: I cut out the controls and some of the rest of this starting room.',
+                    'CB: You did create your character already, right?',
+                    'CB: That is definitely you.'
                 ]
             }
 
@@ -184,7 +194,9 @@
                 txtAfter.innerHTML = comicText[cComic][1];
                 linkTxt.innerHTML = comicText[cComic][2];
 
-                if (!canvas[cComic]){
+                if (noImg){
+
+                } else if (!canvas[cComic]){
                     imagesElement.innerHTML = "<img id='comic' src='' onclick='next();'/>";
                     comicElement = document.getElementById("comic");
 

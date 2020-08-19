@@ -58,9 +58,9 @@
             var comicElement;
             var txtAfter;
             var linkTxt;
-            var comicsAmount = 7;
+            var comicsAmount = 8;
             var cComic = comicsAmount;
-            var gifs = [2,3];
+            var gifs = [2,3,8];
             var comicText = [
                 [],
                 ['Chapter 1','<p>A boy stands in a room.</p><p>What is this boy\'s name?</p>','Enter Name'],
@@ -69,7 +69,8 @@
                 ['','<p>You slide down your awesome quick-descent pole, and take the door on your left to arrive at the postal center.</p><p>This conveyor belt brings mail into your bunker securely and deposits it in the bin.</p>','> Pick up Alpha'],
                 ['','<p>You pick up the Alpha and place it in one of your open inventory slots.</p><p>Inventory management can be complicated, but you\'ve gone with the simple approach. Six slots, no restrictions.</p><p>Paul has a complicated inventory system he set up where he can potentially store about one hundred items, though he has major programming-based restrictions built-in.</p>','> Insert the Alpha Disk'],
                 ['','<p>You ascend the stairs to your room and have brief discussion with Paul.</p><p><button class="show">Dialog</button></p><p id="log"></p><p>You insert the client disk and save the server disk for later.</p>','> Run ParadoxiaSetup.exe'],
-                ['','<button class="show">Computer Log</button><br/><p id="log"></p>','> ?']
+                ['','<button class="show">Computer Log</button><br/><p id="log"></p>','> [...]'],
+                ['','<p>Huh. Somehow you were expecting a lot more from this so-called game.</p><p>Paul starts messaging you.</p><br/><button class="show">Dialog</button><br/><p id="log"></p>','> ?']
             ];
             var logs = {
                 3: [
@@ -92,6 +93,12 @@
                     'Loading Paradoxia....',
                     'Welcome Orthodoxboy!, connecting you to CoderBlaze\'s server...',
                     'Game begins now!'
+                ],
+                8: [
+                    'CoderBlaze12: I\'m in the game!',
+                    'CB: I\'ve got a tutorial popup here saying that apparently as the server player I don\'t directly control a character.',
+                    'CB: Huh. I can see your character, but he doesn\'t seem to be doing anything yet...',
+                    'CB: Are you in the game yet? Is there some lag?'
                 ]
             }
 

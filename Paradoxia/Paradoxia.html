@@ -58,10 +58,10 @@
             var comicElement;
             var txtAfter;
             var linkTxt;
-            var comicsAmount = 9;
-            var cComic = comicsAmount;
-            var gifs = [2,3,8];
-            var noImg = 9;
+            var comicsAmount = 11;
+            var cComic = 1;
+            var gifs = [2,3,8,11];
+            var noImg = {9:1,10:1};
             var comicText = [
                 [],
                 ['Chapter 1','<p>A boy stands in a room.</p><p>What is this boy\'s name?</p>','Enter Name'],
@@ -72,7 +72,9 @@
                 ['','<p>You ascend the stairs to your room and have brief discussion with Paul.</p><p><button class="show">Dialog</button></p><p id="log"></p><p>You insert the client disk and save the server disk for later.</p>','> Run ParadoxiaSetup.exe'],
                 ['','<button class="show">Computer Log</button><br/><p id="log"></p>','> [...]'],
                 ['','<p>Huh. Somehow you were expecting a lot more from this so-called game.</p><p>Paul starts messaging you.</p><br/><button class="show">Dialog</button><br/><p id="log"></p>','> Tell Paul'],
-                ['','<button class="show">Dialog</button><br/><p id="log"></p><p>You look at the image.</p><p>...</p><p>That image looks rather familiar...</p>','> ?']
+                ['','<button class="show">Dialog</button><br/><p id="log"></p><p>You look at the image.</p><p>...</p><p>That image looks rather familiar...</p>','> [...]'],
+                ['','<button class="show">Dialog</button><br/><p id="log"></p><p>You get the feeling that you are having a enormous prank played on...</p>','> [...]'],
+                ['...You?','<p>???</p><br/><button class="show">Dialog</button><br/><p id="log"></p>','> ???']
             ];
             var logs = {
                 3: [
@@ -109,6 +111,18 @@
                     'CB: I cut out the controls and some of the rest of this starting room.',
                     'CB: You did create your character already, right?',
                     'CB: That is definitely you.'
+                ],
+                10: [
+                    "OrthodoxBoy: I haven't made my character yet. That looks like me though... Did you set this up?",
+                    'CoderBlaze12: All I did was create the server and wait for you to join.',
+                    'CB: Since you still aren\'t in I\'m going to page through some of the controls I have on my end.',
+                    'CB: Ooh. It looks like I can build some stuff for free to get us started.',
+                    'CB: I\'m going to try it.'
+                ],
+                11: [
+                    'CoderBlaze12: I deployed this weird thingy called the "Card Printer".',
+                    'CB: It sure looks like a printer. Got some weird buttons and switches though.',
+                    'CB: Any luck getting into the game?'
                 ]
             }
 
@@ -194,8 +208,8 @@
                 txtAfter.innerHTML = comicText[cComic][1];
                 linkTxt.innerHTML = comicText[cComic][2];
 
-                if (noImg){
-
+                if (noImg[cComic]){
+                    imagesElement.innerHTML = '';
                 } else if (!canvas[cComic]){
                     imagesElement.innerHTML = "<img id='comic' src='' onclick='next();'/>";
                     comicElement = document.getElementById("comic");

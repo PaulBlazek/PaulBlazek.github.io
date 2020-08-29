@@ -58,10 +58,10 @@
             var comicElement;
             var txtAfter;
             var linkTxt;
-            var comicsAmount = 13;
+            var comicsAmount = 14;
             var cComic = 1;
             var gifs = [2,3,8,11];
-            var noImg = {9:1,10:1};
+            var noImg = {9:1,10:1,14:1};
             var comicText = [
                 [],
                 ['Chapter 1','<p>A boy stands in a room.</p><p>What is this boy\'s name?</p>','Enter Name'],
@@ -77,7 +77,9 @@
                 
                 ['...You?','<p>???</p><br/><button class="show">Dialog</button><br/><p id="log"></p>','> [...]'],
                 ['','<p>You aren\'t sure how but Paul is totally trolling you.</p><br/><button class="show">Dialog</button><br/><p id="log"></p>','> Examine Card Printer'],
-                ['','<p>You write a quick message to Paul and check out the Card Printer.</p><p>There are four slots in the top that look like they are supposed to hold some sort of cards or cartridges</p><p>There also two buttons, one in between each pair of slots with the symbol "|" glowing on them.</p><p>There\'s also a button with "print" glowing faintly on the right side of the device, right next to a small screen that is currently blank.</p>','> ?']
+                ['','<p>You write a quick message to Paul and check out the Card Printer.</p><p>There are four slots in the top that look like they are supposed to hold some sort of cards or cartridges</p><p>There also two buttons, one in between each pair of slots with the symbol "|" glowing on them.</p><p>There\'s also a button with "print" glowing faintly on the right side of the device, right next to a small screen that is currently blank.</p>','> Respond to Paul'],
+                ['','<p>You discuss the current situation with Paul.</p><br/><button class="show">Dialog</button><br/><p id="log"></p>','> ?']
+
             ];
             var logs = {
                 3: [
@@ -135,6 +137,14 @@
                     "CB: Coooool.",
                     "CB: I'm deploying something called the \"Node Generator\" in your mail room and the \"Part Shaper\" on your roof.",
                     "CB: The Tutorial doesn't tell me a whole lot. Right now it just wants me to throw this stuff down. It hasn't told me what exactly they do."
+                ],
+                14: [
+                    "OrthodoxBoy: Paul, I'm not in the game. No game window is open on my computer. You can keep messing around instead of helping me connect if you want, I'm going to go look at your fake card printer.",
+                    "CoderBlaze12: If you say so. I see you in the game moving over to look at it. I think you are the one trolling me.",
+                    "CB: According to this really uninfomative tutorial you need to get nodes from the Node Generator and use the Card Printer to print cards. Nodes together with printed cards can be used to make things on the Part Shaper.",
+                    "CB: Huh there's some sort of disclaimer here in the options menu...",
+                    "CB: This disclaimer makes no sense. Maybe it relates to some puzzle later on? I'll send you a screen shot.",
+                    "CB: <a href='images/disclaimer.png'>disclaimer.png</a>"
                 ]
             }
 

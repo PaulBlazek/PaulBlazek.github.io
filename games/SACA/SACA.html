@@ -30,6 +30,8 @@
         <script src="PxGamepad.js"></script>
         <link rel="shortcut icon" href="./favicon.ico">
         <script>
+            cLocDeaths = 0;
+
             gamepad1 = new PxGamepad();
             gamepad1.start();
             
@@ -495,10 +497,11 @@
                     window.setTimeout(window.setInterval,10000,function(){entitys.push(new banditWagon(random(100,height-300),true));},15700);
                     window.setTimeout(window.setInterval,20000,spawnSmartBandits,5500);
                     window.setTimeout(window.setInterval,12000,function(){banditsAnnoyed = !banditsAnnoyed;},5100);
-                    window.setTimeout(window.setInterval,15000,spawnBandits,5200);
+                    window.setInterval(window.setInterval,15000,spawnBandits,5200);
                     window.setTimeout(window.setInterval,30000,function(){entitys.push(new banditWagon(random(100,height-300),true));},12700);
                     window.setTimeout(window.setInterval,32000,spawnSmartBandits,4800);
                     window.setTimeout(window.setInterval,28000,spawnBandits,4200);
+                    window.setInterval(window.setInterval,20000,function(){entitys.push(new RobBoss(true));},10000);
                     window.setInterval(function(){
                         mines = !mines;
                     },10000);
@@ -3051,7 +3054,7 @@
                 }
             };
             
-            function RobBoss(){
+            function RobBoss(survival=false){
                 this.name = 'boss';
                 this.x = 1200;
                 this.y = height / 2;
@@ -3073,35 +3076,56 @@
                 this.movePause = 0;
                 this.trueHealth = 50;
                 this.spawnPickups = false;
+                this.isSurvival = survival;
             }
             
             RobBoss.prototype.update = function(){
+                if (this.health < 1 && this.isSurvival){
+                        this.trueHealth += this.health-1;
+                        if (this.trueHealth < 1){
+                            this.killTag = true;
+                            return;
+                        }
+                    }
+
                 if (this.stage == 1){
                     this.x -= 4;
                     if (this.x <= 900){
                         this.stage += 1;
-                        changeMusic('Boss Theme');
-                        areaInfo(["ROB: This is where your journey ends."],3000,function(){
-                            entitys.push(new bossText("Rob the Bandit",function(){
-                                currentBoss.stage += 1;
-                            }));
-                        },false,false);
+                        if (!this.isSurvival){
+                            changeMusic('Boss Theme');
+                            areaInfo(["ROB: This is where your journey ends."],3000,function(){
+                                entitys.push(new bossText("Rob the Bandit",function(){
+                                    currentBoss.stage += 1;
+                                }));
+                            },false,false);
+                        } else {
+                            this.stage += 1;
+                        }
                     }
                 } else if (this.stage == 3){
                     if (this.trueHealth <= 20){
                         this.stage += 1;
-                        areaInfo(["ROB: I'm not beaten yet!","Rob puts on his hat..."],3000,function(){
-                            currentBoss.stage += 1;
+                        if (!this.isSurvival){
+                            areaInfo(["ROB: I'm not beaten yet!","Rob puts on his hat..."],3000,function(){
+                                currentBoss.stage += 1;
+                                this.previousAction = "";
+                                currentBoss.moveTo = [random(600,1120),random(100,500)];
+                                currentBoss.shotTimer = 10;
+                                currentBoss.actionTime = 80;
+                                for (var i = 0; i < 4; i++){
+                                    x = 1200;
+                                    y = random(100,height-70);
+                                    entitys.push(new pickup(x,y,'healthPowerup','health+1'));
+                                }
+                            },false,false);
+                        } else {
+                            this.stage += 1;
                             this.previousAction = "";
-                            currentBoss.moveTo = [random(600,1120),random(100,500)];
-                            currentBoss.shotTimer = 10;
-                            currentBoss.actionTime = 80;
-                            for (var i = 0; i < 4; i++){
-                                x = 1200;
-                                y = random(100,height-70);
-                                entitys.push(new pickup(x,y,'healthPowerup','health+1'));
-                            }
-                        },false,false);
+                            this.moveTo = [random(600,1120),random(100,500)];
+                            this.shotTimer = 10;
+                            this.actionTime = 90;
+                        }
                     } else if (!this.currentAction){
                         if (this.previousAction == "skirmish"){
                             this.currentAction = weightedChoice({
@@ -3123,6 +3147,9 @@
                             this.actionTime = 55;
                         } else {
                             this.moveTo = [random(1000,1120),height/2];
+                            if (this.isSurvival){
+                                this.moveTo[1] = random(height/2-150,height/2+150);
+                            }
                             this.shotTimer = 100;
                             this.actionTime = 200;
                         }
@@ -3207,6 +3234,11 @@
                     if (this.health < 1){
                         this.trueHealth += this.health-1;
                         if (this.trueHealth < 1){
+                            if (this.isSurvival){
+                                this.killTag = true;
+                                return;
+                            }
+
                             this.stage += 1;
                             changeMusic('Title Theme');
                             areaInfo(["ROB: Wow. You beat me..."],3000,function(){
@@ -3290,7 +3322,7 @@
                     ctx.drawImage(this.img,this.x,this.y,50,70);
                 }
                 
-                if (this.stage < 6){
+                if (this.stage < 6 && !this.isSurvival){
                     ctx.globalAlpha = 0.5;
                     ctx.fillStyle = 'white';
                     ctx.fillRect(1000,590,200,10);
@@ -3299,6 +3331,7 @@
                     ctx.fillRect(1010,592,180*(this.trueHealth/50),6);
                     ctx.globalAlpha = 1;
                 }
+                
                 this.health = 1;
             };
             
@@ -4780,7 +4813,8 @@
             <button ontouchdown="canvas.requestFullscreen();" onclick="canvas.requestFullscreen();">Fullscreen</button>
             <button id='mobileToggle' ontouchdown="toggleMobile();" onclick="toggleMobile();">Turn Mobile-Mode On</button>
             <h1>News</h1>
-            <p>Now mobile-compatable! <i>4/8/2020</i></p>
+            <p>Rob the bandit now shows up with his clones in survival mode! <i>11/6/2020</i></p>
+            <p>Still not mobile compatible. :( <i>4/8/2020</i></p>
             <p>I've added a new settings menu to allow for changing the music and sound effects volumes. <i>4/5/2020</i></p>
             <p>Achievements have been added, just click the trophy in the profile menu to see all the achievements you have unlocked! <i>11/15/2019</i></p>
             <p>SQUIRRELS! <i>11/13/2019</i></p>

@@ -4553,12 +4553,19 @@
                     changeMusic("Title Theme");
                 }
 
-                background('dayGrass');
+                if (christmasSeason){
+                    background('winter');
+                } else {
+                    background('dayGrass');
+                }
+                
                 ticksUntilPing -= currentSpeed;
-                if (ticksUntilPing < 1) {
+                if (ticksUntilPing < 1 && !christmasSeason) {
                     ticksUntilPing = 50;
-                    cImg = ['grass.png','flower1.png','flower2.png','flower3.png'][random(0,3)]
+                    cImg = ['grass.png','flower1.png','flower2.png','flower3.png'][random(0,3)];
                     entitys.push(new staticEntity(random(100,height-70),cImg,70,70));
+                } if (ticksUntilPing % 10 == 0 && christmasSeason){
+                    entitys.push(new snowflake());
                 }
                 
                 for (var i = 0; i < entitys.length; i++){
@@ -4595,12 +4602,19 @@
                     changeMusic("Title Theme");
                 }
 
-                background('dayGrass');
+                if (christmasSeason){
+                    background('winter');
+                } else {
+                    background('dayGrass');
+                }
+                
                 ticksUntilPing -= currentSpeed;
-                if (ticksUntilPing < 1) {
+                if (ticksUntilPing < 1 && !christmasSeason) {
                     ticksUntilPing = 50;
-                    cImg = ['grass.png','flower1.png','flower2.png','flower3.png'][random(0,3)]
+                    cImg = ['grass.png','flower1.png','flower2.png','flower3.png'][random(0,3)];
                     entitys.push(new staticEntity(random(100,height-70),cImg,70,70));
+                } if (ticksUntilPing % 10 == 0 && christmasSeason){
+                    entitys.push(new snowflake());
                 }
                 
                 for (var i = 0; i < entitys.length; i++){
@@ -4641,67 +4655,6 @@
             }
 
             var achieveImg = createImage(path+"achievements.png");
-            function updateMenu() {
-                if (state != 'menu') {
-                    return;
-                } else if (currentMusic != music["Title Theme"]){
-                    changeMusic("Title Theme");
-                }
-                
-                background('dayGrass');
-                ticksUntilPing -= currentSpeed;
-                if (ticksUntilPing < 1) {
-                    ticksUntilPing = 50;
-                    cImg = ['grass.png','flower1.png','flower2.png','flower3.png'][random(0,3)];
-                    entitys.push(new staticEntity(random(100,height-70),cImg,70,70));
-                }
-                
-                for (var i = 0; i < entitys.length; i++){
-                    entitys[i].update();
-                }
-                
-                j = 0;
-                while (j < entitys.length) {
-                    if (entitys[j].killTag == 1) {
-                        entitys.splice(j,1);
-                    } else {
-                        j++;
-                    }
-                }
-                
-                ctx.globalAlpha = 1;
-                ctx.fillStyle = 'black';
-                ctx.font = '60px Arial';
-                ctx.fillText('Super Amazing Cat Adventures!',150,70);
-                
-                ctx.font = '30px Arial';
-                ctx.fillStyle = 'blue';
-                if (christmas()){randomMsg = 'Merry Christmas!';}
-                ctx.fillText(randomMsg,300,175);
-                
-                ctx.globalAlpha = 0.8;
-                ctx.font = '36px Helvetica';
-                
-                buttons = [];
-                
-                for (var profile in profiles){
-                    buttons.push(profile);
-                }
-                
-                buttons.push('Create New Profile');
-                
-                for (var i = 0; i < buttons.length; i++) {
-                    ctx.fillStyle = 'rgb(100,100,100)';
-                    ctx.fillRect(350,250+i*110,400,100);
-                    ctx.fillStyle = 'rgb(0,0,0)';
-                    ctx.fillText(buttons[i],400,250+i*110+50);
-                    if (buttons[i] != 'Create New Profile'){
-                        ctx.drawImage(xImg,800,275+i*110,50,50);
-                    }
-                }
-                
-                requestAnimationFrame(updateMenu);
-            }
             
             var settingsImg = createImage(path+'gears.png');
             function updateMainMenu() {

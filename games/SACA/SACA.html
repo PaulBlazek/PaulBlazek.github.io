@@ -250,7 +250,7 @@
                         }
                         
                     }
-                    
+
                     state = settingsBack;
                     saveData();
                     if (state == 'menu'){
@@ -438,7 +438,7 @@
                 state = 'game';
                 day = 1;
                 cLocation = [1,0];
-                currentSpeed = 3;
+                currentSpeed = 5;
                 entitys = [];
                 backgroundEntitys = [];
                 tickUntilPing = 0;
@@ -1234,7 +1234,7 @@
                 'textDuration':2000,
                 'onEnter':function(){
                     region = 'grassland';
-                    currentSpeed = 3;
+                    currentSpeed = 5;
                     day += random(1,3);
                     changeMusic('Grassland');
                     if (christmasSeason){
@@ -2220,12 +2220,13 @@
             });
             
             new Location('Plains 5-1',{
-                'areaTextLines':['The party finally reached the','other side of the river.'],
+                'areaTextLines':['The party finally reached the plains.'],
                 'onEnter':function(){
                     day += random(1,3);
                     currentSpeed = 3;
                     region = 'plains';
                     achievement('apprentice');
+                    changeMusic("Plains Theme");
                 },
                 'onUpdate':function(){
                     this.tickMax = 300;

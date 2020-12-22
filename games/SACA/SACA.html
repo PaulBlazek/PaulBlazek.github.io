@@ -250,7 +250,9 @@
                         }
                         
                     }
-                    state = settingsBack
+                    
+                    state = settingsBack;
+                    saveData();
                     if (state == 'menu'){
                         updateMenu();
                     } else {
@@ -2218,7 +2220,7 @@
             });
             
             new Location('Plains 5-1',{
-                'areaTextLines':['The party finally reach the','other side of the river.'],
+                'areaTextLines':['The party finally reached the','other side of the river.'],
                 'onEnter':function(){
                     day += random(1,3);
                     currentSpeed = 3;
@@ -2570,6 +2572,7 @@
                                     areaInfo(['The journey ended there.',deathMsg],3000,function(){
                                         areaInfo(['GAME OVER'],2000,function(){
                                             state = 'menu';
+                                            saveData();
                                             updateMenu();
                                             var killId = setTimeout(function() {
                                                 for (var i = killId; i > 0; i--) {clearInterval(i);}
@@ -2583,6 +2586,7 @@
                                     areaInfo(['The journey ended there.'].concat(deathMsg),3000,function(){
                                         areaInfo(['GAME OVER'],2000,function(){
                                             state = 'menu';
+                                            saveData();
                                             updateMenu();
                                             var killId = setTimeout(function() {
                                                 for (var i = killId; i > 0; i--) {clearInterval(i);}

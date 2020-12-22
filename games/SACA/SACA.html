@@ -436,6 +436,7 @@
                 state = 'game';
                 day = 1;
                 cLocation = [1,0];
+                currentSpeed = 3;
                 entitys = [];
                 backgroundEntitys = [];
                 tickUntilPing = 0;
@@ -454,6 +455,7 @@
                 hunt = false;
                 bombs = false;
                 companions = [];
+                currentMerchant = 0;
                 for (var i = 0; i < chosenCompanions.length; i++){
                     companions.push(new playerCharacter(chosenCompanions[i]));
                 }
@@ -1230,6 +1232,7 @@
                 'textDuration':2000,
                 'onEnter':function(){
                     region = 'grassland';
+                    currentSpeed = 3;
                     day += random(1,3);
                     changeMusic('Grassland');
                     if (christmasSeason){
@@ -1833,7 +1836,8 @@
                     inRiver = false;
                     boulders = false;
                     river = false;
-                }
+                },
+                'leaveLoc':'Plains 5-1'
             });
             
             new Location('River 2-5',{
@@ -1928,6 +1932,13 @@
                     objective = '';
                     this.currentStage = 1;
                     banditsAnnoyed = false;
+
+                    r = random(1,10);
+                    if (r >= 8){
+                        this.leaveLoc = 'Grassland 3-5';
+                    } else {
+                        this.leaveLoc = 'Grassland 3-4';
+                    }
                 },
                 'leaveLoc':'Grassland 3-5'
             });
@@ -2207,10 +2218,12 @@
             });
             
             new Location('Plains 5-1',{
-                'areaText':'The party finally reached the other side of the river.',
+                'areaTextLines':['The party finally reach the','other side of the river.'],
                 'onEnter':function(){
                     day += random(1,3);
+                    currentSpeed = 3;
                     region = 'plains';
+                    achievement('apprentice');
                 },
                 'onUpdate':function(){
                     this.tickMax = 300;
@@ -2228,23 +2241,23 @@
                 'onLeave':function(){
                     this.tick = 0;
                 },
-                'noRandom':1
+                'noRandom':1,
+                'leaveLoc':'Plains 5-2'
             });
 
             new Location('Plains 5-2',{
                 'areaText':'The party came across a herd of buffalo.',
                 'onEnter':function(){
                     day += random(2,4);
-                    region = 'plains';
                 },
                 'onUpdate':function(){
-                    this.tickMax = 3000;
+                    this.tickMax = 1500;
                     
                     if (!this.tick){
                         this.tick = 0;
                     }
 
-                    if (this.tick % 5 == 0){
+                    if (this.tick % 15 == 0){
                         entitys.push(new buffalo());
                     }
                     
@@ -2256,8 +2269,43 @@
                 },
                 'onLeave':function(){
                     this.tick = 0;
+
+                    r = random(1,10);
+                    if (r < 4){ // More Buffalo 30%
+                        this.leaveLoc = 'Plains 5-3';
+                    } else if (r < 6){ // Glitch 20% TODO
+
+                    }
                 },
-                'noRandom':1
+                //'leaveLoc':'Plains 5-5' CHARGING BUFFALO TODO
+            });
+
+            new Location('Plains 5-3',{
+                'areaText':'There were a lot of buffalo.',
+                'onEnter':function(){
+                    day += random(2,4);
+                    currentSpeed = 2;
+                },
+                'onUpdate':function(){
+                    this.tickMax = 2000;
+                    
+                    if (!this.tick){
+                        this.tick = 0;
+                    }
+
+                    if (this.tick % 10 == 0){
+                        entitys.push(new buffalo());
+                    }
+                    
+                    this.tick += 1;
+                    
+                    if (this.tick > this.tickMax){
+                        this.leave();
+                    }
+                },
+                'onLeave':function(){
+                    this.tick = 0;
+                }
             });
             
             /*
@@ -4267,12 +4315,11 @@
                 }
             }
 
-            buffaloSpeed = 2;
             function buffalo(){
-                this.y = random(100,height-9*6);
+                this.y = random(100,height-9*5);
                 this.x = 1300;
-                this.width = 10*6;
-                this.height = 9*6;
+                this.width = 10*5;
+                this.height = 9*5;
                 this.img = createImage(path+'buffalo.png');
                 this.name = 'animal';
                 this.health = 1;
@@ -4286,7 +4333,7 @@
                     spawns.push(new deadAnimal(this)); // TODO DEAD BUFFALO
                 }
 
-                this.x -= buffaloSpeed;
+                this.x -= currentSpeed;
                 ctx.drawImage(this.img,this.x,this.y,this.width,this.height);
 
                 for (var i = 0; i < entitys.length; i++){
@@ -4307,7 +4354,7 @@
                     }
                 }
 
-                if (this.x < -100) {
+                if (this.x < -200) {
                     this.killTag = true;
                 }
             }
@@ -4325,7 +4372,13 @@
             
             deadAnimal.prototype.update = function(){
                 this.x -= currentSpeed;
-                ctx.drawImage(this.img,this.x,this.y,this.width,this.height);
+
+                ctx.save();
+                ctx.translate(this.x,this.y);
+                ctx.scale(1,-1);
+                ctx.drawImage(this.img,0,0,this.width,this.height);
+                ctx.restore();
+
                 if (this.x+this.width < 0) {
                     this.killTag = 1;
                 }
@@ -4614,7 +4667,8 @@
                 'rich':createImage(path+"richAchieve.png"),
                 '100days':createImage(path+"100daysAchieve.png"),
                 'christmas':createImage(path+"christmasAchieve.png"),
-                'whataDeal':createImage(path+"merchantAchieve.png")
+                'whataDeal':createImage(path+"merchantAchieve.png"),
+                'apprentice':createImage(path+"apprenticeAchieve.png"),
             };
 
             var totalAchievements = 0;

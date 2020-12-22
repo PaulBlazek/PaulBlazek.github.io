@@ -53,7 +53,8 @@
             var musicTracks = [
                 ['Super_Amazing_Cat_Adventures.ogg','Title Theme',0.4],
                 ['Grassland_Theme.ogg','Grassland',0.2],
-                ['SACA_Boss_Theme.ogg','Boss Theme',0.5]
+                ['SACA_Boss_Theme.ogg','Boss Theme',0.5],
+                ['SACA_Christmas_Theme.ogg','Christmas Theme',0.5]
             ];
             var music = {};
             var currentMusic = 0;
@@ -4475,10 +4476,18 @@
                 loadData();
                 loadAudio();
                 applyAudioSettings();
-                music["Title Theme"].oncanplaythrough = function(){
-                    music["Title Theme"].oncanplaythrough = function(){}
-                    changeMusic("Title Theme");
-                };
+                if (!christmasSeason){
+                    music["Title Theme"].oncanplaythrough = function(){
+                        music["Title Theme"].oncanplaythrough = function(){}
+                        changeMusic("Title Theme");
+                    };
+                } else {
+                    music["Christmas Theme"].oncanplaythrough = function(){
+                        music["Christmas Theme"].oncanplaythrough = function(){}
+                        changeMusic("Christmas Theme");
+                        music["Christmas Theme"].volume = music["Christmas Theme"].baseVolume;
+                    };
+                }
                 canvas = document.getElementById('game');
                 ctx = canvas.getContext('2d');
                 width = canvas.width;
@@ -4602,8 +4611,12 @@
                     return;
                 } else if (currentMusic && currentMusic.paused){
                     currentMusic.play();
-                } else if (currentMusic != music["Title Theme"]){
-                    changeMusic("Title Theme");
+                } else if (currentMusic != music["Title Theme"] && currentMusic != music["Christmas Theme"]){
+                    if (christmasSeason){
+                        changeMusic("Christmas Theme")
+                    } else {
+                        changeMusic("Title Theme");
+                    }
                 }
 
                 if (christmasSeason){
@@ -4666,8 +4679,12 @@
                     return;
                 } else if (currentMusic && currentMusic.paused){
                     currentMusic.play();
-                } else if (currentMusic != music["Title Theme"]){
-                    changeMusic("Title Theme");
+                } else if (currentMusic != music["Title Theme"] && currentMusic != music["Christmas Theme"]){
+                    if (christmasSeason){
+                        changeMusic("Christmas Theme")
+                    } else {
+                        changeMusic("Title Theme");
+                    }
                 }
 
                 if (christmasSeason){
@@ -4742,8 +4759,12 @@
             function updateMenu() {
                 if (state != 'menu') {
                     return;
-                } else if (currentMusic != music["Title Theme"]){
-                    changeMusic("Title Theme");
+                } else if (currentMusic != music["Title Theme"] && currentMusic != music["Christmas Theme"]){
+                    if (christmasSeason){
+                        changeMusic("Christmas Theme")
+                    } else {
+                        changeMusic("Title Theme");
+                    }
                 }
                 
                 if (christmasSeason){

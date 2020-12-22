@@ -338,6 +338,23 @@
                     } else if (x > 300 && x < 750 && y > 300 && y < 500) { // Bottom Button
                         cLocation.button2();
                     }
+                } else if (state == 'game' && currentMerchant){
+                    /*for (var t = 0; t < this.sales.length; t++){
+                        ctx.globalAlpha = 0.5;
+                        ctx.fillStyle = 'black';
+                        ctx.fillRect(800,100+t*110,150,100);
+
+                        ctx.globalAlpha = 1;
+                        ctx.drawImage(this.pickups[t].img,810,100+t*110+15,70,70);
+                        ctx.fillStyle = 'white';
+                        ctx.font = '30px Arial';
+                        ctx.fillText(this.sales[t][1],890,100+t*110+40);
+                    }*/
+                    for (var i = 0; i < currentMerchant.sales.length; i++){
+                        if (x > 800 && x < 950 && y > 100+i*110 && y < 200+i*110){
+                            currentMerchant.trade(i);
+                        }
+                    }
                 }
             }
             
@@ -972,6 +989,7 @@
                     
                     entitys[0].update();
                     ctx.globalAlpha = 0.8;
+                    
                     ctx.fillStyle = 'black';
                     ctx.fillRect(300,50,400,200);
                     ctx.fillStyle = 'white';
@@ -1021,7 +1039,7 @@
                     entitys.push(new cherryBomb());
                 }
                 
-                if (ticksUntilPing < 1 && !river) {
+                if (ticksUntilPing < 1 && !river && !currentMerchant) {
                     ticksUntilPing = 50;
                     cImg = ['grass.png','flower1.png','flower2.png','flower3.png'][random(0,3)];
                     backgroundEntitys.unshift(new staticEntity(random(100,height-70),cImg,70,70));
@@ -1045,7 +1063,7 @@
                     entitys.push(new boulder());
                 }
                 
-                if (!entitys[0].dead) {
+                if (!entitys[0].dead && !currentMerchant) {
                     for (var i = 0; i < backgroundEntitys.length; i++){
                         backgroundEntitys[i].update();
                     }
@@ -1086,6 +1104,10 @@
                 if (mobile){
                     mobileJoystick.draw();
                 }
+
+                if (currentMerchant){
+                    currentMerchant.showTrades();
+                }
                 
                 requestAnimationFrame(updateGame);
             }
@@ -1110,6 +1132,8 @@
                 this.buttons = data.buttons || 0;
                 this.button1 = data.button1 || function(){};
                 this.button2 = data.button2 || function(){};
+                this.button3 = data.button3 || function(){};
+                this.button4 = data.button4 || function(){};
                 
                 this.leaveLoc = data.leaveLoc || 'Grassland 1-1';
                 
@@ -1120,6 +1144,8 @@
             }
             
             Location.prototype.preEnter = function(){
+                currentMerchant = '';
+
                 cLocDeaths = 0;
                 if (this.areaTexts){
                     this.areaText = pick(this.areaTexts);
@@ -1895,7 +1921,7 @@
                     this.currentStage = 1;
                     banditsAnnoyed = false;
                 },
-                'leaveLoc':'Grassland 3-4'
+                'leaveLoc':'Grassland 3-5'
             });
             
             new Location('Grassland 3-3',{
@@ -1925,11 +1951,33 @@
                 'onLeave':function(){
                     objective = '';
                     this.currentStage = 1;
+                    
+                    r = random(1,10);
+                    if (r >= 8){
+                        this.leaveLoc = 'Grassland 3-5';
+                    } else {
+                        this.leaveLoc = 'Grassland 3-4';
+                    }
                 },
-                'leaveLoc':'Grassland 3-4'
+                'leaveLoc':'Grassland 3-5'
             });
+
+            new Location('Grassland 3-4',{ // TODO - Merchant Stage
+                'areaText':'The party encountered a wandering merchant',
+                'onEnter':function(){
+                    entitys.push(new Merchant(3)) // NumItems,CostMultiplier,RarityIncreaser
+                    day += random(1,4);
+                    objective = '';
+                },
+                'onUpdate':function(){
+                    if (this.checkForward()){
+                        this.leave();
+                    }
+                },
+                'leaveLoc':'Grassland 3-5'
+            })
             
-            new Location('Grassland 3-4',{
+            new Location('Grassland 3-5',{
                 'areaText':'CURRENTPLAYER arrived at the bridge.',
                 'onEnter':function(){
                     day += random(3,8);
@@ -4281,6 +4329,103 @@
                     this.killTag = 1;
                 }
             }
+
+            pickupPicts = {
+                'health+1':'healthPowerup',
+                'damage':'oneDamagePowerup',
+                'bow':'bowPowerup',
+                'shield':'shieldPowerup',
+                'shield2':'shield2Powerup'
+            }
+            
+            merchantPrices = {
+                'health+1':15,
+                'shield':20,
+                'shield2':45,
+                'bow':40,
+                'damage':-5
+            }
+
+            merchantRarities = {
+                'shield':10,
+                'shield2':5,
+                'bow':3,
+                'damage':1
+            }
+
+            function rCostM(r=random(1,9)){
+                if (r < 4){return 1}
+                r -= 1;
+
+                r *= 0.25;
+                return r;
+            }
+
+            var currentMerchant = '';
+
+            function Merchant(numItems=3,costM=1,rarityD=1,restricted=[]){ // NumItems,CostMultiplier,RarityDivider,RestrictedItems={}
+                this.img = createImage(path+'trader.png');
+                this.y = 300;
+                this.x = 1000;
+                this.sales = [];
+                this.buyables = [];
+                this.pickups = [];
+                if (!isIn('health+1',restricted)){
+                    this.sales.push(['health+1',Math.round(merchantPrices['health+1']*costM*rCostM())]);
+                    this.buyables.push('health+1');
+                }
+
+                this.merchantRarities = {};
+                for (var r in merchantRarities){
+                    this.merchantRarities[r] = merchantRarities[r];
+                }
+
+                for (var a in this.merchantRarities){
+                    this.merchantRarities[a] /= rarityD;
+                    this.merchantRarities[a] = Math.ceil(this.merchantRarities[a]);
+                }
+
+                while(this.sales.length < numItems){
+                    t = weightedChoice(this.merchantRarities)
+                    if (isIn(t,this.buyables)){continue;}
+
+                    this.sales.push([t,Math.round(merchantPrices[t]*costM*rCostM())]);
+                    this.buyables.push(t);
+                }
+
+                for (var i = 0; i < this.sales.length; i++){
+                    this.pickups.push(new pickup(0,0,pickupPicts[this.sales[i][0]],this.sales[i][0]));
+                }
+
+                currentMerchant = this;
+            }
+
+            Merchant.prototype.update = function(){
+                ctx.drawImage(this.img,this.x,this.y,13*4,18*4);
+            }
+
+            Merchant.prototype.showTrades = function(){
+                for (var t = 0; t < this.sales.length; t++){
+                    ctx.globalAlpha = 0.5;
+                    ctx.fillStyle = 'black';
+                    ctx.fillRect(800,100+t*110,150,100);
+
+                    ctx.globalAlpha = 1;
+                    ctx.drawImage(this.pickups[t].img,810,100+t*110+15,70,70);
+                    ctx.fillStyle = 'white';
+                    ctx.font = '30px Arial';
+                    ctx.fillText(this.sales[t][1],890,100+t*110+50);
+                }
+            }
+
+            Merchant.prototype.trade = function(tradeIndex){
+                if (pelts < this.sales[tradeIndex][1]){
+                    return;
+                }
+
+                pelts -= this.sales[tradeIndex][1];
+                entitys.push(new pickup(entitys[0].x,entitys[0].y,pickupPicts[this.sales[tradeIndex][0]],this.sales[tradeIndex][0]));
+            }
             
             function pickup(x,y,img,effect) {
                 this.y = y-10;
@@ -4485,7 +4630,6 @@
                     music["Christmas Theme"].oncanplaythrough = function(){
                         music["Christmas Theme"].oncanplaythrough = function(){}
                         changeMusic("Christmas Theme");
-                        music["Christmas Theme"].volume = music["Christmas Theme"].baseVolume;
                     };
                 }
                 canvas = document.getElementById('game');
@@ -4562,8 +4706,12 @@
                     return;
                 } else if (currentMusic && currentMusic.paused){
                     currentMusic.play();
-                } else if (currentMusic != music["Title Theme"]){
-                    changeMusic("Title Theme");
+                } else if (currentMusic != music["Title Theme"] && currentMusic != music["Christmas Theme"]){
+                    if (christmasSeason){
+                        changeMusic("Christmas Theme")
+                    } else {
+                        changeMusic("Title Theme");
+                    }
                 }
 
                 if (christmasSeason){
@@ -4830,6 +4978,7 @@
             <button ontouchdown="canvas.requestFullscreen();" onclick="canvas.requestFullscreen();">Fullscreen</button>
             <!--<button id='mobileToggle' ontouchdown="toggleMobile();" onclick="toggleMobile();">Turn Mobile-Mode On</button>-->
             <h1>News</h1>
+            <p>There is now a Merchant in the game that the player might encounter! <i>12/21/2020</i></p>
             <p>Added Christmas Mode! Snowfall in the menus and cats wear hats! Plus a new achievement! <i>12/21/2020</i></p>
             <p>Rob the bandit now shows up with his clones in survival mode! <i>11/6/2020</i></p>
             <p>Still not mobile compatible. :( <i>4/8/2020</i></p>

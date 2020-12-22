@@ -4419,6 +4419,7 @@
             }
 
             Merchant.prototype.trade = function(tradeIndex){
+                if (tradeIndex > 0 || tradeIndex >= this.sales.length)
                 if (pelts < this.sales[tradeIndex][1]){
                     return;
                 }

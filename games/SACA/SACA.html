@@ -4236,6 +4236,71 @@
                     }
                 }
             }
+
+            buffaloSpeed = 2;
+            function buffalo(){
+                this.y = random(100,height-9*6);
+                this.x = 1300;
+                this.width = 10*6;
+                this.height = 9*6;
+                this.img = createImage(path+'buffalo.png');
+                this.name = 'animal';
+                this.health = 1;
+                this.foeNames = ['player'];
+            }
+
+            buffalo.prototype.update = function(){
+                if (this.health < 1) {
+                    this.killTag = 1;
+                    spawnDots('red',this.x+this.width/2,this.y+this.height/2);
+                    spawns.push(new deerDead(this.x,this.y)); // TODO DEAD BUFFALO
+                }
+
+                this.x -= buffaloSpeed;
+                ctx.drawImage(this.img,this.x,this.y,this.width,this.height);
+
+                for (var i = 0; i < entitys.length; i++){
+                    entity = entitys[i];
+                    // Overlapping Check
+                    if (this.x+this.width >= entity.x &&
+                        this.x <= entity.x+entity.width && 
+                        this.y+this.height >= entity.y &&
+                        this.y <= entity.y+entity.height
+                       ){
+                        if (isIn(entity.name,this.foeNames) || (entity == entitys[0] && isIn('player',this.foeNames))) {
+                            entity.health -= 1;
+                            entity.lastHit = 'buffalo';
+                            this.health = 0;
+                            playSound("hurt");
+                            return;
+                        }
+                    }
+                }
+
+                if (this.x < -100) {
+                    this.killTag = true;
+                }
+            }
+
+            function buffaloDead(x,y) {
+                this.y = y+30;
+                this.x = x;
+                this.width = 62;
+                this.height = 60;
+                this.img = new Image();
+                this.img.src = path+'deerPelt.png';
+                this.killTag = 0;
+                this.name = 'pickup';
+                this.effect = 'pelt';
+            }
+            
+            buffaloDead.prototype.update = function(){
+                this.x -= currentSpeed;
+                ctx.drawImage(this.img,this.x,this.y,this.width,this.height);
+                if (this.x+this.width < 0) {
+                    this.killTag = 1;
+                }
+            }
             
             function deer() {
                 this.y = random(100,height-100);
@@ -4429,7 +4494,7 @@
             }
 
             Merchant.prototype.trade = function(tradeIndex){
-                if (tradeIndex > 0 || tradeIndex >= this.sales.length){return;}
+                if (tradeIndex < 0 || tradeIndex >= this.sales.length){return;}
                 if (pelts < this.sales[tradeIndex][1]){
                     return;
                 }

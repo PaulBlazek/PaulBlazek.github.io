@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>The Overworld</title>
+        <!---Content by Gregory Blazek--->
+        <style>
+            body {
+                text-align: center;
+            }
+            img {
+                width: 800px;
+                cursor: pointer;
+            }
+            button {
+                height: 50px;
+                width: 50px;
+                font-style: bold;
+            }
+        </style>
+        <script>
+            var comicElement;
+            var comicsAmount = 10;
+            var cComic = 1;
+            var gifs = [];
+
+            addEventListener("keydown",function(e){
+                var code = e.keyCode;
+                console.log(code);
+                if (code == 37){ // Left
+                    previous();
+                } else if (code == 39){ // Right
+                    next();
+                }
+            })
+
+            function refreshComic(){
+                for (var i = 0; i < gifs.length; i++){
+                    if (cComic == gifs[i]){
+                        comicElement.src = 'images/'+cComic+'.gif';
+                        return;
+                    }
+                }
+                comicElement.src = 'images/'+cComic+'.png';
+            }
+
+            function first(){
+                cComic = 1;
+                refreshComic();
+            }
+
+            function latest(){
+                cComic = comicsAmount;
+                refreshComic();
+            }
+
+            function next(){
+                cComic += 1;
+                if (cComic > comicsAmount){
+                    cComic = comicsAmount;
+                }
+                refreshComic();
+            }
+
+            function previous(){
+                cComic -= 1;
+                if (cComic < 1){
+                    cComic = 1;
+                }
+                refreshComic();
+            }
+        </script>
+    </head>
+    <body>
+        <script>
+            document.body.onload = function(){
+                comicElement = document.getElementById("comic");
+                refreshComic();
+            }
+        </script>
+        <nav>
+            <button onclick='first();'><<</button>
+            <button onclick='previous();'><</button>
+            <button onclick='next();'>></button>
+            <button onclick='latest();'>>></button>
+        </nav>
+        <hr/>
+        <img id='comic' src='' onclick='next();'/>
+    </body>
+</html>

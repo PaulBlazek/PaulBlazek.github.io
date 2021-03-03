@@ -9629,7 +9629,7 @@
             numCards = cards.length;
             
             var tokens = [
-                new card('Command Reference','','Space -> Draw a card. C -> Copy selected card. Delete -> Delete selected card. R -> Rotate selected card. Shift-S -> Shuffle the deck, if a card is selected, will shuffle it in. Shift-Space -> Draw the bottom card of the deck. Shift-B -> Put the selected card on the bottom of the deck. F -> Flip selected card. Shift-E -> Edit selected card OR Save data to file (With no card selected). B -> Put selected card on top of the deck Escape -> Deselect any selected card. Shift-F -> Flip a coin. Shift-R -> Roll a die of a chosen amount of sides. Shift-G -> Save the deck. D -> Discard selected card. Shift-D -> Draw the top card of the discard. Shift-W -> Shuffle the discard. Shift-Y -> Shuffle the discard into the deck. Shift-U -> Save The game. Shift-I -> End The Game Shift-H -> Hash Sorting Search Shift-C -> Create a card by name Shift-L -> Put a card in the Legacy Zone or a take a card from the Legacy Zone','rgb(255,255,255)'),
+                new card('Command Reference','','Space -> Draw a card. C -> Copy selected card. Delete -> Delete selected card. R -> Rotate selected card. Shift-S -> Shuffle the deck, if a card is selected, will shuffle it in. Shift-Space -> Draw the bottom card of the deck. Shift-B -> Put the selected card on the bottom of the deck. F -> Flip selected card. Shift-E -> Edit selected card OR Save data to file (With no card selected). B -> Put selected card on top of the deck Escape -> Deselect any selected card. Shift-F -> Flip a coin. Shift-R -> Roll a die of a chosen amount of sides. Shift-G -> Save the deck. D -> Discard selected card. Shift-D -> Draw the top card of the discard. Shift-W -> Shuffle the discard. Shift-Y -> Shuffle the discard into the deck. Shift-U -> Save The game. Shift-I -> End The Game Shift-H -> Hash Sorting Search Shift-C -> Create a card by name Shift-L -> Put a card in the Legacy Zone or a take a card from the Legacy Zone Shift-3 -> Draw the top card in the deck meeting certain characteristics.','rgb(255,255,255)'),
                 new card('','','','rgb(255,255,255)'),
                 new token('wound',path+'x.png',40,40,''),
                 new token('green energy',path+'greenEnergy.png',40,40,''),
@@ -9733,7 +9733,10 @@
                     if (!currentCardSelect) {
                         currentCardSelect = c;
                     }
-                } else if (16 in keysDown && e.keyCode == 67){ // Shift-C
+                } else if (68 in keysDown && e.keyCode == 67){ // Shift-D
+					// Search discard pile
+					
+				} else if (16 in keysDown && e.keyCode == 67){ // Shift-C
                     // Create a card by name from card list.
                     name = prompt('What card to create?').toLowerCase();
                     
@@ -10011,9 +10014,6 @@
                     } else {
                         alert('Tails');
                     }
-                } else if (e.keyCode == 82 && 16 in keysDown && 0) { // Shift-R OUTDATED
-                    result = random(1,6);
-                    alert('You rolled a d6 and got a '+result+'!');
                 } else if (e.keyCode == 82 && 16 in keysDown) { // Shift-R
                     x = parseInt(prompt('How many sides for die?'));
                     result = random(1,x);
@@ -10091,7 +10091,33 @@
                     // Import game
                     $('#loadGame').show();
                     $('#game').hide();
-                } else if (16 in keysDown && e.keyCode == 72){ // Shift-H
+                } else if (16 in keysDown && e.keyCode == 51){ // Shift-3 (#)
+					// Look for a card meeting certain requirements
+					creatorRequirement = prompt('Creator Requirement for card?').toLowerCase();
+
+					for (var i = decks[0].length-1; i >= 0; i--){
+                        cCard = decks[0][i];
+						creator = cCard.creator.toLowerCase();
+						if (creator.replaceAll(creatorRequirement,'!!!') == creator){
+							continue;
+						}
+
+						break;
+					}
+
+					c = cCard;
+					c.y = 652;
+					c.x = 10;
+					cardsOnTable.push(c);
+					if (!currentCardSelect) {
+						currentCardSelect = c;
+					}
+					delete keysDown[16];
+
+					// Shuffle deck
+					decks[0] = shuffle(decks[0]);
+
+				} else if (16 in keysDown && e.keyCode == 72){ // Shift-H
                     // Hash Sorting Search (By Corner-Value)
                     corner = prompt('Input corner value of played card.');
                     if (!corner){

@@ -1237,7 +1237,7 @@
                     currentSpeed = 5;
                     day += random(1,3);
                     changeMusic('Grassland');
-                    if (christmasSeason){
+                    if (christmasSeason()){
                         entitys.push(new achievementUnlocked("christmas"));
                     }
                 },
@@ -2617,14 +2617,14 @@
                 if (!inRiver || bridge) {
                     ctx.drawImage(this.img,this.x,this.y,this.width,this.height);
                     ctx.drawImage(this.gunImg,this.x+this.width-20,this.y+35,this.gunImg.width/4,this.gunImg.height/4);
-                    if (christmasSeason){ctx.drawImage(hatImages["christmas"],this.x,this.y-20,hatImages["christmas"].width/2,hatImages["christmas"].height/2)}
+                    if (christmasSeason()){ctx.drawImage(hatImages["christmas"],this.x,this.y-20,hatImages["christmas"].width/2,hatImages["christmas"].height/2)}
                     this.width = this.img.width/2;
                     this.height = this.img.height/2;
                 } else {
                     this.height = this.img.height/2;
                     ctx.drawImage(this.img,this.x,this.y,this.width,this.height);
                     ctx.drawImage(this.gunImg,this.x+50,this.y+35,this.gunImg.width/4,this.gunImg.height/4);
-                    if (christmasSeason){ctx.drawImage(hatImages["christmas"],this.x,this.y-20,hatImages["christmas"].width/2,hatImages["christmas"].height/2)}
+                    if (christmasSeason()){ctx.drawImage(hatImages["christmas"],this.x,this.y-20,hatImages["christmas"].width/2,hatImages["christmas"].height/2)}
                     ctx.fillStyle = 'rgb(0,0,200)';
                     ctx.fillRect(this.x,this.y+this.height-30,this.width,30);
                     this.width = this.img.width/2;
@@ -4793,7 +4793,7 @@
                 loadData();
                 loadAudio();
                 applyAudioSettings();
-                if (!christmasSeason){
+                if (!christmasSeason()){
                     music["Title Theme"].oncanplaythrough = function(){
                         music["Title Theme"].oncanplaythrough = function(){}
                         changeMusic("Title Theme");
@@ -4884,25 +4884,25 @@
                 } else if (currentMusic && currentMusic.paused){
                     currentMusic.play();
                 } else if (currentMusic != music["Title Theme"] && currentMusic != music["Christmas Theme"]){
-                    if (christmasSeason){
+                    if (christmasSeason()){
                         changeMusic("Christmas Theme")
                     } else {
                         changeMusic("Title Theme");
                     }
                 }
 
-                if (christmasSeason){
+                if (christmasSeason()){
                     background('winter');
                 } else {
                     background('dayGrass');
                 }
                 
                 ticksUntilPing -= currentSpeed;
-                if (ticksUntilPing < 1 && !christmasSeason) {
+                if (ticksUntilPing < 1 && !christmasSeason()) {
                     ticksUntilPing = 50;
                     cImg = ['grass.png','flower1.png','flower2.png','flower3.png'][random(0,3)];
                     entitys.push(new staticEntity(random(100,height-70),cImg,70,70));
-                } if (ticksUntilPing % 10 == 0 && christmasSeason){
+                } if (ticksUntilPing % 10 == 0 && christmasSeason()){
                     entitys.push(new snowflake());
                 }
                 
@@ -4937,25 +4937,25 @@
                 } else if (currentMusic && currentMusic.paused){
                     currentMusic.play();
                 } else if (currentMusic != music["Title Theme"] && currentMusic != music["Christmas Theme"]){
-                    if (christmasSeason){
+                    if (christmasSeason()){
                         changeMusic("Christmas Theme")
                     } else {
                         changeMusic("Title Theme");
                     }
                 }
 
-                if (christmasSeason){
+                if (christmasSeason()){
                     background('winter');
                 } else {
                     background('dayGrass');
                 }
                 
                 ticksUntilPing -= currentSpeed;
-                if (ticksUntilPing < 1 && !christmasSeason) {
+                if (ticksUntilPing < 1 && !christmasSeason()) {
                     ticksUntilPing = 50;
                     cImg = ['grass.png','flower1.png','flower2.png','flower3.png'][random(0,3)];
                     entitys.push(new staticEntity(random(100,height-70),cImg,70,70));
-                } if (ticksUntilPing % 10 == 0 && christmasSeason){
+                } if (ticksUntilPing % 10 == 0 && christmasSeason()){
                     entitys.push(new snowflake());
                 }
                 
@@ -5005,14 +5005,14 @@
                 } else if (currentMusic && currentMusic.paused){
                     currentMusic.play();
                 } else if (currentMusic != music["Title Theme"] && currentMusic != music["Christmas Theme"]){
-                    if (christmasSeason){
+                    if (christmasSeason()){
                         changeMusic("Christmas Theme")
                     } else {
                         changeMusic("Title Theme");
                     }
                 }
 
-                if (christmasSeason){
+                if (christmasSeason()){
                     background('winter');
                 } else {
                     background('dayGrass');
@@ -5020,11 +5020,11 @@
                 
 
                 ticksUntilPing -= currentSpeed;
-                if (ticksUntilPing < 1 && !christmasSeason) {
+                if (ticksUntilPing < 1 && !christmasSeason()) {
                     ticksUntilPing = 50;
                     cImg = ['grass.png','flower1.png','flower2.png','flower3.png'][random(0,3)]
                     entitys.push(new staticEntity(random(100,height-70),cImg,70,70));
-                } if (ticksUntilPing % 10 == 0 && christmasSeason){
+                } if (ticksUntilPing % 10 == 0 && christmasSeason()){
                     entitys.push(new snowflake());
                 }
                 
@@ -5086,25 +5086,25 @@
                 if (state != 'menu') {
                     return;
                 } else if (currentMusic != music["Title Theme"] && currentMusic != music["Christmas Theme"]){
-                    if (christmasSeason){
+                    if (christmasSeason()){
                         changeMusic("Christmas Theme")
                     } else {
                         changeMusic("Title Theme");
                     }
                 }
                 
-                if (christmasSeason){
+                if (christmasSeason()){
                     background('winter');
                 } else {
                     background('dayGrass');
                 }
                 
                 ticksUntilPing -= currentSpeed;
-                if (ticksUntilPing < 1 && !christmasSeason) {
+                if (ticksUntilPing < 1 && !christmasSeason()) {
                     ticksUntilPing = 50;
                     cImg = ['grass.png','flower1.png','flower2.png','flower3.png'][random(0,3)];
                     entitys.push(new staticEntity(random(100,height-70),cImg,70,70));
-                } if (ticksUntilPing % 10 == 0 && christmasSeason){
+                } if (ticksUntilPing % 10 == 0 && christmasSeason()){
                     entitys.push(new snowflake());
                 }
                 

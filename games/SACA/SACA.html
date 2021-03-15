@@ -30,6 +30,18 @@
         <script src="PxGamepad.js"></script>
         <link rel="shortcut icon" href="./favicon.ico">
         <script>
+            /*
+                TODOS AND IDEAS
+
+                TODOS:
+                Extend Swim Option 
+
+                IDEAS:
+                Musician Cat: Different Abilities depending on the current music track. Holds different instrument?
+                Ship of the Line Boss in the river
+                Time traveling boss that moves on the timeline while fighting
+                Invulnerability Powerup
+            */
             cLocDeaths = 0;
             region = 'grassland';
             gamepad1 = new PxGamepad();
@@ -55,7 +67,8 @@
                 ['Grassland_Theme.ogg','Grassland',0.2],
                 ['SACA_Boss_Theme.ogg','Boss Theme',0.5],
                 ['SACA_Christmas_Theme.ogg','Christmas Theme',0.7],
-                ['SACA_Plains_Theme.ogg','Plains Theme',0.7]
+                ['SACA_Plains_Theme.ogg','Plains Theme',0.7],
+                ['SACA_River_Theme.ogg','River',0.7]
             ];
             var music = {};
             var currentMusic = 0;
@@ -68,7 +81,7 @@
             ];
             var soundEffects = {};
 
-            function changeMusic(newMusic=0){
+            function changeMusic(newMusic='Grassland'){
                 if (currentMusic){
                     currentMusic.pause();
                     currentMusic.currentTime = 0;
@@ -605,6 +618,32 @@
                     entitys.push(new pickup(x,y,'healthPowerup','health+1'));
                 } else if (r == 'damage') {
                     entitys.push(new pickup(x,y,'oneDamagePowerup','damage'));
+                } else if (r == 'frag'){
+                    entitys.push(new pickup(x,y,'fragPowerup','fragBullets'));
+                } else if (r == 'target'){
+                    entitys.push(new pickup(x,y,'target','target'));
+                } else if (r == 'eliteTarget'){
+                    entitys.push(new pickup(x,y,'eliteTarget','eliteTarget'));
+                } else if (r == 'fire'){
+                    entitys.push(new pickup(x,y,'firePowerup','fireTrail'));
+                }/*else if (r == 'random'){
+                    entitys.push(new pickup(x,y,'randomPowerup','random'));
+                } else if (r == 'lightning'){
+                    entitys.push(new pickup(x,y,'lightningPowerup','lightning'));
+                } else if (r == 'aim'){
+                    entitys.push(new pickup(x,y,'aimPowerup','aim'));
+                } else if (r == 'shield1'){
+                    entitys.push(new pickup(x,y,'shieldPowerup','shield'));
+                } else if (r == 'shield2'){
+                    entitys.push(new pickup(x,y,'shield2Powerup','shield2'));
+                } else if (r == 'deer'){
+                    entitys.push(new pickup(x,y,'deerPowerup','deer'));
+                } else if (r == 'laser'){
+                    entitys.push(new pickup(x,y,'laserPowerup','laser'));
+                } else if (r == 'machineGun') {
+                    entitys.push(new pickup(x,y,'machineGunPowerup','machineGun'));
+                } else if (r == 'coffee'){
+                    entitys.push(new pickup(x,y,'coffeePowerup','coffee'));
                 } else if (r == 'nuke'){
                     entitys.push(new pickup(x,y,'nukePowerup','nuke'));
                 } else if (r == 'bow'){
@@ -613,34 +652,10 @@
                     entitys.push(new pickup(x,y,'confusedPowerup','confused'));
                 } else if (r == 'tripleShot'){
                     entitys.push(new pickup(x,y,'tripleShotPowerup','tripleShot'));
-                } else if (r == 'frag'){
-                    entitys.push(new pickup(x,y,'fragPowerup','fragBullets'));
-                } else if (r == 'laser'){
-                    entitys.push(new pickup(x,y,'laserPowerup','laser'));
-                } else if (r == 'machineGun') {
-                    entitys.push(new pickup(x,y,'machineGunPowerup','machineGun'));
-                } else if (r == 'coffee'){
-                    entitys.push(new pickup(x,y,'coffeePowerup','coffee'));
-                } else if (r == 'aim'){
-                    entitys.push(new pickup(x,y,'aimPowerup','aim'));
-                } else if (r == 'target'){
-                    entitys.push(new pickup(x,y,'target','target'));
-                } else if (r == 'eliteTarget'){
-                    entitys.push(new pickup(x,y,'eliteTarget','eliteTarget'));
-                } else if (r == 'shield1'){
-                    entitys.push(new pickup(x,y,'shieldPowerup','shield'));
-                } else if (r == 'shield2'){
-                    entitys.push(new pickup(x,y,'shield2Powerup','shield2'));
-                } else if (r == 'deer'){
-                    entitys.push(new pickup(x,y,'deerPowerup','deer'));
-                } else if (r == 'fire'){
-                    entitys.push(new pickup(x,y,'firePowerup','fireTrail'));
-                } else if (r == 'random'){
-                    entitys.push(new pickup(x,y,'randomPowerup','random'));
-                } else if (r == 'lightning'){
-                    entitys.push(new pickup(x,y,'lightningPowerup','lightning'));
-                } else {
-                    alert('ERROR 0002: Powerup not found "'+r+'".');
+                }
+                */ else {
+                    //alert('ERROR 0002: Powerup not found "'+r+'".');
+                    entitys.push(new pickup(x,y,r+'Powerup',r));
                 }
             }
             
@@ -1740,6 +1755,7 @@
                     day += random(1,5);
                     river = true;
                     entitys.push(new achievementUnlocked("novice"));
+                    changeMusic('River');
                 },
                 'onUpdate':function(){
                     this.tickMax = 350;

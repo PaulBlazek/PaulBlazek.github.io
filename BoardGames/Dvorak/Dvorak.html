@@ -100,7 +100,7 @@
                 profileNames = JSON.parse(localStorage.getItem("dvjprofileNames"));
                 ldb.get('dvjprofiles',function(value){
                     profiles = JSON.parse(value);
-					if (profiles = null){
+					if (profiles == null){
 						profiles = {};
 						profileNames = [];
 					}

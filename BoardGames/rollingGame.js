@@ -1,3 +1,10 @@
+// TODOS
+// More classes
+// Mana system
+// Events every turn
+// Gold system
+// Turn order indication
+
 // Required data for BGLib
 var playerRange = [2,8];
 var gameName = "Journey";
@@ -129,7 +136,7 @@ var playerClasses = [];
 var classDesc = {
     'barbarian':'Do 2 damage whenever you pass an opponent.',
     'bard':'-1 Speed, opponents within 5 distance have -2 speed.',
-    'cleric':'Heal yourself 2 hp and other players within 3 distance 1 hp each turn.',
+    //'cleric':'Heal yourself 2 hp and other players within 3 distance 1 hp each turn. Mana 3. (You regain 1 mana per turn, and may spend it to cast certain spells.)',
     'medusa':'Kill any players who are on the same space as you when you start your turn.',
     'rogue':'-2 HP, +1 Speed, on doubles, players you pass through take 3 damage.',
     'soldier':'You can never move less than 5 with your main movement.',
@@ -137,6 +144,9 @@ var classDesc = {
     //'fighter':'Strike d6. (During your skill phase, you may do d6 damage to an opponent within 3 distance.)',
     //'mage':'Mana 10. (You regain 1 mana per turn, and may spend it to cast certain spells.)',
     //'witch':'You never gain curses. Mana 5. (You regain 1 mana per turn, and may spend it to cast certain spells.)',
+    //'detective':'Storyline changes to a murder mystery. +1 Move',
+    //'spy':'-1 Move, when you would get a random events, 50% chance to instead choose between two different random events',
+    //'thief':'Steal 1 gold from people you pass with non-doubles',
     //'':'',
 };
 for (var c in classDesc){

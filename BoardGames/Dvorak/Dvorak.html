@@ -100,6 +100,10 @@
                 profileNames = JSON.parse(localStorage.getItem("dvjprofileNames"));
                 ldb.get('dvjprofiles',function(value){
                     profiles = JSON.parse(value);
+					if (profiles = null){
+						profiles = {};
+						profileNames = [];
+					}
                     console.log('Loading Complete!');
                     //update();
                 });
@@ -10558,6 +10562,11 @@
                     ctx.globalAlpha = 0.8;
                     ctx.font = '36px Helvetica';
                     
+					if (profileNames == null){
+						profileNames = [];
+						profiles = {};
+					}
+
                     for (var i = 0; i < profileNames.length; i++) {
                         ctx.fillStyle = 'rgb(204,204,0)';
                         ctx.fillRect(300,100+i*110,400,100);

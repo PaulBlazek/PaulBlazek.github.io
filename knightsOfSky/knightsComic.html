@@ -19,7 +19,8 @@
         </style>
         <script>
             var comicElement;
-            var comicsAmount = 43;
+            var comicsAmount = 43+103;
+            var episodes = [43,103]
             var cComic = 1;
             var gifs = [];
 
@@ -40,7 +41,22 @@
                         return;
                     }
                 }
-                comicElement.src = 'images/Knights of Sky Episode 1 pic '+cComic+'.png';
+
+                episode = 1;
+                offset = 0;
+                for (var i = 0; i < episodes.length; i++){
+                    total = 0;
+                    for (var j = 0; j <= i; j++){
+                        total += episodes[i];
+                    }
+
+                    if (cComic > total){
+                        episode += 1;
+                        offset += episodes[i];
+                    }
+                }
+
+                comicElement.src = 'images/Knights of Sky Episode '+episode+' pic '+(cComic-offset)+'.png';
             }
 
             function first(){

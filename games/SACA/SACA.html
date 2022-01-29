@@ -1182,7 +1182,7 @@
                     currentMerchant.showTrades();
                 }
                 
-                requestAnimationFrame(updateGame);
+                window.setTimeout(function(){requestAnimationFrame(updateGame);},1); // Frame limiter
             }
             
             locs = {};
@@ -4914,20 +4914,20 @@
                 'health+1':'healthPowerup',
                 'damage':'oneDamagePowerup',
                 'bow':'bowPowerup',
-                'shield':'shieldPowerup',
+                'shield1':'shieldPowerup',
                 'shield2':'shield2Powerup'
             }
             
             merchantPrices = {
                 'health+1':15,
-                'shield':25,
+                'shield1':25,
                 'shield2':45,
                 'bow':40,
                 'damage':-5
             }
 
             merchantRarities = {
-                'shield':10,
+                'shield1':10,
                 'shield2':5,
                 'bow':3,
                 'damage':1

@@ -3415,14 +3415,14 @@
                     fragBullets = true;
                 }
 
-                if (this.weapon[0] == "bow"){
-                    entitys.push(new arrow(x,y,targetX,targetY,foeNames));
-                    return;
-                }
-
                 effects = [];
                 if (isIn("flamingBullets",this.perks)){
                     for (var i = 0; i < count("flamingBullets",this.perks); i++){effects.push("flaming");}
+                }
+
+                if (this.weapon[0] == "bow"){
+                    entitys.push(new arrow(x,y,targetX,targetY,foeNames,effects));
+                    return;
                 }
                 //console.log(this.perks);
                 //console.log(effects);
@@ -4453,7 +4453,7 @@
                 }
             }
 
-            function arrow(x,y,foeX,foeY,foeNames) {
+            function arrow(x,y,foeX,foeY,foeNames,effects = []) {
                 this.name = 'bullet';
                 this.x = x;
                 this.y = y;
@@ -4468,6 +4468,7 @@
                 this.img = new Image();
                 this.img.src = path+"arrow.png";
                 this.damage = 3;
+                this.effects = [];
                 
                 this.shotDist = Math.sqrt((foeX-x)*(foeX-x)+(foeY-y)*(foeY-y));
                 this.angle = Math.acos((foeX-x)/this.shotDist); // In Radians
@@ -4487,6 +4488,15 @@
             }
             
             arrow.prototype.update = function(){
+                if (this.flash < 10) {
+                    this.flash += 1;
+                } else {
+                    this.flash = 0;
+                }
+
+                if (isIn('flaming',this.effects) && this.flash % (10)/count("flaming",this.effects) == 0){
+                    spawns.push(new fire(this.x,this.y));
+                }
                 ctx.save();
                 ctx.translate(this.x,this.y);
                 ctx.rotate(this.angle);
@@ -4521,13 +4531,13 @@
                             playSound("hurt");
                             if (this.frag){
                                 playSound("gunshot");
-                                spawns.push(new arrow(this.x+1,this.y+1,this.x,this.y,this.foeNames));
-                                spawns.push(new arrow(this.x-1,this.y,this.x,this.y,this.foeNames));
-                                spawns.push(new arrow(this.x+1,this.y-1,this.x,this.y,this.foeNames));
-                                spawns.push(new arrow(this.x,this.y+1,this.x,this.y,this.foeNames));
-                                spawns.push(new arrow(this.x,this.y-1,this.x,this.y,this.foeNames));
-                                spawns.push(new arrow(this.x-1,this.y+1,this.x,this.y,this.foeNames));
-                                spawns.push(new arrow(this.x-1,this.y-1,this.x,this.y,this.foeNames));
+                                spawns.push(new arrow(this.x+1,this.y+1,this.x,this.y,this.foeNames,this.effects));
+                                spawns.push(new arrow(this.x-1,this.y,this.x,this.y,this.foeNames,this.effects));
+                                spawns.push(new arrow(this.x+1,this.y-1,this.x,this.y,this.foeNames,this.effects));
+                                spawns.push(new arrow(this.x,this.y+1,this.x,this.y,this.foeNames,this.effects));
+                                spawns.push(new arrow(this.x,this.y-1,this.x,this.y,this.foeNames,this.effects));
+                                spawns.push(new arrow(this.x-1,this.y+1,this.x,this.y,this.foeNames,this.effects));
+                                spawns.push(new arrow(this.x-1,this.y-1,this.x,this.y,this.foeNames,this.effects));
                             }
 
                             if (this.damage <= 0 || entity.health > 0 || entity.trueHealth > 0){

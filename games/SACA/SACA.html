@@ -3059,7 +3059,7 @@
                             ctx.drawImage(heartImg,110+i*80,20,60,60);
                         }
                         
-                    } else {
+                    } else if (i < 12) {
                         ctx.drawImage(emptyHeartImg,110+i*80,20,60,60);
                     }
                 }
@@ -3402,6 +3402,9 @@
                 //this.perks.push(newPerk);
                 if (lostPerk == 'maxHp'){
                     this.maxHealth -= 2;
+                    if (this.health > this.maxHealth){
+                        this.health = this.maxHealth;
+                    }
                     //this.health -= 2;
                 }
             }

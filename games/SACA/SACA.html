@@ -241,8 +241,14 @@
             }
             
             function checkClick(event) {
-                x = event.clientX - $('#game').offset().left;
-                y = event.clientY - $('#game').offset().top;
+                //function getCursorPosition(canvas, event) {
+                const rect = canvas.getBoundingClientRect()
+                const x = event.clientX - rect.left
+                const y = event.clientY - rect.top
+                console.log("x: " + x + " y: " + y)
+                //}
+                //x = event.clientX - $('#game').offset().left;
+                //y = event.clientY - $('#game').offset().top;
                 
                 if (state == 'achievements'){
                     state = 'menu';
@@ -1058,7 +1064,7 @@
                 });
             }
             
-            fpsMeter();
+            //fpsMeter();
 
             function updateGame() {
                 gamepad1.update();

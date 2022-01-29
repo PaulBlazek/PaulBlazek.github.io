@@ -2732,7 +2732,7 @@
                         this.y+this.height >= entity.y &&
                         this.y <= entity.y+entity.height
                        ){
-                        if (isIn(entity.name,['bandit','player','boss']) || entity == entitys[0]) {
+                        if (isIn(entity.name,['bandit','player','boss','animal']) || entity == entitys[0]) {
                             if (entity == entitys[0] && entity.perks.includes("lightning")){
                                 continue;
                             }

@@ -593,6 +593,15 @@
             function pick(array) {
                 return array[random(0,array.length-1)];
             }
+
+            function pickMap(map){ // Unweighted for chaos morph
+                array = [];
+                for (var i in map){
+                    array.push(i);
+                }
+
+                return pick(array);
+            }
             
             function weightedChoice(map){
                 array = [];
@@ -1148,6 +1157,10 @@
                 if (objective == 'defeat' && entitys[0].perks.includes("deerHunter") && random(1,1000) <= 4*count("deerHunter",entitys[0].perks)){
                     entitys.push(new deer());
                 }
+
+                if (entitys[0].perks.includes("lightning") && random(1,1000) <= 1*count("lightning",entitys[0].perks)){
+                    entitys.push(new Lightning(0,0));
+                }
                 
                 if ((objective == 'defeat' || globalSurvival || (currentBoss && currentBoss.spawnPickups)) && random(1,1000) <= 2+rand*2+(globalSurvival == 'bandit')*2) {
                     spawnPowerup();
@@ -1239,6 +1252,22 @@
             }
             
             Location.prototype.preEnter = function(){
+                // Morph chaos perks
+
+                chars = [entitys[0]].concat(companions);
+                for (var i = 0; i < chars.length; i++){
+                    for (var j = 0; j < chars[i].perks.length; j++){
+                        if (chars[i].perks[j] == "chaos" || chars[i].perkProperties[j].includes("CHAOS")){
+                            newPerk = pickMap(perkImages);
+                            chars[i].losePerk(char[i].perks[j]);
+                            chars[i].perks.splice(j,1); // Delete chaos perk
+                            chars[i].perkProperties.splice(j,1);
+                            chars[i].gainPerk(newPerk,properties=["CHAOS"]);
+                        }
+                    }
+                }
+
+
                 currentMerchant = '';
 
                 cLocDeaths = 0;
@@ -1862,17 +1891,17 @@
                 'buttons':[],
                 'button1':function(){
                     state = 'game';
-                    whoGetsThePerk.perks.push(this.perks[0]);
+                    whoGetsThePerk.gainPerk(this.perks[0]);
                     this.leave();
                 },
                 'button2':function(){
                     state = 'game';
-                    whoGetsThePerk.perks.push(this.perks[1]);
+                    whoGetsThePerk.gainPerk(this.perks[1]);
                     this.leave();
                 },
                 'button3':function(){
                     state = 'game';
-                    whoGetsThePerk.perks.push(this.perks[2]);
+                    whoGetsThePerk.gainPerk(this.perks[2]);
                     this.leave();
                 },
                 'leaveLoc':'River 2-1'
@@ -2058,17 +2087,17 @@
                 'buttons':[],
                 'button1':function(){
                     state = 'game';
-                    whoGetsThePerk.perks.push(this.perks[0]);
+                    whoGetsThePerk.gainPerk(this.perks[0]);
                     this.leave();
                 },
                 'button2':function(){
                     state = 'game';
-                    whoGetsThePerk.perks.push(this.perks[1]);
+                    whoGetsThePerk.gainPerk(this.perks[1]);
                     this.leave();
                 },
                 'button3':function(){
                     state = 'game';
-                    whoGetsThePerk.perks.push(this.perks[2]);
+                    whoGetsThePerk.gainPerk(this.perks[2]);
                     this.leave();
                 },
                 'leaveLoc':'Plains 5-1'
@@ -2270,17 +2299,17 @@
                 'buttons':[],
                 'button1':function(){
                     state = 'game';
-                    whoGetsThePerk.perks.push(this.perks[0]);
+                    whoGetsThePerk.gainPerk(this.perks[0]);
                     this.leave();
                 },
                 'button2':function(){
                     state = 'game';
-                    whoGetsThePerk.perks.push(this.perks[1]);
+                    whoGetsThePerk.gainPerk(this.perks[1]);
                     this.leave();
                 },
                 'button3':function(){
                     state = 'game';
-                    whoGetsThePerk.perks.push(this.perks[2]);
+                    whoGetsThePerk.gainPerk(this.perks[2]);
                     this.leave();
                 },
                 'leaveLoc':'Bridge 4-1'
@@ -2521,17 +2550,17 @@
                 'buttons':[],
                 'button1':function(){
                     state = 'game';
-                    whoGetsThePerk.perks.push(this.perks[0]);
+                    whoGetsThePerk.gainPerk(this.perks[0]);
                     this.leave();
                 },
                 'button2':function(){
                     state = 'game';
-                    whoGetsThePerk.perks.push(this.perks[1]);
+                    whoGetsThePerk.gainPerk(this.perks[1]);
                     this.leave();
                 },
                 'button3':function(){
                     state = 'game';
-                    whoGetsThePerk.perks.push(this.perks[2]);
+                    whoGetsThePerk.gainPerk(this.perks[2]);
                     this.leave();
                 },
                 'leaveLoc':'Plains 5-1'
@@ -2697,7 +2726,10 @@
                         this.y+this.height >= entity.y &&
                         this.y <= entity.y+entity.height
                        ){
-                        if (isIn(entity.name,['bandit','player']) || entity == entitys[0]) {
+                        if (isIn(entity.name,['bandit','player','boss']) || entity == entitys[0]) {
+                            if (entity == entitys[0] && entity.perks.includes("lightning")){
+                                continue;
+                            }
                             entity.health -= 1;
                             entity.lastHit = 'lightning';
                             this.state = 'reset';
@@ -2713,6 +2745,8 @@
             emptyHeartImg.src = path+'emptyHeart.png';
             var peltImg = new Image();
             peltImg.src = path+'pelts.jpg';
+            var doubleHeartImg = new Image();
+            doubleHeartImg.src = path+'doubleHeart.png';
             
             function changeCharacter(death){
                 if (companions.length == 0){
@@ -2759,7 +2793,10 @@
                 "gerg":createImage(path+"gregory.png"),
                 "fasterFiring":createImage(path+"machineGunPowerup.png"),
                 "fragBullets":createImage(path+"fragPowerup.png"),
-                "deerHunter":createImage(path+"deerPowerup.png")
+                "deerHunter":createImage(path+"deerPowerup.png"),
+                "maxHp":createImage(path+"maxHpPerk.png"),
+                "lightning":createImage(path+"lightningPowerup.png"),
+                "chaos":createImage(path+"randomPowerup.png")
             };
             perkDesc = {
                 "alwaysAutoAim":"You always auto-aim.",
@@ -2769,17 +2806,23 @@
                 "gerg":"Enemies flee at your terrible presence",
                 "fasterFiring":"You fire faster",
                 "fragBullets":"25% chance to shoot a frag bullet instead of normal.", // FLAVORTEXT RESERVED BY GERG "BULLET THAT GO BOOM"
-                "deerHunter":"Chance to spawn a deer every frame during fights."
+                "deerHunter":"Chance to spawn a deer every frame during fights.",
+                "maxHp":"+2 Max Hp",
+                "lightning":"Immune to lightning, lightning falls, gradually getting more extreme.",
+                "chaos":"Morphs into a random perk each location."
             };
             perkAffinities = { // Increase odds of getting other perks that are similar based on current perks
                 "alwaysAutoAim":{"aim":3},
                 "alwaysConfused":{"chaos":3},
-                "flamingBullets":{"fire":3,"bullet":2},
-                "beamFire":{"bullet":1},
+                "flamingBullets":{"fire":3,"bullet":2,"magic":1},
+                "beamFire":{"bullet":1,"chaos":1},
                 "gerg":{"joke":2,"chaos":3},
                 "fasterFiring":{"bullet":2},
                 "fragBullets":{"bullet":2,"explosion":3},
-                "deerHunter":{"pelts":3}
+                "deerHunter":{"pelts":3},
+                "maxHp":{"health":3,"defense":1},
+                "lightning":{"electric":3,"magic":1},
+                "chaos":{"chaos":3}
             }
 
             perkChances = {};
@@ -2812,6 +2855,7 @@
 
                 this.activeTicks = 0; // Used to determine which party member gets the perk
                 this.perks = [];
+                this.perkProperties = []; // Tells us whether a perk has special variables
                 
                 if (this.name == 'Normal Cat'){
                     this.img.src = path+'normalCat.gif';
@@ -2834,6 +2878,7 @@
                 
                 this.baseSpeed = this.cSpeed;
                 this.maxHealth = this.health;
+                this.defaultMaxHealth = this.health;
                 this.effects = {};
                 this.lastHealth = this.health;
                 this.tick = 0;
@@ -3002,12 +3047,18 @@
                     ctx.drawImage(maxShieldImg,this.x+this.width+10,this.y+5,this.width/3*2,this.height-10);
                 }
                 
+                //this.maxHealth = this.defaultMaxHealth + count("maxHp",this.perks)*2;
                 ctx.fillStyle = 'rgb(0,0,0)';
                 ctx.globalAlpha = 0.9;
                 ctx.fillRect(100,10,80*14,80);
                 for (var i = 0; i < this.maxHealth; i++){
                     if (i < this.health){
-                        ctx.drawImage(heartImg,110+i*80,20,60,60);
+                        if (i > 11){
+                            ctx.drawImage(doubleHeartImg,110+(i-12)*80,20,60,60);
+                        } else {
+                            ctx.drawImage(heartImg,110+i*80,20,60,60);
+                        }
+                        
                     } else {
                         ctx.drawImage(emptyHeartImg,110+i*80,20,60,60);
                     }
@@ -3044,6 +3095,9 @@
                 i = 0;
                 //console.log(this.perks);
                 for (p in this.perks){
+                    if (this.perkProperties[p].includes("CHAOS")){
+                        ctx.drawImage(perkImages["chaos"],1000-(i*40)-10,550-10,30,30);
+                    }
                     ctx.drawImage(perkImages[this.perks[p]],1000-(i*40),550,30,30);
                     i++;
                 }
@@ -3334,6 +3388,23 @@
                     }
                 }
             };
+
+            playerCharacter.prototype.gainPerk = function(newPerk,properties=[]){
+                this.perks.push(newPerk);
+                this.perkProperties.push(properties);
+                if (newPerk == 'maxHp'){
+                    this.maxHealth += 2;
+                    this.health += 2;
+                }
+            }
+
+            playerCharacter.prototype.losePerk = function(lostPerk){
+                //this.perks.push(newPerk);
+                if (lostPerk == 'maxHp'){
+                    this.maxHealth -= 2;
+                    //this.health -= 2;
+                }
+            }
 
             playerCharacter.prototype.fireProjectile = function(x,y,targetX,targetY,foeNames){
                 prevFrag = fragBullets;

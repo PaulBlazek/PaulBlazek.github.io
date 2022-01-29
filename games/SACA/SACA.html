@@ -2471,7 +2471,7 @@
                         companions[c].activeTicks = 0;
                     }
 
-                    return ['The party had traversed the grasslands.',whoGetsThePerk.name+' has learned a new skill!'];
+                    return ['The party had reached the other side of the bridge.',whoGetsThePerk.name+' has learned a new skill!'];
                 },
                 'onEnter':function(){
                     state = 'pause';
@@ -3291,7 +3291,7 @@
                                     l.life = 4;
                                     entitys.push(l);
                                 }
-                            } else if (entity.effect == 'shield'){
+                            } else if (entity.effect == 'shield1'){
                                 this.shields += 1+(this.name == 'Shield Cat');
                             } else if (entity.effect == 'shield2'){
                                 this.shields += 2+(this.name == 'Shield Cat');
@@ -3326,7 +3326,7 @@
 
                 effects = [];
                 if (isIn("flamingBullets",this.perks)){
-                    for (var i = 0; i < count("flaming",this.perks); i++){effects.push("flaming");}
+                    for (var i = 0; i < count("flamingBullets",this.perks); i++){effects.push("flaming");}
                 }
                 //console.log(this.perks);
                 //console.log(effects);
@@ -4920,7 +4920,7 @@
             
             merchantPrices = {
                 'health+1':15,
-                'shield':20,
+                'shield':25,
                 'shield2':45,
                 'bow':40,
                 'damage':-5

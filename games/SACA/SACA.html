@@ -41,6 +41,9 @@
                 Ship of the Line Boss in the river
                 Time traveling boss that moves on the timeline while fighting
                 Invulnerability Powerup
+                Bambi Boss on the deer path
+
+                Perks
             */
             cLocDeaths = 0;
             region = 'grassland';
@@ -200,6 +203,16 @@
                 
                 return false;
             }
+
+            function count(item,array){
+                total = 0;
+
+                for (var i = 0; i < array.length; i++){
+                    if (item == array[i]){total+=1;}
+                }
+
+                return total;
+            }
             
             function copy(array) {
                 var newArray = [];
@@ -208,6 +221,15 @@
                 }
                 
                 return newArray;
+            }
+
+            function copyMap(m) {
+                var newMap = [];
+                for (var key in m){
+                    newMap[key] = m[key];
+                }
+                
+                return newMap;
             }
             
             function removeFromArray(item,array){
@@ -349,11 +371,22 @@
                     }
                     
                 } else if (choice && state == 'pause'){
-                    if (x > 300 && x < 750 && y > 50 && y < 250) { // Top Button
-                        cLocation.button1();
-                    } else if (x > 300 && x < 750 && y > 300 && y < 500) { // Bottom Button
-                        cLocation.button2();
+                    if (cLocation.buttons.length == 2){
+                        if (x > 300 && x < 750 && y > 50 && y < 250) { // Top Button
+                            cLocation.button1();
+                        } else if (x > 300 && x < 750 && y > 300 && y < 500) { // Bottom Button
+                            cLocation.button2();
+                        }
+                    } else {
+                        //ctx.fillRect(100,150+(i*120),900,100);
+                        b = [cLocation.button1,cLocation.button2,cLocation.button3,cLocation.button4]
+                        for (var i = 0; i < buttons.length; i++){
+                            if (x > 100 && x < 1000 && y > 150+(i*120) && y < 150+(i*120)+100){
+                                b[i]();
+                            }
+                        }
                     }
+                    
                 } else if (state == 'game' && currentMerchant){
                     /*for (var t = 0; t < this.sales.length; t++){
                         ctx.globalAlpha = 0.5;
@@ -420,6 +453,8 @@
                         }
                     }
                     console.log(entitys);
+
+                    spawns = [];
                 }
                 
                 state = 'areaPause';
@@ -1010,15 +1045,24 @@
                     entitys[0].update();
                     ctx.globalAlpha = 0.8;
                     
-                    ctx.fillStyle = 'black';
-                    ctx.fillRect(300,50,400,200);
-                    ctx.fillStyle = 'white';
-                    ctx.fillText(cLocation.buttons[0],400,150);
-                    ctx.fillStyle = 'black';
-                    ctx.fillRect(300,300,400,200);
-                    ctx.fillStyle = 'white';
-                    ctx.fillText(cLocation.buttons[1],400,400);
-                    ctx.globalAlpha = 1;
+                    if (cLocation.buttons.length == 2){
+                        ctx.fillStyle = 'black';
+                        ctx.fillRect(300,50,400,200);
+                        ctx.fillStyle = 'white';
+                        ctx.fillText(cLocation.buttons[0],400,150);
+                        ctx.fillStyle = 'black';
+                        ctx.fillRect(300,300,400,200);
+                        ctx.fillStyle = 'white';
+                        ctx.fillText(cLocation.buttons[1],400,400);
+                        ctx.globalAlpha = 1;
+                    } else {
+                        for (var i = 0; i < cLocation.buttons.length; i++){
+                            ctx.fillStyle = 'black';
+                            ctx.fillRect(100,150+(i*120),1000,100);
+                            ctx.fillStyle = 'white';
+                            ctx.fillText(cLocation.buttons[i],120,200+(i*120));
+                        }
+                    }
                 }
                 
                 if (state == 'pause' || state == 'areaPause') {
@@ -1077,6 +1121,10 @@
                             entitys.push(new deer());
                         }
                     }
+                }
+
+                if (objective == 'defeat' && entitys[0].perks.includes("deerHunter") && random(1,1000) <= 4*count("deerHunter",entitys[0].perks)){
+                    entitys.push(new deer());
                 }
                 
                 if ((objective == 'defeat' || globalSurvival || (currentBoss && currentBoss.spawnPickups)) && random(1,1000) <= 2+rand*2+(globalSurvival == 'bandit')*2) {
@@ -1142,10 +1190,10 @@
             
             function Location(name,data) {
                 this.name = name;
-                this.onEnter = data.onEnter || function(){};
-                this.update = data.onUpdate || function(){};
-                this.onLeave = data.onLeave || function(){};
-                this.preLeave = data.preLeave || function(){};
+                this.onEnter = (data.onEnter || function(){}).bind(this);
+                this.update = (data.onUpdate || function(){}).bind(this);
+                this.onLeave = (data.onLeave || function(){}).bind(this);
+                this.preLeave = (data.preLeave || function(){}).bind(this);
                 this.getInfoText = data.getInfoText || function(){return false;};
                 this.noRandom = data.noRandom || 0;
                 
@@ -1155,10 +1203,10 @@
                 this.textDuration = data.textDuration || 3000;
                 
                 this.buttons = data.buttons || 0;
-                this.button1 = data.button1 || function(){};
-                this.button2 = data.button2 || function(){};
-                this.button3 = data.button3 || function(){};
-                this.button4 = data.button4 || function(){};
+                this.button1 = (data.button1 || function(){}).bind(this);
+                this.button2 = (data.button2 || function(){}).bind(this);
+                this.button3 = (data.button3 || function(){}).bind(this);
+                this.button4 = (data.button4 || function(){}).bind(this);
                 
                 this.leaveLoc = data.leaveLoc || 'Grassland 1-1';
                 
@@ -1189,8 +1237,12 @@
                     }
                 }
                 
-                if (this.getInfoText()){
-                    this.areaText = this.getInfoText();
+                result = this.getInfoText();
+                if (result){
+                    this.areaText = result;
+                    if (typeof this.areaText == 'object'){
+                        this.areaTextLines = this.areaText;
+                    }
                 }
                 
                 if (!this.areaTextLines || this.areaTextLines == 0){
@@ -1271,7 +1323,7 @@
                 'onLeave':function(){
                     this.tick = 0;
                 },
-                'leaveLoc':'Grassland 1-2',
+                'leaveLoc':'Grassland 1-2',//'Grassland 1-2',
                 'noRandom':1
             });
             
@@ -1395,6 +1447,7 @@
                 'areaTexts':['There were a lot of squirrels','CURRENTPLAYER encountered some squirrels.'],
                 'onEnter':function(){
                     day += random(1,3);
+                    this.tick = 0;
                 },
                 'onUpdate':function(){
                     this.tickMax = 1000;
@@ -1745,6 +1798,61 @@
                     this.stage = 0;
                     this.tick = 0;
                 },
+                'leaveLoc':'Grassland 1-P'
+            });
+
+            var whoGetsThePerk;
+            new Location('Grassland 1-P',{ // Perk Location
+                'getInfoText':function(){
+                    whoGetsThePerk = entitys[0];
+                    leastActive = entitys[0].activeTicks;
+                    entitys[0].activeTicks = 0;
+                    for (c = 0; c < companions.length; c++){
+                        console.log(companions[c].name+"'s ticks: "+companions[c].activeTicks);
+                        console.log("Current Smallest: "+leastActive);
+                        if (companions[c].activeTicks < leastActive){
+                            whoGetsThePerk = companions[c];
+                            leastActive = companions[c].activeTicks;
+                            console.log("New perk getter: "+whoGetsThePerk.name);
+                        }
+                        companions[c].activeTicks = 0;
+                    }
+
+                    return ['The party had traversed the grasslands.',whoGetsThePerk.name+' has learned a new skill!'];
+                },
+                'onEnter':function(){
+                    state = 'pause';
+                    choice = true;
+                    this.perks = [];
+                    this.buttons = [];
+                    var perkChances2 = copyMap(perkChances);
+                    for (var i = 0; i < 3; i++){
+                        p = weightedChoice(perkChances2);
+                        console.log(p);
+                        this.perks.push(p);
+                        this.buttons.push(perkDesc[p]);
+                    }
+                },
+                'onLeave':function(){
+                    choice = false;
+                    ctx.globalAlpha = 1;
+                },
+                'buttons':[],
+                'button1':function(){
+                    state = 'game';
+                    whoGetsThePerk.perks.push(this.perks[0]);
+                    this.leave();
+                },
+                'button2':function(){
+                    state = 'game';
+                    whoGetsThePerk.perks.push(this.perks[1]);
+                    this.leave();
+                },
+                'button3':function(){
+                    state = 'game';
+                    whoGetsThePerk.perks.push(this.perks[2]);
+                    this.leave();
+                },
                 'leaveLoc':'River 2-1'
             });
             
@@ -1886,6 +1994,60 @@
                     river = false;
                     inRiver = false;
                     this.currentStage = 1;
+                },
+                'leaveLoc':'River 2-P'
+            });
+
+            new Location('River 2-P',{ // Perk Location
+                'getInfoText':function(){
+                    whoGetsThePerk = entitys[0];
+                    leastActive = entitys[0].activeTicks;
+                    entitys[0].activeTicks = 0;
+                    for (c = 0; c < companions.length; c++){
+                        console.log(companions[c].name+"'s ticks: "+companions[c].activeTicks);
+                        console.log("Current Smallest: "+leastActive);
+                        if (companions[c].activeTicks < leastActive){
+                            whoGetsThePerk = companions[c];
+                            leastActive = companions[c].activeTicks;
+                            console.log("New perk getter: "+whoGetsThePerk.name);
+                        }
+                        companions[c].activeTicks = 0;
+                    }
+
+                    return ['The party had crossed the river.',whoGetsThePerk.name+' has learned a new skill!'];
+                },
+                'onEnter':function(){
+                    state = 'pause';
+                    choice = true;
+                    this.perks = [];
+                    this.buttons = [];
+                    var perkChances2 = copyMap(perkChances);
+                    for (var i = 0; i < 3; i++){
+                        p = weightedChoice(perkChances2);
+                        console.log(p);
+                        this.perks.push(p);
+                        this.buttons.push(perkDesc[p]);
+                    }
+                },
+                'onLeave':function(){
+                    choice = false;
+                    ctx.globalAlpha = 1;
+                },
+                'buttons':[],
+                'button1':function(){
+                    state = 'game';
+                    whoGetsThePerk.perks.push(this.perks[0]);
+                    this.leave();
+                },
+                'button2':function(){
+                    state = 'game';
+                    whoGetsThePerk.perks.push(this.perks[1]);
+                    this.leave();
+                },
+                'button3':function(){
+                    state = 'game';
+                    whoGetsThePerk.perks.push(this.perks[2]);
+                    this.leave();
                 },
                 'leaveLoc':'Plains 5-1'
             });
@@ -2040,8 +2202,66 @@
                     bridge = false;
                     this.tick = 0;
                 },
-                'leaveLoc':'Bridge 4-1',
+                'leaveLoc':'Grassland 3-P',
                 'noRandom':1
+            });
+
+            new Location('Grassland 3-P',{ // Perk Location
+                'getInfoText':function(){
+                    whoGetsThePerk = entitys[0];
+                    leastActive = entitys[0].activeTicks;
+                    entitys[0].activeTicks = 0;
+                    for (c = 0; c < companions.length; c++){
+                        console.log(companions[c].name+"'s ticks: "+companions[c].activeTicks);
+                        console.log("Current Smallest: "+leastActive);
+                        if (companions[c].activeTicks < leastActive){
+                            whoGetsThePerk = companions[c];
+                            leastActive = companions[c].activeTicks;
+                            console.log("New perk getter: "+whoGetsThePerk.name);
+                        }
+                        companions[c].activeTicks = 0;
+                    }
+
+                    return ['The party had finally made it to the bridge.',whoGetsThePerk.name+' has learned a new skill!'];
+                },
+                'onEnter':function(){
+                    state = 'pause';
+                    river = true;
+                    bridge = true;
+                    choice = true;
+                    this.perks = [];
+                    this.buttons = [];
+                    var perkChances2 = copyMap(perkChances);
+                    for (var i = 0; i < 3; i++){
+                        p = weightedChoice(perkChances2);
+                        console.log(p);
+                        this.perks.push(p);
+                        this.buttons.push(perkDesc[p]);
+                    }
+                },
+                'onLeave':function(){
+                    choice = false;
+                    ctx.globalAlpha = 1;
+                    river = false;
+                    bridge = false;
+                },
+                'buttons':[],
+                'button1':function(){
+                    state = 'game';
+                    whoGetsThePerk.perks.push(this.perks[0]);
+                    this.leave();
+                },
+                'button2':function(){
+                    state = 'game';
+                    whoGetsThePerk.perks.push(this.perks[1]);
+                    this.leave();
+                },
+                'button3':function(){
+                    state = 'game';
+                    whoGetsThePerk.perks.push(this.perks[2]);
+                    this.leave();
+                },
+                'leaveLoc':'Bridge 4-1'
             });
             
             new Location('Bridge 4-1',{
@@ -2231,6 +2451,66 @@
                     inRiver = false;
                     bridge = false;
                     bombs = false;
+                },
+                'leaveLoc':'Bridge 4-P'
+            });
+
+            new Location('Bridge 4-P',{ // Perk Location
+                'getInfoText':function(){
+                    whoGetsThePerk = entitys[0];
+                    leastActive = entitys[0].activeTicks;
+                    entitys[0].activeTicks = 0;
+                    for (c = 0; c < companions.length; c++){
+                        console.log(companions[c].name+"'s ticks: "+companions[c].activeTicks);
+                        console.log("Current Smallest: "+leastActive);
+                        if (companions[c].activeTicks < leastActive){
+                            whoGetsThePerk = companions[c];
+                            leastActive = companions[c].activeTicks;
+                            console.log("New perk getter: "+whoGetsThePerk.name);
+                        }
+                        companions[c].activeTicks = 0;
+                    }
+
+                    return ['The party had traversed the grasslands.',whoGetsThePerk.name+' has learned a new skill!'];
+                },
+                'onEnter':function(){
+                    state = 'pause';
+                    river = true;
+                    inRiver = true;
+                    bridge = true;
+                    choice = true;
+                    this.perks = [];
+                    this.buttons = [];
+                    var perkChances2 = copyMap(perkChances);
+                    for (var i = 0; i < 3; i++){
+                        p = weightedChoice(perkChances2);
+                        console.log(p);
+                        this.perks.push(p);
+                        this.buttons.push(perkDesc[p]);
+                    }
+                },
+                'onLeave':function(){
+                    choice = false;
+                    ctx.globalAlpha = 1;
+                    river = false;
+                    inRiver = false;
+                    bridge = false;
+                },
+                'buttons':[],
+                'button1':function(){
+                    state = 'game';
+                    whoGetsThePerk.perks.push(this.perks[0]);
+                    this.leave();
+                },
+                'button2':function(){
+                    state = 'game';
+                    whoGetsThePerk.perks.push(this.perks[1]);
+                    this.leave();
+                },
+                'button3':function(){
+                    state = 'game';
+                    whoGetsThePerk.perks.push(this.perks[2]);
+                    this.leave();
                 },
                 'leaveLoc':'Plains 5-1'
             });
@@ -2428,6 +2708,7 @@
                 
                 entitys[0].x = -entitys[0].width;
                 entitys[0].isChanging = -1;
+                currentCharacter = [entitys[0]];
             }
             
             fragBullets = false;
@@ -2447,6 +2728,42 @@
                 "bow":createImage(path+"bow.png"),
                 "bowLoaded":createImage(path+"bowLoaded.png")
             };
+
+            perkImages = {
+                "alwaysAutoAim":createImage(path+"aimPowerup.png"),
+                "alwaysConfused":createImage(path+"confusedPowerup.png"),
+                "flamingBullets":createImage(path+"firePowerup.png"),
+                "beamFire":createImage(path+"laserPowerup.png"),
+                "gerg":createImage(path+"gregory.png"),
+                "fasterFiring":createImage(path+"machineGunPowerup.png"),
+                "fragBullets":createImage(path+"fragPowerup.png"),
+                "deerHunter":createImage(path+"deerPowerup.png")
+            };
+            perkDesc = {
+                "alwaysAutoAim":"You always auto-aim.",
+                "alwaysConfused":"You fire faster, but are always confused about what you are aiming at.", // FLAVORTEXT: I FORGOT WHAT I WAS SUPPOSED TO PUT HERE...
+                "flamingBullets":"Your bullets leave trails of fire behind them.",
+                "beamFire":"You fire bullets in beams",
+                "gerg":"Enemies flee at your terrible presence",
+                "fasterFiring":"You fire faster",
+                "fragBullets":"25% chance to shoot a frag bullet instead of normal.", // FLAVORTEXT RESERVED BY GERG "BULLET THAT GO BOOM"
+                "deerHunter":"Chance to spawn a deer every frame during fights."
+            };
+            perkAffinities = { // Increase odds of getting other perks that are similar based on current perks
+                "alwaysAutoAim":{"aim":3},
+                "alwaysConfused":{"chaos":3},
+                "flamingBullets":{"fire":3,"bullet":2},
+                "beamFire":{"bullet":1},
+                "gerg":{"joke":2,"chaos":3},
+                "fasterFiring":{"bullet":2},
+                "fragBullets":{"bullet":2,"explosion":3},
+                "deerHunter":{"pelts":3}
+            }
+
+            perkChances = {};
+            for (var i in perkImages){
+                perkChances[i] = 1;
+            }
             
             hatImages = {
                 "christmas":createImage(path+"santaHat.png")
@@ -2470,6 +2787,9 @@
                 this.isChanging = 0; // Positive is leaving, negative is entering.
                 this.shields = 0;
                 this.maxShields = 5;
+
+                this.activeTicks = 0; // Used to determine which party member gets the perk
+                this.perks = [];
                 
                 if (this.name == 'Normal Cat'){
                     this.img.src = path+'normalCat.gif';
@@ -2494,12 +2814,17 @@
                 this.maxHealth = this.health;
                 this.effects = {};
                 this.lastHealth = this.health;
+                this.tick = 0;
+                this.shotTick = 0;
             }
             
             playerCharacter.prototype.update = function(){
+                this.tick += 1;
                 if (this.dead) {
                     return;
                 }
+
+                this.activeTicks += 1;
                 
                 if (this.shields > this.maxShields){
                     this.shields = this.maxShields;
@@ -2693,6 +3018,13 @@
                 
                 ctx.font = '30px Arial';
                 ctx.fillText(m,90+13*80,65);
+
+                i = 0;
+                //console.log(this.perks);
+                for (p in this.perks){
+                    ctx.drawImage(perkImages[this.perks[p]],1000-(i*40),550,30,30);
+                    i++;
+                }
                 
                 ctx.globalAlpha = 1;
                 
@@ -2739,6 +3071,8 @@
                     this.y += this.cSpeed;
                 } if ((32 in keysDown || gamepad1.buttons.a || mobile) && this.reloadTimer < 1 && this.weapon[0] != "bow") {
                     this.reloadTimer = 30;
+                    this.shotTick += 1;
+
                     playSound("gunshot");
                     if (this.name == 'Super Cat'){
                         this.reloadTimer -= 10;
@@ -2752,6 +3086,21 @@
                     
                     if (globalSurvival) {
                         this.reloadTimer -= 10;
+                    }
+
+                    if (this.perks.includes("fasterFiring")){
+                        this.reloadTimer /= (3 + count("fasterFiring",this.perks))/2;
+                    } if (this.perks.includes("alwaysConfused")){
+                        this.reloadTimer /= (3 + count("alwaysConfused",this.perks))/2;
+                    }
+
+                    if (this.perks.includes("beamFire")){
+                        beamMP = count("beamFire",this.perks)-1;
+                        if (this.shotTick % 10+beamMP*2 == 0){
+                            this.reloadTimer *= 3;
+                        } else {
+                            this.reloadTimer = 4;
+                        }
                     }
                     
                     if (this.effects.machineGun > 0){
@@ -2781,12 +3130,12 @@
                         fragBullets = true;
                     }
                     
-                    if (this.name == 'Crazy Cat' || this.effects.confused > 0){
-                        this.fireProjectile(this.x+70,this.y+40,this.x+1000,random(this.y-100,this.y+150),['bandit','boss','baddy','animal']);
+                    if (this.name == 'Crazy Cat' || this.hasEffect("confused") > 0){
+                        this.fireProjectile(this.x+70,this.y+40,this.x+1000,random(this.y-100-(count("alwaysConfused",this.perks)-1)*50,this.y+150+(count("alwaysConfused",this.perks)-1)*50),['bandit','boss','baddy','animal']);
                         
                         if (this.effects.tripleShot > 0){
-                            this.fireProjectile(this.x+70,this.y+40,this.x+1000,random(this.y-200,this.y+0),['bandit','boss','baddy','animal']);
-                            this.fireProjectile(this.x+70,this.y+40,this.x+1000,random(this.y+100,this.y+300),['bandit','boss','baddy','animal']);
+                            this.fireProjectile(this.x+70,this.y+40,this.x+1000,random(this.y-200-(count("alwaysConfused",this.perks)-1)*50,this.y+0+(count("alwaysConfused",this.perks)-1)*50),['bandit','boss','baddy','animal']);
+                            this.fireProjectile(this.x+70,this.y+40,this.x+1000,random(this.y+100-(count("alwaysConfused",this.perks)-1)*50,this.y+300+(count("alwaysConfused",this.perks)-1)*50),['bandit','boss','baddy','animal']);
                         }
                     } else {
                         if (this.hasEffect('aim')){
@@ -2835,6 +3184,21 @@
                     
                     if (globalSurvival) {
                         this.reloadTimer -= 10;
+                    }
+
+                    if (this.perks.includes("fasterFiring")){
+                        this.reloadTimer /= (2 + count("fasterFiring",this.perks))/2;
+                    } if (this.perks.includes("alwaysConfused")){
+                        this.reloadTimer /= (3 + count("alwaysConfused",this.perks))/2;
+                    }
+
+                    if (this.perks.includes("beamFire")){
+                        beamMP = count("beamFire",this.perks)-1;
+                        if (this.shotTick % 10+beamMP*2 == 0){
+                            this.reloadTimer *= 3;
+                        } else {
+                            this.reloadTimer = 4;
+                        }
                     }
                     
                     if (this.effects.machineGun > 0){
@@ -2950,11 +3314,26 @@
             };
 
             playerCharacter.prototype.fireProjectile = function(x,y,targetX,targetY,foeNames){
+                prevFrag = fragBullets;
+                if (!fragBullets && this.perks.includes("fragBullets") && random(1,4) <= count("fragBullets",this.perks)){
+                    fragBullets = true;
+                }
+
                 if (this.weapon[0] == "bow"){
                     entitys.push(new arrow(x,y,targetX,targetY,foeNames));
                     return;
                 }
-                entitys.push(new bullet(x,y,targetX,targetY,foeNames));
+
+                effects = [];
+                if (isIn("flamingBullets",this.perks)){
+                    for (var i = 0; i < count("flaming",this.perks); i++){effects.push("flaming");}
+                }
+                //console.log(this.perks);
+                //console.log(effects);
+
+                entitys.push(new bullet(x,y,targetX,targetY,foeNames,effects));
+
+                fragBullets = prevFrag;
             }
             
             playerCharacter.prototype.addEffect = function(name,duration){
@@ -2962,6 +3341,9 @@
             };
             
             playerCharacter.prototype.hasEffect = function(name){
+                if (name == 'aim' && isIn("alwaysAutoAim",this.perks)){return true;}
+                if (name == 'confused' && isIn("alwaysConfused",this.perks)){return true;}
+
                 names = [];
                 for (var e in this.effects){
                     names.push(e);
@@ -3518,6 +3900,7 @@
                 this.width = 50;
                 this.height = 70;
                 this.smart = smart;
+                this.fear = 0;
             }
             
             bandit.prototype.update = function(){
@@ -3538,8 +3921,19 @@
                 
                 ctx.drawImage(this.img,this.x,this.y,50,70);
                 
+                if (this.fear){
+                    this.x += 8;
+                    if (this.x >= 1500){
+                        this.killTag = 1;
+                    }
+                    return;
+                }
+
                 if (this.x > this.moveTo) {
                     this.x -= 8;
+                    if (this.x <= this.moveTo && entitys[0].perks.includes("gerg")){
+                        this.fear = random(1,count("gerg",entitys[0].perks)+1)-1;
+                    }
                     return;
                 }
                 
@@ -3874,7 +4268,7 @@
                 }
             };
             
-            function bullet(x,y,foeX,foeY,foeNames) {
+            function bullet(x,y,foeX,foeY,foeNames,effects=[]) {
                 this.name = 'bullet';
                 this.x = x;
                 this.y = y;
@@ -3886,6 +4280,7 @@
                 this.flash = 0;
                 this.width = 10;
                 this.height = 10;
+                this.effects = effects;
                 
                 this.shotDist = Math.sqrt((foeX-x)*(foeX-x)+(foeY-y)*(foeY-y));
                 this.angle = Math.acos((foeX-x)/this.shotDist); // In Radians
@@ -3909,6 +4304,10 @@
                     this.flash += 1;
                 } else {
                     this.flash = 0;
+                }
+
+                if (isIn('flaming',this.effects) && this.flash % (10)/count("flaming",this.effects) == 0){
+                    spawns.push(new fire(this.x,this.y));
                 }
                 
                 if (this.flash > 4) {
@@ -4579,6 +4978,7 @@
                 }
 
                 currentMerchant = this;
+                cDeath = ['The merchant laughed as he stole all of the cats\'s pelts.','The merchant buried the greedy fools','The merchant ignore the dead cats and moved on'];
             }
 
             Merchant.prototype.update = function(){

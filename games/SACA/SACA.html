@@ -43,7 +43,7 @@
                 Invulnerability Powerup
                 Bambi Boss on the deer path
 
-                Perks
+                Sniper Rifle that slows down time so you can make sharpshots
             */
             cLocDeaths = 0;
             region = 'grassland';
@@ -1259,7 +1259,7 @@
                     for (var j = 0; j < chars[i].perks.length; j++){
                         if (chars[i].perks[j] == "chaos" || chars[i].perkProperties[j].includes("CHAOS")){
                             newPerk = pickMap(perkImages);
-                            chars[i].losePerk(char[i].perks[j]);
+                            chars[i].losePerk(chars[i].perks[j]);
                             chars[i].perks.splice(j,1); // Delete chaos perk
                             chars[i].perkProperties.splice(j,1);
                             chars[i].gainPerk(newPerk,properties=["CHAOS"]);
@@ -4436,13 +4436,13 @@
                             playSound("hurt");
                             if (this.frag){
                                 playSound("gunshot");
-                                spawns.push(new bullet(this.x+1,this.y+1,this.x,this.y,this.foeNames));
-                                spawns.push(new bullet(this.x-1,this.y,this.x,this.y,this.foeNames));
-                                spawns.push(new bullet(this.x+1,this.y-1,this.x,this.y,this.foeNames));
-                                spawns.push(new bullet(this.x,this.y+1,this.x,this.y,this.foeNames));
-                                spawns.push(new bullet(this.x,this.y-1,this.x,this.y,this.foeNames));
-                                spawns.push(new bullet(this.x-1,this.y+1,this.x,this.y,this.foeNames));
-                                spawns.push(new bullet(this.x-1,this.y-1,this.x,this.y,this.foeNames));
+                                spawns.push(new bullet(this.x+1,this.y+1,this.x,this.y,this.foeNames,this.effects));
+                                spawns.push(new bullet(this.x-1,this.y,this.x,this.y,this.foeNames,this.effects));
+                                spawns.push(new bullet(this.x+1,this.y-1,this.x,this.y,this.foeNames,this.effects));
+                                spawns.push(new bullet(this.x,this.y+1,this.x,this.y,this.foeNames,this.effects));
+                                spawns.push(new bullet(this.x,this.y-1,this.x,this.y,this.foeNames,this.effects));
+                                spawns.push(new bullet(this.x-1,this.y+1,this.x,this.y,this.foeNames,this.effects));
+                                spawns.push(new bullet(this.x-1,this.y-1,this.x,this.y,this.foeNames,this.effects));
                             }
                             return;
                         }

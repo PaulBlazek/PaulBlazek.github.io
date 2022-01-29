@@ -3172,10 +3172,10 @@
 
                     if (this.perks.includes("beamFire")){
                         beamMP = count("beamFire",this.perks)-1;
-                        if (this.shotTick % 10+beamMP*2 == 0){
+                        if (this.shotTick % (10+beamMP*2) == 0){
                             this.reloadTimer *= 3;
                         } else {
-                            this.reloadTimer = 4;
+                            this.reloadTimer = 4-beamMP;
                         }
                     }
                     
@@ -3270,10 +3270,10 @@
 
                     if (this.perks.includes("beamFire")){
                         beamMP = count("beamFire",this.perks)-1;
-                        if (this.shotTick % 10+beamMP*2 == 0){
+                        if (this.shotTick % (10+beamMP*2) == 0){
                             this.reloadTimer *= 3;
                         } else {
-                            this.reloadTimer = 4;
+                            this.reloadTimer = 4-beamMP;
                         }
                     }
                     

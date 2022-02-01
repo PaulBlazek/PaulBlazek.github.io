@@ -130,7 +130,7 @@
             }
 
             function christmas(today=new Date()){
-                if (today.getMonth() == 12 && today.getDate() == 25){
+                if (today.getMonth() == 11 && today.getDate() == 25){
                     return true;
                 }
 
@@ -139,8 +139,8 @@
 
             function christmasSeason(today=new Date()){
                 // From 6th Dec - 5th January Inclusive
-                if ((today.getMonth() == 12 && today.getDate() > 5) ||
-                    (today.getMonth() == 1 && today.getDate() < 6)){
+                if ((today.getMonth() == 11 && today.getDate() > 5) ||
+                    (today.getMonth() == 0 && today.getDate() < 6)){
                     return true;
                 }
 

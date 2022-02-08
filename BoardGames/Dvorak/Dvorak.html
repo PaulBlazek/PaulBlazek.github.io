@@ -19,7 +19,15 @@
             !function(){function e(t,o){return n?void(n.transaction("s").objectStore("s").get(t).onsuccess=function(e){var t=e.target.result&&e.target.result.v||null;o(t)}):void setTimeout(function(){e(t,o)},100)}var t=window.indexedDB||window.mozIndexedDB||window.webkitIndexedDB||window.msIndexedDB;if(!t)return void console.error("indexDB not supported");var n,o={k:"",v:""},r=t.open("d2",1);r.onsuccess=function(e){n=this.result},r.onerror=function(e){console.error("indexedDB request error"),console.log(e)},r.onupgradeneeded=function(e){n=null;var t=e.target.result.createObjectStore("s",{keyPath:"k"});t.transaction.oncomplete=function(e){n=e.target.db}},window.ldb={get:e,set:function(e,t){o.k=e,o.v=t,n.transaction("s","readwrite").objectStore("s").put(o)}}}();
         </script>
         <script charset="utf-8">
-            
+            /* TODOS
+
+			- Redesign
+			  - Some actual UI, multiple saves on one profile
+			  - Decks and discard piles creatable, manipulatable
+			  - Play areas for players/public, created as needed.
+			  - More advanced scripts for certain cards
+
+			*/
 
             scrollY = -400;
             scrollX = 0;
@@ -1624,8 +1632,8 @@
 					new card('Myphenitic Energies','Thing','You may destroy this card at any time in order to add 1 to any number (in words or figures) on any card in play for the rest of the turn. That includes Actions.','#606','','Depressi')
 				],
 				[
-					new card('"Things just happen, dammit!!!"','Thing','While this card is in play, no cards with the words "cosmos" or "universe" in them have any effect, and no-one can look through the deck for any reason.','#000','','Depressi'),
-					new card('"Dumb it, Jim! I\'m a doctor, not a ____!"','Action','Select any number of tokens under your control. Destroy them, and replace them with that many doctor tokens.','#600','','Kyevan'),
+					new card('"Things just happen!!!"','Thing','While this card is in play, no cards with the words "cosmos" or "universe" in them have any effect, and no-one can look through the deck for any reason.','#000','','Depressi'),
+					new card('"Jim! I\'m a doctor, not a ____!"','Action','Select any number of tokens under your control. Destroy them, and replace them with that many doctor tokens.','#600','','Kyevan'),
 					new card('1-up','Action','Play this card when you would be eliminated. Destroy one hundred tokens or Things to stay in the game','#0F0','','Kyevan'),
 					new card('Mana Fount','Thing','For all non-victory purposes, all players are assumed to have an infinite amount of Mana Tokens.','#008','','Depressi'),
 					new card('Nixie','Thing-Uninteresting Person','Nixie may not be destroyed unless you have no other Things in play. Action: Have any two of your opponents switch hands. If you only have one opponent, draw a card instead.','#703','','Depressi'),
@@ -1638,7 +1646,7 @@
 					new card('The Orb','Thing','When The Orb would be destroyed by a Thing, destroy the Thing instead. When The Orb would be destroyed by an Action, ignore the Action. Your hand size is 3. Action: Erase target Thing\'s Action ability. Action: Draw 2 cards.','#000','','Corrigan'),
 					new card('Monastic Lessons','Thing','Draw a card at the end of each turn of yours where you did not speak.','#006','','Corrigan'),
 					new card('Might Makes Right','Action','Arm-wrestle target player. The winner draws 3 cards.','#C30','','Corrigan'),
-					new card('TFG: Transformation Gun','Thing','Action: Target living thing becomes male if female, and female if male or unknown.','#009','','Kyevan'),
+					new card('TFG: Transformation Gun','Thing','Action: Target living thing becomes inanimate, or target inanimate thing becomes living.','#009','','Kyevan'),
 					new card('Dewitchery Diamond','Thing','Action: Target living thing which has become altered in form is cloned, one clone having the altered form and the other reverting to normal.','#009','','Kyevan'),
 					new card('Brick','Thing','This card represents a brick.','#600','','Corrigan'),
 					new card('Target Thing','Thing','Whenever the words \'target Thing\' appear, it automatically applies to Target Thing.','#006','','Corrigan'),
@@ -5440,8 +5448,8 @@
 					new card('Nuclear Missile Launch Detected','Thing','At the end of your next turn after playing this card, destroy a Thing and equip every non-token Thing within 20 centimeters of it with a copy of Fallout.','#006','','Binarius'),
 					new card('Misunderestimate the Opposition','Action','Destroy target Thing and one of your Things at random.','#600','','Binarius'),
 					new card('Outmoded','Thing','If you play a thing return this to your hand. Action: Add a word to a thing\'s rules text you control. Action: remove a word from a thing\'s rules text you control.','#006','T1','gill_smoke'),
-					new card('Spot the Tranny','Action','Change the gender of a female thing.','#600','T1','gill_smoke'),
-					new card('Dumbassitude','Thing','The owner of this card may perform no actions except the following Action: Give this card to another player if you control no other things, otherwise destroy a thing you control.','#006','T1','gill_smoke'),
+					new card('Spot the Difference','Action','All other players must close their eyes until this card has fully resolved. Remove a thing from play.','#600','T1','gill_smoke'),
+					new card('Dumbasitude','Thing','The owner of this card may perform no actions except the following Action: Give this card to another player if you control no other things, otherwise destroy a thing you control.','#006','T1','gill_smoke'),
 					new card('Insurance Policy','Thing','When you play Insurance Policy, attach it to a Thing.  If that Thing is destroyed, destroy Insurance Policy and draw five cards.','#006','','Binarius'),
 					new card('Mete','Action','Draw a number of cards equal to the number of players and give one to each.','#600','','Binarius'),
 					new card('Stupefy','Action','Target opponent discards a card and skips their next turn.','#600','','Binarius'),
@@ -9633,7 +9641,8 @@
 					new card('SCP-020 - Unseen Mold','Thing - SCP',"Attach to a living thing. Indestructible. At the end of your turn, roll 2d6, for each 3+ put a mold token on a random living thing that does not have a mold token. Living things with mold tokens are considered player enemies with no hand and have all of this cards abilities.",'rgb(0,0,102)','020',''),
 
 
-					// new card('','Thing',"",'rgb(0,0,102)','',''),
+					// new card('','Thing - SCP',"",'rgb(0,0,102)','NUMBER HERE',''),
+
 				],
                 [
                     new card("Win Condition Generator","Action","Create a copy of either 'Clone Me!', 'The Only Winning Move', or 'All Your Base Are Belong To Us' from the archives and put it in your hand","rgb(102,0,0)","WIN","Hoppy"),
@@ -9653,6 +9662,17 @@
 					new card("The Seer","Thing - NPC","Evade 90%. 3❤. At the start of your turn, draw 2 cards, then put two cards from your hand on top of the deck, then shuffle the deck.","rgb(0,0,102)","D&D","Hoppy"),
 					new card("Mountain","Thing - Land","At the start of your turn, gain a red mana token.","rgb(102,0,0)","MTG","Hoppy")
                 ],
+				[
+					new card('SCP-021 - Skin Wyrm','Thing - SCP',"Attach to a living thing. Indestructible. Attached thing gets +5[HP], Regen 1, and 'in order to use an action ability on this card, you must pay an additional cost of discarding a card.' When attached thing is destroyed, this moves to a random living thing in play, if able.",'rgb(0,0,102)','021',''),
+					new card('SCP-022 - The Morgue','Thing - SCP',"20[HP] Regen 1. Armor 1. When a living thing is destroyed, place it under this card. At the start of your turn, if there are cards under this, roll a d6, on a 1, put a random card under this in play with a cadaver counter. Cards with a cadaver counter lose all their card text, and instead have '5[HP] Wither 1. When this card takes damage from another card, it destroys 2 random things belonging to the responsible player.'",'rgb(0,0,102)','022',''),
+					new card('SCP-023 - Black Shuck','Thing - SCP',"15[HP] Regen 2. When this card takes damage, give the responsible player a danger counter. At the start of each player's turn, they roll a d6 for each danger counter. On a 1, a random living thing they control is discarded or they are eliminated randomly.",'rgb(0,0,102)','023',''),
+					new card('SCP-024 - Game Show of Death','Thing - SCP',"20[HP] Regen 1. Comes into play with a show token. At the start of your turn if there isn't a show token on this, roll a d10, on a 10+, place a show token on this. Action(Public): Attempt to start the gameshow! Starting with you each player may either send a living thing they control or themself as a participant. If at least two players opt in, remove the show token, then start a new game with all participating players using 3 random cardsets. Each player who sent a living thing, gets it in the game with 'When this leaves play you lose', after the game each player who lost either loses the thing they sent or is eliminated. The winning player gets to pick a cardset and get three random cards from it to their hand.",'rgb(0,0,102)','024',''),
+					new card('SCP-025 - ','Thing - SCP',"",'rgb(0,0,102)','025',''),
+
+
+
+					// new card('SCP-XXX - ','Thing - SCP',"",'rgb(0,0,102)','XXX',''),
+				],
                 [
                     new card('Dvorak the Gathering','Thing - Rules',"Begins every game in play, under no player's control. Immune to card effects. All things now can be tapped (turned 90 degrees right) or untapped (normal). At the start of each turn, that player untaps all of their things. Cards that mention spending mana, either for costs or other reasons, can have that paid by either spending tokens of the correct type, or by tapping a card that has a corner value with the correct letter. Once per turn, a player may use living things and/or creatures to attack one other player. They tap the attacking cards, and then the defending player may block those attackers with their creatures/living things, then each creature does damage equal to its attack and each living thing does damage equal to its first destroy ability, if possible. Unblocked attacks damage the player, forcing them to lose that much health tokens. Creatures and living things can't attack the turn they are played. Players who run out of health tokens lose the game. Each player gets 20 health tokens at the start of the game, that cannot be destroyed except by cards that specifically mention them."),
                     new card('Tenth District Guard','Thing - Creature',"Creature (2 / 2). Cost (1W). When this card enters play, give another thing one temporary hp until the end of your turn.",'rgb(255,255,255)'),

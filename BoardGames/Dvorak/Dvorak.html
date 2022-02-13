@@ -9600,7 +9600,13 @@
                     new card('Creative Spark','Action',"Create a card related to something you can do with the cards you have in play and play it.",'rgb(102,0,0)','','CoderBlaze'),
                     new card('Just Craft','Action',"Discard any number of your things, create a card that could be constructed from those things and play it.",'rgb(102,0,0)','','CoderBlaze'),
 					new card('Booster Box','Action',"When this card enters play, pick a card game with packs and gain 3 pack tokens. Action: Spend 3 money tokens to gain a pack token. Action: Spend a pack token to generate a random pack from a random set for the chosen game, create cards for all the cards in that pack and put them in your hand.",'rgb(0,0,102)','','CoderBlaze'),
-                    
+                    new card("Random Card Generator","Thing","Action: Generate 2 random words, use these words to create a thing, shuffle it into the deck.","rgb(0,0,102)","RCG"),
+					new card("War Arena Character List","Thing - War Arena","Action: Create a character from War Arena, and shuffle it into the deck.","rgb(0,0,102)","WA","Wepo"),
+					new card("Duel of Ages Labyrinths","Thing - DOA","Action: Create a random labyrinth card from Duel of Ages and shuffle it into the deck.","rgb(0,0,102)","DOA","Wepo"),
+					new card("Duel of Ages Henchman Deck","Thing - DOA","Action: Create a random henchman from Duel of Ages and shuffle it into the deck.","rgb(0,0,102)","DOA","Wepo"),
+					new card("Agricola Game Box","Thing - Board Game","Action: Create something from Agricola, shuffle it into the deck","rgb(0,0,102)","","Wepo"),
+					new card("Cameo of the Phoenixborn","Action","Make copies of random phoenixborn from Rise Of The Phoenixborn equal to the number of players, deal 1 to each player, they add the card to their hand.","orange","Ash","CoderBlaze"),
+					
                 ],
 				[
 					new card('Secure','Action',"Either reveal cards from the top of the deck until you find an SCP, play it and put the rest in the discard, OR take control of an SCP that isn't attached to anything.",'rgb(102,0,0)','',''),
@@ -9661,7 +9667,7 @@
 					new card("Wizard of Concrete","Thing - Inscribed","6❤ Requires you to control a orange mox, or to discard 2 cards from hand in order to play. At the end of your turn, this card deals 1 thing controlled by an opponent 6 damage, unless you control a blue or green mox.","rgb(100,100,100)","INS","Wepo"),
 					new card("The Seer","Thing - NPC","Evade 90%. 3❤. At the start of your turn, draw 2 cards, then put two cards from your hand on top of the deck, then shuffle the deck.","rgb(0,0,102)","D&D","Hoppy"),
 					new card("Mountain","Thing - Land","At the start of your turn, gain a red mana token.","rgb(102,0,0)","MTG","Hoppy"),
-					new card("Random Card Generator","Thing","Action: Generate 3 random words, use these words to create a thing, shuffle it into the deck.","rgb(0,0,102)","RCG")
+					
                 ],
 				[
 					new card("Morphius","Thing - Shapeshifter","When you play a thing, you may destroy a thing twice. Whenever you would draw a card, you may put a Peace token into play instead. You play one extra Thing per turn per Node you control. If at the start of your turn you control three other non-token Things and three Tokens of different types, and there are at least three cards in your hand and three in the discard pile, you win the game.","rgb(0,0,102)","3♥","Wepo"),
@@ -9672,7 +9678,6 @@
 					new card("A slight modification","Thing","Attach to a thing. Modify one number on attached thing by one in one direction.","rgb(0,0,102)","+/-","Wepo"),
 					new card("Emergency Body Doc","Thing - DOA - Medical","Action and Thing: Discard this to play a living thing form the discard pile that you controlled earlier this game.","rgb(0,0,102)","DOA","Hoppy"),
 					new card("DupliGolem","Thing - Golem","When you play this, choose a Token type. Whenever one Token of that type would be created, two are created instead. When this is destroyed, search through the draw pile and put the first tangible Thing you find in this's place. ","rgb(0,0,102)","G1","Paul"),
-					new card("War Arena Character Book","Thing - War Arena","Action: Create a character from War Arena, and shuffle it into the deck.","rgb(0,0,102)","WA","Wepo"),
 					new card("Force Defense","Reaction - Epic Duels","Play when one of your things would take damage. Prevent up to 12 damage to that thing. Draw a card.","rgb(10,10,255)","ED","Steve"),
 					new card("Repeater Cube","Response - Cube","Play after a die is rolled to re-roll that die.","rgb(102,0,0)","DOA","Wepo"),
 					new card("Metal Alchemists","Thing - Alchemists","At the start of your turn, you may spend a token, if you don't gain a zinc token. If you spent a zinc token, gain an iron token. If you spent an iron token, gain a gold token as output.","rgb(0,0,102)","A1","Paul"),
@@ -9681,7 +9686,6 @@
 					new card("Integrated Anti-Theft Backpack","Thing","Your hand limit is increased by two. Other players cannot take control of your cards against your will. Action: Destroy a token, then reveal and discard cards from the deck until you reveal a Thing - put that Thing into play in place of the token.","rgb(0,0,102)","","Paul"),
 					new card("Mind Over Matter","Action","Destroy X things you control to draw X-1 cards. (minimum 0)","rgb(102,0,0)","X3","Paul"),
 					new card("Venomous Hippo","Thing - RCG","Action: Rub against target opponent, giving them 2 poison tokens with text: \"At the start of your turns, destroy one of your poison tokens, then discard cards and/or destroy your things until the total discarded/destroyed is equal to your poison tokens.\"","rgb(0,0,102)","P5","Paul"),
-					new card("Duel of Ages Labyrinths","Thing - DOA","Action: Create a random labyrinth card from Duel of Ages and shuffle it into the deck.","rgb(0,0,102)","DOA","Wepo"),
 					new card("Mountains","Thing","Once per turn anyone may destroy one of their tokens that is considered to be made of metal in order to shuffle the follwing card into the deck. [<metal> mine/T/At the start of each of your turns, you may discard a card to gain a <metal> token.] Replace <metal> with the type of metal of the token.","rgb(0,0,102)","5L","Paul"),
 					new card("A roll of the dice","Response","For the duration of this card's effects ignore other card effects. Change the result of a die that has just been rolled to any value.","rgb(102,0,0)","!?","Wepo"),
 					new card("Manipulationist","Thing","5♥ Action: Gain control of a living thing.","rgb(0,0,102)","","Empira"),
@@ -9690,17 +9694,14 @@
 					new card("Permeation KV","Thing","Destroy a token at the beginning of your turn. If there are no tokens in play, destroy this card.","rgb(0,0,102)",""),
 					new card("Ink Sword","Thing","When this card comes into play erase one sentence from any thing and add it to this card. Action: Go to https:// wordcounter.net /random-word-generator and get two random words, create a card using those words and shuffle it into the deck.","rgb(0,0,255)",""),
 					new card("Filing Cabinet","Thing","Action: Name a word, then draw cards until you get one with the named word on it. Put that card in your hand and discard the rest.","rgb(0,0,102)","F6","Wepo"),
-					new card("Duel of Ages Henchman Deck","Thing - DOA","Action: Create a random henchman from Duel of Ages and shuffle it into the deck.","rgb(0,0,102)","DOA","Wepo"),
 					new card("Photocopier VP","Thing - Combo Point","Action: Select any number of your things, discard them and create copies that in some way relate to victory, make these cards black and shuffle them into the deck.","rgb(0,0,102)","2X","CoderBlaze"),
-					new card("Agricola Game Box","Thing - Board Game","Action: Create something from Agricola, shuffle it into the deck","rgb(0,0,102)","","Wepo"),
-					new card("Cameo of the Phoenixborn","Action","Make copies of random phoenixborn from Rise Of The Phoenixborn equal to the number of players, deal 1 to each player, they add the card to their hand.","orange","Ash","CoderBlaze"),
 					new card("Chinese Actionaire","Thing","Action: Spend 3 Energy or Money-related tokens, put a factory counter on this. When another player plays an action, you may spend a factory counter to put a copy of it in your hand.","rgb(0,0,102)","3B","CoderBlaze"),
-					new card("TrautoCombinotron","Thing","At the start of your turn, repeat three times: discard the top two cards of the deck, create a new card combining those two cards and shuffle it into the deck.","rgb(0,0,102)","","CoderBlaze"),
+					new card("Combinotron","Thing","At the start of your turn, discard the top two cards of the deck, create a new card combining those two cards and shuffle it into the deck.","rgb(0,0,102)","","CoderBlaze"),
 					new card("The Trial of Three - 1","Sheroloi The Destroyer - Thing - Enemy","2❤. Counts as a player (enemy) Starts with no cards in hand. Action: Shred a thing at 1❤, if there are no valid targets, shred a random card from a hand of your choice.","rgb(0,0,0)","1","CoderBlaze"),
 					new card("The Trial of Three - 2","Galmar the Infector - Thing - Enemy","2❤ Counts as a player (enemy) Starts with no cards in hand. Action: Destroy a thing, if a thing entered the discard this way, create an enemy version of it and shuffle it into the deck","black","2","CoderBlaze"),
 					new card("The Trial of Three - 3","Heli the Killer - Thing - Enemy","2❤ Counts as a player (enemy) Starts with no cards in hand. Action & Thing: Eliminate a player with no things and no cards in hand. Action: Target player discards a random card.","black","3","CoderBlaze"),
 					
-				]
+				],
 				[
 					new card('SCP-021 - Skin Wyrm','Thing - SCP',"Attach to a living thing. Indestructible. Attached thing gets +5[HP], Regen 1, and 'in order to use an action ability on this card, you must pay an additional cost of discarding a card.' When attached thing is destroyed, this moves to a random living thing in play, if able.",'rgb(0,0,102)','021',''),
 					new card('SCP-022 - The Morgue','Thing - SCP',"20[HP] Regen 1. Armor 1. When a living thing is destroyed, place it under this card. At the start of your turn, if there are cards under this, roll a d6, on a 1, put a random card under this in play with a cadaver counter. Cards with a cadaver counter lose all their card text, and instead have '5[HP] Wither 1. When this card takes damage from another card, it destroys 2 random things belonging to the responsible player.'",'rgb(0,0,102)','022',''),

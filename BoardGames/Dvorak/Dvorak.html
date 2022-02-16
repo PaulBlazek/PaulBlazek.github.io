@@ -149,7 +149,8 @@
                         regulatedText.push(text);
                         return regulatedText;
                     }
-                    
+					
+					foundSpace = false;
                     for (var i = 30; i >= 0; i--) {
                         if (text[i] == ' ') {
                             regulatedText.push(text.slice(0,i));
@@ -158,9 +159,25 @@
                                 break;
                             }
                             text = text.slice(i+1,text.length);
+							foundSpace = true;
                             break;
                         }
                     }
+
+					if (!foundSpace){
+						for (var i = 0; i <= text.length; i++) {
+							if (text[i] == ' ') {
+								regulatedText.push(text.slice(0,i));
+								if (i+1 == text.length) {
+									text = '';
+									break;
+								}
+								text = text.slice(i+1,text.length);
+								foundSpace = true;
+								break;
+							}
+						}
+					}
                     
                     cycles += 1;
                     if (cycles > 10000) {
@@ -193,6 +210,7 @@
                         return regulatedText;
                     }
                     
+					foundSpace = false;
                     for (var i = 40; i >= 0; i--) {
                         if (text[i] == ' ') {
                             regulatedText.push(text.slice(0,i));
@@ -201,9 +219,25 @@
                                 break;
                             }
                             text = text.slice(i+1,text.length);
+							foundSpace = true;
                             break;
                         }
                     }
+
+					if (!foundSpace){
+						for (var i = 0; i <= text.length; i++) {
+							if (text[i] == ' ') {
+								regulatedText.push(text.slice(0,i));
+								if (i+1 == text.length) {
+									text = '';
+									break;
+								}
+								text = text.slice(i+1,text.length);
+								foundSpace = true;
+								break;
+							}
+						}
+					}
                     
                     cycles += 1;
                     if (cycles > 10000) {
@@ -9845,7 +9879,7 @@
                 ['Coderblaze\'s Cards 441-460',reg3('The next set of twenty cards from CoderBlaze. Includes cards like Loose Cannon, Nuclear Bomb, and Clone Trooper.',80)],
                 ['Coderblaze\'s Cards 461-480',reg3('The next set of twenty cards from CoderBlaze. Includes cards such as The Hypixel Pickles, Tacos and The Traveling Cat.',80)],
                 ['More Cards',reg3('???',80)],
-				['Creative Cards 2',reg3('Some more cards that use a variety of methods to create other cards.',80)],
+				['Creation Cards 2',reg3('Some more cards that use a variety of methods to create other cards.',80)],
                 ['SCP Foundation Base Cards',reg3('The base cards for use with the SCP cardsets.',80)],
 				['SCPs 002-020',reg3('The first set of SCP cards.',80)],
 				['Created Cards - Set 2',reg3('More created cards',80)],

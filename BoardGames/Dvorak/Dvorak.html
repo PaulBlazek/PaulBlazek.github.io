@@ -303,7 +303,8 @@
                 if (text == '') {
                     text = 'This card intentionaly left blank.';
                 }
-                this.text = reg(text);
+				this.text = text.replaceAll('[HP]','❤');
+                this.text = reg(this.text);
                 this.textSize = 'normal';
                 if (this.text.length >= 15) {
                     this.textSize = 'medium-small';
@@ -3683,7 +3684,7 @@
 					new card('Viscous','Thing','Attach to a living thing. Thing cannot take actions unless there are at least two tokens on this card. Action:\'\'\' Destroy a token on this card take two more actions.','#006','2o','gill_smoke'),
 					new card('Black and White Movie Era','Thing','Yellow and white cards are white. All other cards are black. Nobody may generate more than one token per turn.','#006','BW','Zt'),
 					new card('Draw','Action','If all Things you control are black, win the game. Otherwise the game ends and nobody wins, nobody loses.','#eee','1/2:1/2','Zt'),
-					new card('Pain in the Ass','Thing','You may play this under an opponent\'s control. At the beginning of your turn, discard a card.','#006','','Zt'),
+					new card('Pain in the Bum','Thing','You may play this under an opponent\'s control. At the beginning of your turn, discard a card.','#006','','Zt'),
 					new card('Allergic Reaction','Action','Choose a type of Token.  Each player discards a card for each token of that type under their control.','#600','','ChippyYYZ'),
 					new card('Evolution','Thing','All cards are considered to have no creator.','#006','','ChippyYYZ, unless this is in play'),
 					new card('Remake','Action','Discard a card and reveal cards from the top of the deck until you find a card with the same creator as the discarded card.  Put it into your hand and shuffle the deck.','#600','','ChippyYYZ'),
@@ -9812,14 +9813,42 @@
                     new card('Power On','Action',"When Played: Each player gets a copy of power plant and a copy of photocopy machine from the archives.",'rgb(102,0,0)','',''),
                     new card('Low Power','Thing',"When Played: Each player gets 3 copies of power plant. Each player gets an energy token. 5[HP] At the end of each player's turn, they must spend an energy token or be eliminated. Whenever a player wants to play an action card or ability, they must first spend 1 energy token. Persist (This card stays in play even if its owner is eliminated)",'rgb(0,0,102)','',''),
                     new card('The Market','Thing',"5[HP] When Played: Each players gets a copy of money tree and 3 money tokens, then create the market by putting the top 3 cards of the deck faceup in a line. At the start of your turn, add the top card of the deck to the left of the market. Action (Public): Choose a card in the market, spend X money tokens, where X is seven minus the amount of other cards in the market to the left of the card. Put the selected card in your hand and add a new card to the market from the top of the deck. When a card is added to the market, if there are 7 or more cards in the market discard the rightmost market card.",'rgb(0,0,102)','',''),
-                    new card('Magical Warfare','Thing',"8[HP]. Cannot be targetted for non-destruction effects. Wizard Towers have 5[HP]. When Played: Each player gets a copy of a random thing from this list: 'Blue Wizard Tower, Green Wizard Tower, White Wizard Tower, Black Wizard Tower, Red Wizard Tower, Scarlet Wizard Tower, Cerulean Wizard Tower, Gold-Plated Wizard Tower.' Then put a copy of 'It\'s A Kind Of Magic' in play. Persist. It\'s a kind of magic has Persist and indestructible and can't be targetted by effects. ",'rgb(102,0,0)','',''),
+                    new card('Magical Warfare','Thing',"8[HP]. Cannot be targetted for non-destruction effects. Wizard Towers have 5[HP]. When Played: Each player gets a copy of a random thing from this list: 'Blue Wizard Tower, Green Wizard Tower, White Wizard Tower, Black Wizard Tower, Red Wizard Tower, Scarlet Wizard Tower, Cerulean Wizard Tower, Gold-Plated Wizard Tower.' Then put a copy of 'It\'s A Kind Of Magic' in play. Persist. It\'s a kind of magic has Persist and indestructible and can't be targetted by effects. ",'rgb(0,0,102)','',''),
                     new card('Archive Dealer','Thing',"Action: Discard your hand, create 3 cards from the archives and put them into your hand.",'rgb(0,0,102)','',''),
                     new card('The Arc Drug','Thing',"At the end of your turns, discard your hand, then create 3 random cards from the archives and put them in your hand.",'rgb(0,0,102)','',''),
                     new card('Transendant Sight','Thing',"5[HP] Regen 1. At the start of your turn, create 3 random cards from the archives, shred two and put the other in your hand.",'rgb(0,0,102)','',''),
                     new card('Archive Inspiration','Thing',"Action: Pull 3 random cards from the archive, shred them and create a card based off of them, shuffle the new card into the deck.",'rgb(0,0,102)','',''),
                     new card('Scepter of the Archives','Thing',"Action: Pick a random card from the archives, put it under this, discarding any other cards under this. Action: Play a copy of an action under this. Thing: Play a copy of a thing under this.",'rgb(0,0,102)','','')
                 ],
-                [ // COPY AND PASTE THIS - DO NOT WRITE IN THIS
+				[
+					new card("The Brain Jellyfish of Death [SETUP]","Thing - Enemy","Counts as a player (enemy). When this card would take damage, instead discard and equal amount of cards and/or spend brainjuice tokens to prevent that damage. At the start of the game, this card is in play as another player. Action: target player gets a braintumor token, then you get a brainjuice token. Each player's handsize is reduced by 1 for each of their braintumor tokens, and increased by 1 for each of their brainjuice tokens. A player whose handsize goes below 0 in this way is eliminated.","rgb(0,0,102)","EBJ79","Enemies"),
+					new card("Personal Stamp","Action","Discard a thing you control, edit that card, make it a [SETUP] card with \"At the start of the game, put this car into play under {YOUR NAME}'s control\"","rgb(102,0,0)","S5","Hoppy"),
+					new card("Whirlwind","Action","Return all things in play to the hands of random players.","rgb(102,0,0)","","Empira"),
+					new card("Build a Power Plant","Action","Spend 5 money tokens, if you do create a copy of Power Plant, then add [SETUP] to it and \"At the start of each game, {YOUR NAME} gets this card in play.\"","rgb(0,102,0)","S1","Empira"),
+					new card("Overflowing Insight","Action","Draw 7 cards. In order to play this card you must either discard all of your things or spend 4 mana tokens and 3 blue mana tokens.","rgb(0,0,255)","4UUU","Empira"),
+					new card("Selene, Priestess of Gernari","Thing - NPC","When this card comes into play, you may choose another thing in play, return it to its controller's hand. Action: Destroy a thing, if it belonged to an opponent with at least 5 things draw 2 cards.","rgb(0,0,102)","D&D","Empira"),
+					new card("Legacy Node","Thing - Node","You are considered to control an additional number of nodes equal to the number of games you've won this series.","rgb(0,0,102)","SN2","Empira"),
+					new card("Duplicator","Thing","The next time you play a thing, create a copy of it and destroy this.","rgb(0,0,102)","D6","Hoppy"),
+					new card("Prismatic Card Fountain","Thing","At the start of your turn, instead of drawing a card, draw a card for each different color among things you control.","#006","C8","Steve"),
+					new card("Berserk","Action","Take an extra turn after this one, during that turn you can't play things, but get +1 Action, then skip your next turn after that.","rgb(255,0,0)","D2","Wepo"),
+					new card("Blade Storm","Action","Destroy all things controlled by players, draw as many cards as the amount of things that left play this way.","rgb(102,0,0)","B7","Wepo"),
+					new card("Auto Turret","Thing","When this thing comes into play choose a player. At the start of your turn, destroy the left-most thing that player controls.","rgb(50,50,102)","T3","Wepo"),
+					new card("Chaos Maw","Thing - Location","When played: Discard all other locations. At the start of each players turn, after drawing their card, they also get a random card from the archives, then discard a card.","rgb(0,102,0)","D&D","Empira"),
+					new card("Bubble Shield","Thing","3❤. Attach to a thing, attached thing gets Shield 1.","rgb(0,0,102)","S5","Wepo"),
+					new card("Card Cyclotron Alpha Beta Test","Thing","At the end of your turn, discard your hand, then draw X cards, where X is 5 minus the number of cards you discarded.","#006","X0","Steve"),
+					new card("Artistic Sniper","Thing","Action: Destroy a Thing and return this card to your hand, then create a new card that is similar in some way to the destroyed card and shuffle it into the deck.","#606","1","Wepo"),
+					new card("Energetic Midget Man","Thing","At the start of your turn, gain an energy token. Action: Spend 2 energy tokens to attach this to a thing. Attached thing gets +1 Hosted Action.","rgb(0,0,102)","EA8","Wepo"),
+					new card("Advanced Intel","Thing","When played: Draw 2 cards, +1 Action & +1 Thing this turn. Action: Draw a card.","rgb(0,0,102)","I1","Empira"),
+					new card("E024 - Ask the Nipnans For Help","Action","If you have papers under your control, destroy any two things, otherwise discard your hand and all of your things that aren't police or military-related.","rgb(102,0,0)","SS","Hoppy"),
+					new card("Sword of Change & Heart","Thing - Blend","Destroy ten energy related tokens at any time to make and play a blank thing named Blood. If you discard this card, it returns to your hand. Whenever a new card is made, any opponent may destroy a thing they control, if nobody does, put the newly created card in your hand. Action: Shuffle your hand into the deck, draw an equal amount of cards.","rgb(0,0,102)","2R3E","Wepo"),
+					new card("Ubiquitize","Action","Give target card in your hand \"[SETUP]\" and \"At the start of the game, make a copy of this in each player's hand (in addition to the starting 5 cards), then shuffle this into the deck. Remove all [SETUP] abilities from the copies\"","rgb(102,0,0)","S9","Steve"),
+					new card("Void Blaster","Thing","Attach to a living thing, indestructible. Action: Gain a void token, then put a +1❤ token on attached thing. Action: Spend 3 void tokens, shred target thing. Action: Spend 10 void tokens, eliminate target player, create a \"Void Sickness [SETUP]\" Thing with text \"{NAME OF ELIMINATED PLAYER} gets this card at the start of each game. Max Hand Size -1. Indestructible except during your turn. When this card is destroyed discard your hand.\"","rgb(50,0,100)","V8","Wepo"),
+					new card("Flipped into the dark dimension","Action - Enemy","Make a copy of each card in your hand, except dark. Then create a darkling (thing - enemy, 3❤ Counts as a player enemy) and play it, give it the newly created cards as its starting hand.","rgb(0,0,0)","D0","Enemies"),
+					new card("Alchemical Taxonomy","Thing - Field of Study","While you have only one field of study, it is indestructible. When you destroy a living thing, gain a gold, stone, wood, water, or earth token at random. Action spend a gold, stone, wood, water or earth token, and another token of a different type from that list. Create a random card from the archives and play it. If you pick a combination that you've played before while this card has remained in play, it will have the same effect instead.","rgb(0,0,102)","RCG","Empira"),
+					new card("Crew","Thing","+1 Action, this action may only be used on action abilities.","rgb(0,0,102)","A8","Wepo"),
+					new card("Duplicant Reagent","Action","Target thing gains [SETUP] and 'At the start of each game, shuffle this and a copy of it into the deck, the copy doesn't have any SETUP abilities.'","rgb(102,0,0)","S4","Steve")
+				],
+                [
                     new card('Fortune Cookie of Prophecy','Action',"Look at the top 3 cards of the deck, put them back on top or bottom of the deck in any order, then draw 3 cards.",'rgb(102,0,0)','FCSC',''),
                     new card('Fortune Cookie of Gremlin','Action',"Shuffle all things in play into the deck, then each player draws cards equal to the amount of their things that were shuffled into the deck.",'rgb(102,0,0)','FCSC',''),
                     new card('Buying 100 Fortune Cookies','Action',"Draw a card, then spend up to 10 money tokens, draw a card for every 2 money tokens spent, then if you spent the full 10, add a copy of 'Fortune Cookie of Prophecy' and a copy of 'Fortune Cookie of Gremlin' to your hand.",'rgb(102,0,0)','FCSC',''),
@@ -9942,6 +9971,7 @@
 				['Created Cards - Set 3',reg3('More created cards',80)],
 				['Random Card Generator Pack',reg3('Adds cards that use online generators to inspire card creation.',80)],
 				['Created Cards - Set 4',reg3('More cards')],
+				['Created Cards - Set 5',reg3('More cards')],
 				//['Dvorak the Gathering - RNA',reg3('A card pack that adds new mechanics to the game related to paying costs, and attacking other players.')]
             ];
             

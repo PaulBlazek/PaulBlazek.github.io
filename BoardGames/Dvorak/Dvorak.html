@@ -180,7 +180,7 @@
 					}
                     
                     cycles += 1;
-                    if (cycles > 10000) {
+                    if (cycles > 100000) {
                         regulatedText.push(text);
                         return regulatedText;
                     }
@@ -402,8 +402,8 @@
                     ctx.font = '8px "Trebuchet MS","arial narrow", Arial';
                     spacing = 10;
                     if (cCard.textSize != 'small'){
-                        cCard.text = reg3(sum2(cCard.text),45);
-                        cCard.textSize == 'small';
+                        //cCard.text = reg3(sum2(cCard.text),45);
+                        //cCard.textSize == 'small';
                     }
                 }
                 
@@ -9822,7 +9822,7 @@
                 ],
 				[
 					new card("The Brain Jellyfish of Death [SETUP]","Thing - Enemy","Counts as a player (enemy). When this card would take damage, instead discard and equal amount of cards and/or spend brainjuice tokens to prevent that damage. At the start of the game, this card is in play as another player. Action: target player gets a braintumor token, then you get a brainjuice token. Each player's handsize is reduced by 1 for each of their braintumor tokens, and increased by 1 for each of their brainjuice tokens. A player whose handsize goes below 0 in this way is eliminated.","rgb(0,0,102)","EBJ79","Enemies"),
-					new card("Personal Stamp","Action","Discard a thing you control, edit that card, make it a [SETUP] card with \"At the start of the game, put this car into play under {YOUR NAME}'s control\"","rgb(102,0,0)","S5","Hoppy"),
+					new card("Personal Stamp","Action","Discard a thing you control, edit that card, make it a [SETUP] card with \"At the start of the game, put this card into play under {YOUR NAME}'s control\"","rgb(102,0,0)","S5","Hoppy"),
 					new card("Whirlwind","Action","Return all things in play to the hands of random players.","rgb(102,0,0)","","Empira"),
 					new card("Build a Power Plant","Action","Spend 5 money tokens, if you do create a copy of Power Plant, then add [SETUP] to it and \"At the start of each game, {YOUR NAME} gets this card in play.\"","rgb(0,102,0)","S1","Empira"),
 					new card("Overflowing Insight","Action","Draw 7 cards. In order to play this card you must either discard all of your things or spend 4 mana tokens and 3 blue mana tokens.","rgb(0,0,255)","4UUU","Empira"),

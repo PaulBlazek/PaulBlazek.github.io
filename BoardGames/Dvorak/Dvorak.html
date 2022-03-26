@@ -284,15 +284,24 @@
                 this.h = h;
                 this.text = text;
                 this.isToken = true;
+				this.amount = 1;
             }
             
             function drawToken(token,x,y){
+				if (token.amount == undefined){token.amount=1;}
+
                 if (!token.img.src){
                     token.img = new Image();
                     token.img.src = token.src;
                 }
                 
                 ctx.drawImage(token.img,x,y,token.w,token.h);
+
+				ctx.font = "20px Arial";
+				ctx.fillStyle = 'black';
+				if (token.amount != 1){
+					ctx.fillText(token.amount.toString(),token.x-5+(token.w/2),token.y+10+(token.h/2));
+				}
             }
             
             function card(name,type,text,color,cornerValue,creator) {
@@ -9220,7 +9229,7 @@
                     new card("Sherlock Holmes","Thing - Human","Action: Discard this and look at the top 5 cards of the deck, put up to 1 thing in play from them and shuffle the rest into the deck. Action: Discard a card to draw a card, +1 Action.","rgb(0,0,102)","EVE","Paul"),
                     new card("Ranger","Thing - Shadow Elf","Action: Destroy a thing and roll a d6, on a 5+ you may discard a card to destroy another thing.","rgb(0,0,102)","SW","Hoppy"),
                     new card("Winchester Rifle","Thing - Equipment","Action: Roll a d20, on a 13 or lower you may destroy a thing.","rgb(0,0,102)","DOA","Hoppy"),
-                    new card("Glena The Wise","Thing - PC - Gnome Wizard","Action: Make a copy of 'Magic Shield' and attach it to any tangible thing. Action: Roll 4d6, for each 6+ Destroy a thing. When this would be destroyed you may put a exhaustion token on this if it does not have one or discard 2 cards from hand to prevent that. ","rgb(0,0,102)","D&D","Paul"),
+                    new card("Glena The Wise","Thing - PC - Gnome Wizard","Action: Make a copy of 'Shield' and attach it to any tangible thing. Action: Roll 4d6, for each 6+ Destroy a thing. When this would be destroyed you may put a exhaustion token on this if it does not have one or discard 2 cards from hand to prevent that. ","rgb(0,0,102)","D&D","Paul"),
                     new card("X-Wing Red Six","Thing - Space","Action: Destroy a thing. When one of your other things would be destroyed you may discard 2 cards to cause this to be the target.","rgb(0,0,102)","3","Hoppy"),
                     new card("Clone Trooper","Thing","When played: Create a copy of this, adding 1 to the corner value, and shuffle it into the deck. Action: Destroy a thing that does not have a greater corner-value than this","white","1","Paul"),
                     new card("R2-D2","Thing - Machine","Action: Destroy a thing and heal a thing. Action: Draw a card.","rgb(0,0,102)","EVE","Paul"),
@@ -9943,7 +9952,7 @@
 					new card("Whirlwind Denial","Reaction","Prevent any action card or ability currently being used unless the player controlling that ability pays 4 mana tokens.","rgb(0,0,255)","2U","Hoppy"),
 					new card("Army of Rabid Pests","Thing - Victory Card","Stack all Pest cards you play under this. This gets +1❤ per card under it. Once per turn, except the turn this enters play, you may have each opponent take damage equal to this card's ❤ divided by 2, rounded up. When this is destroyed, gain 5 life tokens.","rgb(0,70,0)","V2","Steve"),
 					new card("The Caring Secret Marquis","Thing","When this card enters your hand, you may reveal it, if you do draw 2 cards. Action: Draw a card.","rgb(0,0,102)","RCG","Wepo"),
-					new card("Dermal Epitheliumator","Thing","Attach to a living thing, or to yourself. Armored 1. Gets +2 Armor if attached to a living thing. If attached to a living thing, gain 2 energy tokens each time you activate an action ability on that thing. If attached to a player, gain an energy token each time to play a card.","rgb(122,102,102)","E5","Wepo"),
+					new card("Dermal Epitheliumator","Thing","Attach to a living thing, or to yourself. Armored 1. Gets +2 Armor if attached to a living thing. If attached to a living thing, gain 2 energy tokens each time you activate an action ability on that thing. If attached to a player, gain an energy token each time you play a card.","rgb(122,102,102)","E5","Wepo"),
 					new card("Heretic Hunter Of Summer","Thing - Class","While you only control one class, it is indestructible. When this card comes into play, give a random opponent a heretic token. Action: Destroy 1 thing controlled by target player with a heretic token, then if that player controls no things, they must discard 2 cards or lose the game. When a player with a heretic token is eliminated, they give the token to a random opponent. Action: Create a fire token. Fire tokens you control have: At the start of your turn, you may spend this and a fire or energy token to destroy a thing.","rgb(250,100,0)","HHS","Hoppy"),
 					new card("Fusion Gun","Thing","Action: Discard another thing you control and any other thing, then create a thing for a fusion of the two and play it, discard this.","rgb(102,0,200)","F7","Hoppy"),
 					new card("Fate Die (Red)","Thing","Action: Roll a d12. 1 -> Destroy 2 things. 2 -> Create an action card and play it. 3 -> Discard this. 4 -> Create random cards from the archive until you get an action, play that card and shred the others. 5-> +2 Actions 6 -> Draw 2 cards. 7: Destroy a random thing 8 -> Destroy one of your things. 9 -> Each opponent may play an action card, then if this is still in play, draw 3 cards. 10 -> Create a new enemy and play it, then draw 3 cards. 11 -> Draw until you have 5 cards in hand. 12 -> Reveal your hand, you win the game if all of the cards in your hand are red, otherwise discard all non-actions in your hand and create action versions of them and put them in your hand.","rgb(102,0,0)","3❤","Hoppy"),
@@ -9975,6 +9984,7 @@
 					new card("Pestilant Cauldron","Thing/Action","Play as either Pestilant Cauldron (THING: Once per turn you may do one of the following: Discard a card to create a Pest (Thing, When this is destroyed gain a life token. Once per turn, you may attack target opponent for 1 damage) OR Spend 4 mana tokens, draw a card.) OR Restorative Burst (Action, Return up to two things from the discard to your hand, remove this card from the game and each player gains 4 life tokens.)","rgb(0,50,0)","","Hoppy"),
 					new card("Action Duplicator","Action","Create a copy of an action in your hand, you may play it or put it in your hand OR Play as a reaction to any action card, create a copy of it and play it.","rgb(102,0,0)","AA","Steve"),
 					new card("Dawn Commando","Thing","2❤. Immune to black and yellow cards' effects. Action: Destroy a thing, if it was black draw a card. Action: Pay 5 energy tokens, create and play 3 copies of this card, then activate all action abilities on all commandos you control.","rgb(255,255,0)","CD2","Hoppy"),
+					new card("Halfling Swordsman ","Thing","Evade 20%. Action: target a thing and roll 3d6, for each 4+ destroy that thing.","rgb(0,0,102)","AOW","Hoppy"),
 					new card("Solid Snake","Thing","4❤. Action: Play two mines tokens on a thing with \"At the end of your turn, remove one mine token from this card, regardless of the number of mine tokens on it, when you remove the last mine, deal 6 damage to attached thing.\" Action: Draw a card, you may destroy another thing you control to draw 2 more cards, or heal a thing 2❤.","rgb(0,102,50)","EVE","Empira"),
 					new card("Bass Products Of Vienna","Thing - Corporation","Action: If you have no bass tokens, gain 3 bass tokens and 2 money tokens. Action: Spend a bass token, draw a card, then create a card for a new soundtrack and shuffle it into the deck.","rgb(0,0,102)","C1","Wepo"),
 				],
@@ -10727,7 +10737,15 @@
                     
                     alert('No suitable card found!');
                     
-                } else {
+                } else if (e.keyCode == 87){ // W
+					if (currentCardSelect.isToken){
+						currentCardSelect.amount += 1;
+					}
+				} else if (e.keyCode == 83){ // S
+					if (currentCardSelect.isToken){
+						currentCardSelect.amount -= 1;
+					}
+				} else {
                     madeCode = false;
                 }
                 

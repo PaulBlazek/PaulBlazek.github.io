@@ -300,7 +300,7 @@
 				ctx.font = "20px Arial";
 				ctx.fillStyle = 'black';
 				if (token.amount != 1){
-					ctx.fillText(token.amount.toString(),token.x-5+(token.w/2),token.y+10+(token.h/2));
+					ctx.fillText(token.amount.toString(),x-5+(token.w/2),y+10+(token.h/2));
 				}
             }
             
@@ -5924,7 +5924,7 @@
 					new card('Muck it up','Action','If you have a Living Thing in play you may replace it with one from your hand otherwise replace one of your things with one from the discard pile.','#600','R4','gill_smoke'),
 					new card('Necromantic Transmutation','Action','Remove a thing from play and give the previous owner a Zombie token','#200','X4','gill_smoke'),
 					new card('Insanitary','Action','Put a copy of Insanity rule (card 4661) into play if not already. Each player recieves N - X insanity tokens, where N is the number of living thing that player controls and X is the number of players. If X is larger the negitive tokens become sanity tokens.','#600','i4','gill_smoke'),
-					new card('Inequivalent Exchange 2: Blasphemy for Beginners','Thing','Thing: Play an Action card from your hand and gain an Energy token and a Blasphemy token. <BR/> Action: Play a Thing card from your hand and gain an Energy token and a Blasphemy token.','#000066','','jtwe'),
+					new card('Inequivalent Exchange 2: Insanity for Beginners','Thing','Thing: Play an Action card from your hand and gain an Energy token and a Insanity token. <BR/> Action: Play a Thing card from your hand and gain an Energy token and a Insanity token.','#000066','','jtwe'),
 					new card('Animating Force','Thing','Play onto a nonliving Thing. That Thing is alive.  All instances of "Action:" on that Thing are replaced by "At the start of your turn ".','#007','4e','Bucky'),
 					new card('Advance Time','Action','Gain a Person token, then draw a card for each living Thing you control.','#700','5e','Bucky'),
 					new card('Backin\' Up','Reaction','Play in response to a card played by an opponent.  Return a non-token Thing you control to your hand.  You may discard X cards to return X other non-token Things you control to your hand.','#006600','','jtwe'),
@@ -6936,7 +6936,7 @@
 					new card('Thoughtsieve','Thing','Once per turn, when the deck is shuffled, you may look at the top two cards. You may put one of them into the discard pile. Whenever one or more cards would be shuffled into the deck, you may destroy Thoughtsieve to put one of those cards into your hand and the rest on top of the deck, then shuffle the deck.','#006','','ChippyYYZ'),
 					new card('Dualcharge','Thing','When Dualcharge enters play, your turn ends. You can\'t draw cards. When you play an Action, put Dualcharge into the discard pile and play a second copy of that Action.','#006','','ChippyYYZ'),
 					new card('Personal Familiar','Thing','Personal Familiar counts as both a Thing and a Player under its controller\'s control with 5 life and starting/max hand size 2. At the end of your turn, Personal Familiar takes a turn.  It has "Action or Thing: Move a Skill card from your hand to your controller\'s hand." and "Action and Thing: Reveal a card from your hand and move it to your controller\'s hand."','#006','','ChippyYYZ'),
-					new card('Please keep Religion out of this','Thing','This card is indestructible. Religion- and blasphemy-related cards except this one are banned. Banned cards in play are continuously removed from the game and have no effect. Players may reveal banned cards from their hand and remove them from the game to draw a card.','#006','','[[User:Lynx'),
+					new card('Please keep Religion out of this','Thing','This card is indestructible. Religion- and Insanity-related cards except this one are banned. Banned cards in play are continuously removed from the game and have no effect. Players may reveal banned cards from their hand and remove them from the game to draw a card.','#006','','[[User:Lynx'),
 					new card('Î ÏÎ¸Î±Î³ÏÏÎ±Ï','Thing â Philosopher','Action: create or destroy Number Tokens until you have 10 of them.  Action (Global): destroy two cards you control. If the addition of a number on the first card with a number on the second one gives a perfect square, gain control of Î ÏÎ¸Î±Î³ÏÏÎ±Ï.  When Î ÏÎ¸Î±Î³ÏÏÎ±Ï is destroyed, create a Gold Token.','','10','[[User:Lynx'),
 					new card('Random Humour','Action','Collect 1d6 Humour Tokens. Discard a card. Remove the first card of the deck from the game. Every other player destroys one Thing of his own. If a player has 23 Tokens of a kind, he doubles them. Draw 3 cards.','#465','465','[[User:Lynx'),
 					new card('Infector Microtoken','Thing','Action: Destroy target non-Token Thing if its controller controls less than 3 tokens. Shuffle Infector Microtoken and a copy of itself into the deck.','#006','','ChippyYYZ'),

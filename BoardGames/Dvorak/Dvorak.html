@@ -300,7 +300,7 @@
 				ctx.font = "20px Arial";
 				ctx.fillStyle = 'black';
 				if (token.amount != 1){
-					ctx.fillText(token.amount.toString(),x-5+(token.w/2),y+10+(token.h/2));
+					ctx.fillText(token.amount.toString(),x-(5+(token.amount.toString().length-1)*5)+(token.w/2),y+10+(token.h/2));
 				}
             }
             
@@ -9647,7 +9647,7 @@
                     new card('TokenTopia','Thing',"Action: Discard the top card of the deck, create a new card that is similar but involves tokens and shuffle it into the deck.",'rgb(0,0,102)','','CoderBlaze'),
                     new card('Creative Spark','Action',"Create a card related to something you can do with the cards you have in play and play it.",'rgb(102,0,0)','','CoderBlaze'),
                     new card('Just Craft','Action',"Discard any number of your things, create a card that could be constructed from those things and play it.",'rgb(102,0,0)','','CoderBlaze'),
-					new card('Booster Box','Action',"When this card enters play, pick a card game with packs and gain 3 pack tokens. Action: Spend 3 money tokens to gain a pack token. Action: Spend a pack token to generate a random pack from a random set for the chosen game, create cards for all the cards in that pack and put them in your hand.",'rgb(0,0,102)','','CoderBlaze'),
+					new card('Booster Box','Thing',"When this card enters play, pick a card game with packs and gain 3 pack tokens. Action: Spend 3 money tokens to gain a pack token. Action: Spend a pack token to generate a random pack from a random set for the chosen game, create cards for all the cards in that pack and put them in your hand.",'rgb(0,0,102)','','CoderBlaze'),
                     new card("Random Card Generator","Thing","Action: Generate 2 random words using https://randomwordgenerator.com/, use these words to create a thing, shuffle it into the deck.","rgb(0,0,102)","RCG"),
 					new card("War Arena Character List","Thing - War Arena","Action: Create a character from War Arena, and shuffle it into the deck.","rgb(0,0,102)","WA","Wepo"),
 					new card("Duel of Ages Labyrinths","Thing - DOA","Action: Create a random labyrinth card from Duel of Ages and shuffle it into the deck.","rgb(0,0,102)","DOA","Wepo"),
@@ -9826,7 +9826,7 @@
                     new card('Chaos','Action',"Each player plays 2 random cards from the archives.",'rgb(102,0,0)','',''),
                     new card('Power On','Action',"When Played: Each player gets a copy of power plant and a copy of photocopy machine from the archives.",'rgb(102,0,0)','',''),
                     new card('Low Power','Thing',"When Played: Each player gets 3 copies of power plant. Each player gets an energy token. 5[HP] At the end of each player's turn, they must spend an energy token or be eliminated. Whenever a player wants to play an action card or ability, they must first spend 1 energy token. Persist (This card stays in play even if its owner is eliminated)",'rgb(0,0,102)','',''),
-                    new card('The Market','Thing',"5[HP] When Played: Each players gets a copy of money tree and 3 money tokens, then create the market by putting the top 3 cards of the deck faceup in a line. At the start of your turn, add the top card of the deck to the left of the market. Action (Public): Choose a card in the market, spend X money tokens, where X is seven minus the amount of other cards in the market to the left of the card. Put the selected card in your hand and add a new card to the market from the top of the deck. When a card is added to the market, if there are 7 or more cards in the market discard the rightmost market card.",'rgb(0,0,102)','',''),
+                    new card('The Market','Thing',"5[HP] No player controls the market. When Played: Each player gets a copy of money tree and 3 money tokens, then create the market by putting the top 3 cards of the deck faceup in a line. At the start of your turn, add the top card of the deck to the left of the market. Action (Public): Choose a card in the market, spend X money tokens, where X is seven minus the amount of other cards in the market to the left of the card. Put the selected card in your hand and add a new card to the market from the top of the deck. When a card is added to the market, if there are more than 7 cards in the market discard the rightmost market card.",'rgb(0,0,102)','',''),
                     new card('Magical Warfare','Thing',"8[HP]. Cannot be targetted for non-destruction effects. Wizard Towers have 5[HP]. When Played: Each player gets a copy of a random thing from this list: 'Blue Wizard Tower, Green Wizard Tower, White Wizard Tower, Black Wizard Tower, Red Wizard Tower, Scarlet Wizard Tower, Cerulean Wizard Tower, Gold-Plated Wizard Tower.' Then put a copy of 'It\'s A Kind Of Magic' in play. Persist. It\'s a kind of magic has Persist and indestructible and can't be targetted by effects. ",'rgb(0,0,102)','',''),
                     new card('Archive Dealer','Thing',"Action: Discard your hand, create 3 cards from the archives and put them into your hand.",'rgb(0,0,102)','',''),
                     new card('The Arc Drug','Thing',"At the end of your turns, discard your hand, then create 3 random cards from the archives and put them in your hand.",'rgb(0,0,102)','',''),
@@ -9838,7 +9838,7 @@
 					new card("The Brain Jellyfish of Death [SETUP]","Thing - Enemy","Counts as a player (enemy). When this card would take damage, instead discard and equal amount of cards and/or spend brainjuice tokens to prevent that damage. At the start of the game, this card is in play as another player. Action: target player gets a braintumor token, then you get a brainjuice token. Each player's handsize is reduced by 1 for each of their braintumor tokens, and increased by 1 for each of their brainjuice tokens. A player whose handsize goes below 0 in this way is eliminated.","rgb(0,0,102)","EBJ79","Enemies"),
 					new card("Personal Stamp","Action","Discard a thing you control, edit that card, make it a [SETUP] card with \"At the start of the game, put this card into play under {YOUR NAME}'s control\"","rgb(102,0,0)","S5","Hoppy"),
 					new card("Whirlwind","Action","Return all things in play to the hands of random players.","rgb(102,0,0)","","Empira"),
-					new card("Build a Power Plant","Action","Spend 5 money tokens, if you do create a copy of Power Plant, then add [SETUP] to it and \"At the start of each game, {YOUR NAME} gets this card in play.\"","rgb(0,102,0)","S1","Empira"),
+					new card("Build a Power Plant","Action","Spend 5 money tokens, if you do create a copy of Power Plant, then add [SETUP] to it and \"At the start of each game, {YOUR NAME} gets this card in play.\" Put the new card in play under your control.","rgb(0,102,0)","S1","Empira"),
 					new card("Overflowing Insight","Action","Draw 7 cards. In order to play this card you must either discard all of your things or spend 4 mana tokens and 3 blue mana tokens.","rgb(0,0,255)","4UUU","Empira"),
 					new card("Selene, Priestess of Gernari","Thing - NPC","When this card comes into play, you may choose another thing in play, return it to its controller's hand. Action: Destroy a thing, if it belonged to an opponent with at least 5 things draw 2 cards.","rgb(0,0,102)","D&D","Empira"),
 					new card("Legacy Node","Thing - Node","You are considered to control an additional number of nodes equal to the number of games you've won this series.","rgb(0,0,102)","SN2","Empira"),
@@ -10151,7 +10151,27 @@
                 new token('air',path+'air.png',40,40,''),
                 new token('lightning',path+'lightning.png',40,40,''),
                 new token('zergling',path+'zergling.png',50,40,''),
-                new token('yt',path+'yt.png',50,50,'')
+                new token('yt',path+'yt.png',50,50,''),
+                new token('guitar',path+'guitar.png',40,40,''),
+                new token('greenmana',path+'G.svg',40,40,''),
+                new token('blackmana',path+'B.svg',40,40,''),
+                new token('whitemana',path+'W.svg',40,40,''),
+                new token('bluemana',path+'U.svg',40,40,''),
+                new token('redmana',path+'R.svg',40,40,''),
+                new token('bread',path+'bread.png',40,40,''),
+                new token('cat',path+'cat.png',40,40,''),
+                new token('ice',path+'ice.png',40,40,''),
+                new token('void',path+'void.png',40,40,''),
+                new token('candy',path+'candy.png',40,40,''),
+                new token('pill',path+'pill.png',40,40,''),
+                new token('strength',path+'strength.png',40,40,''),
+                new token('pack',path+'pack.webp',35,60,''),
+                new token('cross',path+'cross.png',40,40,''),
+                new token('paper',path+'paper.png',40,40,''),
+                new token('soldier',path+'soldier.png',40,40,''),
+                new token('star',path+'star.png',40,40,''),
+                new token('infinity',path+'infinity.png',40,40,''),
+                new token('manapotion',path+'manaPotion.png',40,40,'')
             ];
             
             tokens[0].titleTextColor = 'rgb(0,0,0)';
@@ -10371,6 +10391,8 @@
                         c.r = c2.r;
                         c.x = c2.x;
                         c.y = c2.y;
+						c.custom = c2.custom;
+						
                     }
                     
                     //c.text = [];
@@ -10609,7 +10631,9 @@
                     profiles[profile].savedGame.playable = false;
                     saveData();
                     state = 'menu';
-                    location = location;
+
+					// Need a 1 second delay in order for the save to go through, otherwise it fails
+					window.setTimeout(function(){location = location;},1000);
                     
                 } else if (18 in keysDown && e.keyCode == 73){ // Alt-I
                     // Import game

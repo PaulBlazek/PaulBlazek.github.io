@@ -9622,7 +9622,7 @@
                 [
                     new card('Leafy\'s Camera','Thing',"Action: Remove a living card at 1 hp from the game. Create a new card that is based on that card and Inscryption and put it in your hand.",'rgb(0,102,0)','','CoderBlaze'),
                     new card('Grimora\'s Pen','Thing',"Action: Put an ink token on this. Reaction: When a living thing is destroyed and not Inscribed, you may spend an ink token to create a new card based off that card as an undead and Inscryption and put that card in your hand.",'rgb(0,0,0)','','CoderBlaze'),
-                    new card('Magnificus\' Brush','Thing',"Action: Discard one of your living things, create a new card based on that card and Inscryption and put it in your hand. Action: Discard one of your things, create a Mox card and put it in your hand.",'rgb(0,0,50)','','CoderBlaze'),
+                    new card('Magnificus\' Brush','Thing',"Action: Discard one of your animate, non-Inscribed things, create a new card based on that card and Inscryption and put it in your hand. Action: Discard one of your things, create a Mox card and put it in your hand.",'rgb(0,0,50)','','CoderBlaze'),
                     new card('AutoCombinotron','Thing',"At the start of your turn, discard the top two cards of the deck, create a new card combining those two cards and shuffle it into the deck.",'rgb(0,0,102)','','CoderBlaze'),
                     new card('Ultimate Form','Action',"Discard all your things, create a new thing with their combined abilities and total health equal to their total health.",'rgb(102,0,0)','','CoderBlaze'),
                     new card('Fractal Video Game Generatortor','Thing',"Action: Pick a random game from your Steam library, create a card related to making cards from that game.",'rgb(0,0,102)','','CoderBlaze'),
@@ -10108,6 +10108,13 @@
 					new card("Koffing","Thing - Pokemon","5❤. Action: Gain a leaf token. During your turn, you may move leaf tokens you control onto this card. Action: If there are at least 2 leaf tokens on this card, then target thing takes 1 damage, then flip a coin, if heads, attach a copy of Poisoned to that thing (Thing At the start of your turn, flip a coin, if tails this card takes 1 damage), if tails attach a copy of Confused to that thing.(Thing When you use an action ability on attached thing, first flip a coin, on tails the action target(s) are chosen randomly.)","rgb(0,200,0)","","Wepo"),
 				],
 				[
+					new card('Fate Die (Green)','Thing',"Action: Roll a d12. 1 -> Destroy 2 things. 2 -> Create a card. 3 -> Discard this. 4 -> Discard 3 cards. 5-> +1 Action, +1 Thing. 6 -> Draw 2 cards. 7: +2 Actions. 8 -> Destroy one of your things. 9+: Nothing.",'rgb(0,0,102)','3❤','Paul'),
+                    new card("Fate Dice Dupligen","Action - Fate","Create and play a copy of \"Fate Die (Green)\", also create a new Fate Die and shuffle it into the deck.","rgb(70,0,100)","D6","Hoppy"),
+					new card("Fate Die (Black)","Thing","Play ASAP. At the end of your turns, roll a d12. 1 -> Discard a thing you control 2 -> Give this to a random opponent 3 -> This heal 3❤. 4 -> Discard 3 cards 5-> Destroy a random thing you control, then if you have no things in play you must discard a card or lose. 6 -> Discard 2 cards. 7: Discard 2 of your things, Create and play two copies of Orc. 8 -> Discard a living thing you control at random, create and play an enemy version of that card. 9: If you control any indestructible things, discard one of them at random. 10: Destroy all tokens 11: Discard your hand. 12: Roll again twice, then destroy all things.","black","3❤","Steve"),
+					new card("Fate Die (Red)","Thing","Action: Roll a d12. 1 -> Destroy 2 things. 2 -> Create an action card and play it. 3 -> Discard this. 4 -> Create random cards from the archive until you get an action, play that card and shred the others. 5-> +2 Actions 6 -> Draw 2 cards. 7: Destroy a random thing 8 -> Destroy one of your things. 9 -> Each opponent may play an action card, then if this is still in play, draw 3 cards. 10 -> Create a new enemy and play it, then draw 3 cards. 11 -> Draw until you have 5 cards in hand. 12 -> Reveal your hand, you win the game if all of the cards in your hand are red, otherwise discard all non-actions in your hand and create action versions of them and put them in your hand.","rgb(102,0,0)","3❤","Hoppy"),
+					new card("Fate Die (Cameo)","Thing","Action: Roll a d12. 1 -> Create a copy of a card from an existing Dvorak deck and shuffle it into the deck. 2 -> Create a card and shuffle it into the deck. 3 -> Discard this. 4 -> Discard 3 cards. 5-> Take an extra turn after this one 6 -> Add a copy of Cameo to your hand. 7: Roll again twice. 8 -> Destroy this once. 9 -> Discard your hand, create as many copies of Cameo as cards discarded and put them in your hand. 10 -> Reveal your hand, if you reveal 5 or more Cameos you win. 11 -> Draw 3 cards, then create copies of up to 3 cards from your hand and shuffle them into the deck. 12 -> Roll again thrice.","rgb(153,85,85)","3❤","Hoppy"),
+				],
+				[
 					new card('SCP-041 - Thought-Broadcasting Patient','Thing - SCP',"",'rgb(0,0,102)','041',''),
 					// new card('SCP-XXX - ','Thing - SCP',"",'rgb(0,0,102)','XXX',''),
 				],
@@ -10229,7 +10236,7 @@
                 ['Coderblaze\'s Cards 501-520',reg3('The next set of twenty cards from CoderBlaze.',80)],
                 ['SCPs 021-040',reg3('The 2nd set of SCP cards.',80)],
 				['Created Cards - Set 7',reg3('More created cards')],
-				
+				['Collection: Fate Dice',reg3('A collection of fate-dice related custom cards')],
 				
 				
 				//['Dvorak the Gathering - RNA',reg3('A card pack that adds new mechanics to the game related to paying costs, and attacking other players.')]
@@ -10301,7 +10308,11 @@
                 new token('trophy',path+'trophy.png',40,40,''),
                 new token('armor',path+'armor.png',40,40,''),
                 new token('handPlus',path+'handPlus.png',40,40,''),
-                new token('handMinus',path+'handMinus.png',40,40,'')
+                new token('handMinus',path+'handMinus.png',40,40,''),
+                new token('shield',path+'shield.png',40,45,''),
+                new token('mimic',path+'mimic.png',40,40,''),
+                new token('time',path+'time.png',40,40,''),
+                new token('mine',path+'mine.png',40,40,'')
             ];
             
             tokens[0].titleTextColor = 'rgb(0,0,0)';
@@ -10523,6 +10534,7 @@
                         c.x = c2.x;
                         c.y = c2.y;
 						c.custom = c2.custom;
+						c.titleTextColor = c2.titleTextColor;
 						
                     }
                     

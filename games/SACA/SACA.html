@@ -240,6 +240,66 @@
                 array.splice(index,1);
             }
             
+            function barSeperate(txt){
+                start = 0;
+                regText = [];
+                for (var i = 0; i < txt.length; i++){
+                    if (txt[i] == '|'){
+                        regText.push(txt.slice(start,i));
+                        start = i+1;
+                    }
+                }
+                regText.push(txt.slice(start,i));
+                return regText;
+            }
+
+            function reg(text) {
+                // Takes a string of text and inserts line breaks at spaces.
+                regulatedText = [];
+                cycles = 0;
+                while (text.length > 0) {
+                    if (text.length <= 31) {
+                        regulatedText.push(text);
+                        return regulatedText;
+                    }
+					
+					foundSpace = false;
+                    for (var i = 30; i >= 0; i--) {
+                        if (text[i] == ' ') {
+                            regulatedText.push(text.slice(0,i));
+                            if (i+1 == text.length) {
+                                text = '';
+                                break;
+                            }
+                            text = text.slice(i+1,text.length);
+							foundSpace = true;
+                            break;
+                        }
+                    }
+
+					if (!foundSpace){
+						for (var i = 0; i <= text.length; i++) {
+							if (text[i] == ' ') {
+								regulatedText.push(text.slice(0,i));
+								if (i+1 == text.length) {
+									text = '';
+									break;
+								}
+								text = text.slice(i+1,text.length);
+								foundSpace = true;
+								break;
+							}
+						}
+					}
+                    
+                    cycles += 1;
+                    if (cycles > 100000) {
+                        regulatedText.push(text);
+                        return regulatedText;
+                    }
+                }
+            }
+
             function checkClick(event) {
                 //function getCursorPosition(canvas, event) {
                 const rect = canvas.getBoundingClientRect()
@@ -866,6 +926,12 @@
                 }
             }
             
+            charInfo = {
+                'super cat':'Super Cat|Super Cat is the defender of justice|and a fierce combatant.|12HP|No special abilities.',
+                'normal cat':'Normal Cat|A veteran of the great cat and dog wars,|Normal Cat always carries his trusty shotgun.|5HP|Fires 3 bullets in a blast.',
+                'crazy cat':'Crazy Cat|After running one mad science experiement too|many, Crazy Cat is now has a very minor case|of serious brain damage.|6HP|Bullets have a bit of random spread'
+            };
+
             selectedChar = 0;
             selectedSide = 1;
             function chooseCharacters(){
@@ -874,12 +940,14 @@
                 ctx.fillRect(0,0,1200,600);
                 
                 ctx.fillStyle = 'rgb(50,50,50)';
-                ctx.fillRect(0,0,1200,50);
+                ctx.fillRect(0,0,600,50);
                 
                 ctx.fillStyle = 'rgb(255,255,255)';
                 ctx.font = '40px Monospace';
                 ctx.fillText('Available Characters',50,35);
                 
+                cSelect = null;
+
                 // Draw Available Characters
                 ctx.fillStyle = 'rgb(200,200,200)';
                 cY = 60;
@@ -891,6 +959,7 @@
                     
                     if (selectedChar == i && selectedSide == 0){
                         ctx.fillRect(cX,cY,85,80);
+                        cSelect = charOptions[i];
                     }
                     
                     cImg = charImgs[charOptions[i]];
@@ -899,7 +968,7 @@
                 }
                 
                 ctx.fillStyle = 'rgb(50,50,50)';
-                ctx.fillRect(0,300,1200,50);
+                ctx.fillRect(0,300,600,50);
                 
                 ctx.fillStyle = 'white';
                 ctx.font = '40px Monospace';
@@ -912,13 +981,40 @@
                 for (var i = 0; i < chosenCompanions.length; i++){
                     if (selectedChar == i && selectedSide == 1){
                         ctx.fillRect(cX,cY,85,80);
+                        cSelect = chosenCompanions[i];
                     }
                     
                     cImg = charImgs[chosenCompanions[i]];
                     ctx.drawImage(cImg,cX,cY,cImg.width/(cImg.height/80),80);
                     cX += 90;
                 }
-                
+
+                // Show char info
+                ctx.fillStyle = 'rgb(50,50,50)';
+                ctx.fillRect(600,0,50,1000);
+                if (cSelect){
+                    cSelect = cSelect.toLowerCase();
+
+                    if (cSelect in charInfo){
+                        var y = 35;
+                        for (var line in charInfo[cSelect]){
+                            ctx.font = '20px Monospace';
+                            ctx.fillStyle = 'white';
+
+                            if (y == 35){
+                                ctx.font = '30px Comic Sans MS';
+                                
+                            } // Title Line
+                            
+                            ctx.fillText(charInfo[cSelect][line],660,y);
+                            if (y == 35){y += 10}
+                            y += 40;
+                        }
+                    } else {
+                        ctx.fillText("CHAR DESC IN PROGRESS :(",620,35);
+                    }
+                }
+
                 // Draw Start Game Button
                 ctx.fillStyle = 'white';
                 if (chosenCompanions.length != 3 && (chosenCompanions.length != profiles[profile].unlockedChars.length || chosenCompanions.length > 3)){
@@ -928,6 +1024,7 @@
                 ctx.fillRect(800,450,250,100);
                 
                 ctx.fillStyle = 'black';
+                ctx.font = '40px Monospace';
                 ctx.fillText('Start Game',810,510);
             }
 
@@ -3387,7 +3484,7 @@
                                 this.addEffect(entity.effect,300);
                             }
 
-                            if (entity.effect != 'pelt'){
+                            if (entity.effect != 'pelt' || true){ // Just play the sound for now
                                 playSound("powerup");
                             }
                         }
@@ -5321,6 +5418,11 @@
                 loadData();
                 loadAudio();
                 applyAudioSettings();
+
+                for (var l in charInfo){
+                    charInfo[l] = barSeperate(charInfo[l]);
+                }
+
                 if (!christmasSeason()){
                     music["Title Theme"].oncanplaythrough = function(){
                         music["Title Theme"].oncanplaythrough = function(){}

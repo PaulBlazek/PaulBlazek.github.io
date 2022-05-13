@@ -327,6 +327,11 @@
                     if (y > 520 && y < 600){
                         if (x > 50 && x < 250){ // Unlocks
                             // TODO - Unlocks Screen
+                            if (showingUnlocks == true){
+                                updateGameOver();
+                            } else {
+                                showUnlocks();
+                            }
                         } else if (x > 300 && x < 500){ // Menu
                             state = 'menu';
                             updateMenu();
@@ -336,6 +341,7 @@
                             state = 'chooseCharacters';
                             loadProfile();
                             chooseCharacters();
+                            changeMusic('Grassland');
                         }
                     }
                 } else if (state == 'settings'){
@@ -5773,7 +5779,46 @@
                 requestAnimationFrame(updateMainMenu);
             }
 
+            showingUnlocks = true;
+            function showUnlocks(){
+                showingUnlocks = true;
+                ctx.fillStyle = 'black';
+                ctx.fillRect(0,0,2000,2000);
+
+                ctx.fillStyle = 'white';
+                ctx.font = "60px Monospace";
+                ctx.fillText("UNLOCKS",430,70);
+
+                ctx.fillStyle = 'rgb(50,50,50)';
+                ctx.fillRect(0,100,1200,20);
+
+                y = 150;
+                ctx.font = '25px Monospace';
+                ctx.fillStyle = 'white';
+                for (var i in unlocksThisGame){
+                    ctx.fillText(unlocksThisGame[i],35,y);
+                    y += 30;
+                }
+
+                ctx.fillStyle = 'rgb(50,50,50)';
+                
+                ctx.fillRect(50,520,200,100);
+
+                ctx.fillRect(300,520,200,100);
+                
+                ctx.fillRect(550,520,200,100);
+
+                ctx.fillStyle = 'white';
+                ctx.textAlign = 'center';
+                ctx.fillText('Stats',150,570);
+                ctx.fillText('Menu',400,570);
+                ctx.fillText('New Game',650,570);
+
+                ctx.textAlign = 'start';
+            }
+
             function updateGameOver(){
+                showingUnlocks = false;
                 if (state != 'gameover'){
                     return;
                 } else if (currentMusic != music['Game Over Theme']){

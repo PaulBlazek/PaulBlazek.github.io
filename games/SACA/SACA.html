@@ -933,12 +933,12 @@
                         
                     } else if (e.keyCode == 13 || e.keyCode == 32){ // Enter / Space
                         if (selectedSide == 0){
-                            chosenCompanions.push(charOptions.splice(selectedChar,1));
+                            chosenCompanions = chosenCompanions.concat(charOptions.splice(selectedChar,1));
                             if (selectedChar > 0){selectedChar -= 1;}
                             
                             if (charOptions.length == 0){selectedSide = 1;}
                         } else {
-                            charOptions.push(chosenCompanions.splice(selectedChar,1));
+                            charOptions = charOptions.concat(chosenCompanions.splice(selectedChar,1));
                             if (selectedChar > 0){selectedChar -= 1;}
                             
                             if (chosenCompanions.length == 0){selectedSide = 0;}
@@ -965,8 +965,9 @@
                 'super cat':'Super Cat|Super Cat is the defender of justice|and a fierce combatant.|12HP|No special abilities.',
                 'normal cat':'Normal Cat|A veteran of the great cat and dog wars,|Normal Cat always carries his trusty shotgun.|5HP|Fires 3 bullets in a blast.',
                 'crazy cat':'Crazy Cat|After running one mad science experiment too|many, Crazy Cat is now has a very minor case|of serious brain damage.|6HP|Bullets have a bit of random spread',
-                'shield cat':'Shield Cat|An elite warrior from a high-tech society,|Shield Cat makes the most of his portable shield generator.|7HP + 5 Shields|Gets an extra shield from pickups.|Has a max of 10 shields instead of 5.',
-                'rob the bandit':'Rob the Bandit|A reformed bandit chief,|Rob has decided to try adventuring.|8HP|Rob\'s presence annoys bandits.|He also fires frag bullets.|NOTE: Due to space-time issues, you may|encounter an alternate universe Rob.'
+                'shield cat':'Shield Cat|An elite warrior from a high-tech society, Shield Cat|makes the most of his portable shield generator.|7HP + 5 Shields|Gets an extra shield from pickups.|Has a max of 10 shields instead of 5.',
+                'rob the bandit':'Rob the Bandit|A reformed bandit chief,|Rob has decided to try adventuring.|8HP|Rob\'s presence annoys bandits.|He also fires frag bullets.|NOTE: Due to space-time issues, you may|encounter an alternate universe Rob.',
+                'radioactive cat':'Radioactive Cat|This once-ordinary cat got bit by a radioactive|spider. Unfortunately, instead of becoming|Spider Cat, he became Radioactive Cat.|9 HP|Emits radioactive waves every once in a while.'
             };
 
             selectedChar = 0;
@@ -1407,6 +1408,10 @@
                     }
                 }
 
+                // Reset rad cooldown
+                for (var i = 0; i < chars.length; i++){
+                    chars[i].radCooldown = 0;
+                }
 
                 currentMerchant = '';
 
@@ -3027,6 +3032,12 @@
                     this.maxShields = 10;
                     this.cSpeed = 5;
                     this.health = 7;
+                } else if (this.name == 'Radioactive Cat'){
+                    this.img.src = path+'radioactiveCat.png';
+                    this.cSpeed = 3;
+                    this.health = 9;
+                    this.radCooldown = 0;
+                    this.radMaxCooldown = 250;
                 }
                 
                 this.baseSpeed = this.cSpeed;
@@ -3081,7 +3092,15 @@
                 
                 if ('fireTrail' in this.effects){
                     if (this.effects[e] % 10 == 0){
-                        entitys.push(new fire(this.x,this.y));
+                        entitys.push(new fire(this.x+this.width/2,this.y+this.height/2));
+                    }
+                }
+
+                if (this.name == 'Radioactive Cat'){
+                    this.radCooldown += 1;
+                    if (this.radCooldown >= this.radMaxCooldown){
+                        this.radCooldown = 0;
+                        entitys.push(new radCircle(this.x+this.width/2,this.y+this.height/2));
                     }
                 }
                 
@@ -3325,9 +3344,9 @@
                     }
 
                     if (this.perks.includes("fasterFiring")){
-                        this.reloadTimer /= (3 + count("fasterFiring",this.perks))/2;
+                        this.reloadTimer /= (3 + count("fasterFiring",this.perks))/3;
                     } if (this.perks.includes("alwaysConfused")){
-                        this.reloadTimer /= (3 + count("alwaysConfused",this.perks))/2;
+                        this.reloadTimer /= (3 + count("alwaysConfused",this.perks))/3;
                     }
 
                     if (this.perks.includes("beamFire")){
@@ -4531,6 +4550,54 @@
                 }
             };
             
+            function radCircle(x,y){
+                this.name = 'radCircle';
+                this.x = x-5.5;
+                this.y = y-5.5;
+                this.size = 10;
+                this.maxSize = 300;
+                this.width = 11;
+                this.height = 11;
+                this.img = new Image();
+                this.img.src = path+'ring.png';
+                this.hits = [];
+                this.source = entitys[0];
+                this.growthRate = 1;
+            }
+
+            radCircle.prototype.update = function(){
+                this.size += this.growthRate;
+                this.width = this.size;
+                this.height = this.size;
+                this.x -= this.growthRate/2;
+                this.y -= this.growthRate/2;
+                this.growthRate += 0.1;
+                if (this.size > this.maxSize){
+                    this.killTag = 1;
+                    return;
+                }
+                ctx.drawImage(this.img,this.x,this.y,this.width,this.height);
+
+                for (var i = 0; i < entitys.length; i++){
+                    entity = entitys[i];
+                    // Overlapping Check
+                    if (this.x+this.width >= entity.x &&
+                        this.x <= entity.x+entity.width && 
+                        this.y+this.height >= entity.y &&
+                        this.y <= entity.y+entity.height
+                       ){
+                        if (entity != entitys[0] && !this.hits.includes(entity)) {
+                            this.hits.push(entity);
+                            entity.health -= 1;
+                            entity.lastHit = 'radRing';
+                            if (this.source){this.source.damageInflicted += 1;}
+                            playSound("hurt");
+                            return;
+                        }
+                    }
+                }
+            }
+
             function bullet(x,y,foeX,foeY,foeNames,effects=[],source=null) {
                 this.name = 'bullet';
                 this.x = x;
@@ -4797,6 +4864,7 @@
                 this.duration -= 1;
                 if (this.duration <= 0){
                     this.killTag = 1;
+                    unlockChar('Radioactive Cat',function(){});
                 }
             }
             
@@ -5998,6 +6066,7 @@
             <button ontouchdown="canvas.requestFullscreen();" onclick="canvas.requestFullscreen();">Fullscreen</button>
             <!--<button id='mobileToggle' ontouchdown="toggleMobile();" onclick="toggleMobile();">Turn Mobile-Mode On</button>-->
             <h1>News</h1>
+            <p>Lots of QOL upgrades: Characters now have a description that you can read in the character select, and we now have a game over screen detailing unlocks and statistics! Also a brand new character to find with a unique ability!</p>
             <p>Perks have been added! Tier up your characters! <i>1/28/2022</i></p>
             <p>Merchants are fixed now and won't give you free stuff. <i>12/22/2020</i></p>
             <p>There is now a Merchant in the game that the player might encounter! <i>12/21/2020</i></p>

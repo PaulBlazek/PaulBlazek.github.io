@@ -4555,7 +4555,7 @@
                 this.x = x-5.5;
                 this.y = y-5.5;
                 this.size = 10;
-                this.maxSize = 300;
+                this.maxSize = 400;
                 this.width = 11;
                 this.height = 11;
                 this.img = new Image();
@@ -4631,7 +4631,7 @@
             }
             
             bullet.prototype.update = function(){
-                if (this.flash < 10) {
+                if (this.flash < 100) {
                     this.flash += 1;
                 } else {
                     this.flash = 0;
@@ -4641,7 +4641,7 @@
                     spawns.push(new fire(this.x,this.y));
                 }
                 
-                if (this.flash > 4) {
+                if (this.flash-Math.floor(this.flash/10)*10 > 4) { // Basically is the ones digit > 4?
                     ctx.fillStyle = 'rgb(255,0,0)';
                 } else {
                     ctx.fillStyle = 'rgb(0,0,0)';
@@ -5924,7 +5924,7 @@
                 ctx.fillRect(0,200,1200,20);
 
                 // Use graveyard to determine stats from chars
-                var widths = [200,140,170,190,190,0];
+                var widths = [250,140,170,190,190,0];
                 var categories = ['Name','Days','Shots Fired','Damage Dealt','Damage Taken','Perks'];
                 var x = 10;
                 var y = 245;

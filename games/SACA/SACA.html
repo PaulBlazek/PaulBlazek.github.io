@@ -4668,6 +4668,7 @@
                         this.y <= entity.y+entity.height
                        ){
                         if (isIn(entity.name,this.foeNames) || (entity == entitys[0] && isIn('player',this.foeNames))) {
+                            if (entity.health <= 0){continue;}
                             entity.health -= 1;
                             entity.lastHit = 'bullet';
                             this.killTag = 1;

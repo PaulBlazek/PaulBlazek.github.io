@@ -2986,7 +2986,7 @@
                 "christmas":createImage(path+"santaHat.png")
             }
 
-            days = 1;
+            day = 1;
             function playerCharacter(name) {
                 this.x = 150;
                 this.y = 300;
@@ -3005,7 +3005,7 @@
                 this.isChanging = 0; // Positive is leaving, negative is entering.
                 this.shields = 0;
                 this.maxShields = 5;
-                this.dayStarted = days || 0;
+                this.dayStarted = day || 0;
                 this.dayDied = -1;
                 this.damageInflicted = 0;
                 this.shots = 0;
@@ -3034,7 +3034,7 @@
                     this.health = 7;
                 } else if (this.name == 'Radioactive Cat'){
                     this.img.src = path+'radioactiveCat.png';
-                    this.cSpeed = 3;
+                    this.cSpeed = 4.5;
                     this.health = 9;
                     this.radCooldown = 0;
                     this.radMaxCooldown = 250;

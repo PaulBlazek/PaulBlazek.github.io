@@ -3072,6 +3072,7 @@
                     this.shields -= 1;
                 } else if (this.health < this.lastHealth) {
                     //playSound("hurt");
+                    entitys.push(new radCircle(this.x+this.width/2,this.y+this.height/2));
                     this.damageTaken += this.lastHealth-this.health;
                 }
 
@@ -3100,7 +3101,7 @@
                     this.radCooldown += 1;
                     if (this.radCooldown >= this.radMaxCooldown){
                         this.radCooldown = 0;
-                        entitys.push(new radCircle(this.x+this.width/2,this.y+this.height/2));
+                        //entitys.push(new radCircle(this.x+this.width/2,this.y+this.height/2));
                     }
                 }
                 
@@ -4555,14 +4556,14 @@
                 this.x = x-5.5;
                 this.y = y-5.5;
                 this.size = 10;
-                this.maxSize = 400;
+                this.maxSize = 600;
                 this.width = 11;
                 this.height = 11;
                 this.img = new Image();
                 this.img.src = path+'ring.png';
                 this.hits = [];
                 this.source = entitys[0];
-                this.growthRate = 1;
+                this.growthRate = 1.5;
             }
 
             radCircle.prototype.update = function(){

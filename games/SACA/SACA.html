@@ -4556,14 +4556,14 @@
                 this.x = x-5.5;
                 this.y = y-5.5;
                 this.size = 10;
-                this.maxSize = 600;
+                this.maxSize = 800;
                 this.width = 11;
                 this.height = 11;
                 this.img = new Image();
                 this.img.src = path+'ring.png';
                 this.hits = [];
                 this.source = entitys[0];
-                this.growthRate = 1.5;
+                this.growthRate = 0;
             }
 
             radCircle.prototype.update = function(){
@@ -4572,7 +4572,7 @@
                 this.height = this.size;
                 this.x -= this.growthRate/2;
                 this.y -= this.growthRate/2;
-                this.growthRate += 0.1;
+                this.growthRate += 1;
                 if (this.size > this.maxSize){
                     this.killTag = 1;
                     return;

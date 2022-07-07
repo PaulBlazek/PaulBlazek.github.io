@@ -306,6 +306,7 @@
             
             function card(name,type,text,color,cornerValue,creator) {
                 this.custom = false;
+				this.spawnDate = Date();
                 this.flipped = false;
                 this.name = name;
                 this.type = type;
@@ -771,7 +772,7 @@
 					new card('Brain Training','Action','Look at another player\'s hand for ten seconds. Afterwards, for each card that you can remember the title of, you may draw one card.','#600','','Kevan'),
 					new card('Fly on the Wall','Thing','This card counts as an insect. Pick a target player. You may now look at their cards anytime you want.','#006','Fly','Ryan_1729'),
 					new card('Action Prism','Action','This card counts as a glass object. Perform 7 extra actions this turn.','#600','Psm','Ryan_1729'),
-					new card('Meta','Thing','Action:discard any cards with card written anywhere on them.','#006','JKL','Ryan_1729'),
+					new card('Meta','Thing','Action:Discard any number cards in play with card written anywhere on them.','#006','JKL','Ryan_1729'),
 					new card('Clusterfudge','Thing','When this card is played, all players\' hands go into the discard pile. All players then take turns taking single cards from the draw pile and adding them to their respective hands. The discard pile is then shuffled and added to the draw pile to start it anew. As long as this card is in play, players may play as many Things and/or Actions as they wish during their turns.','#006','!!!','BiggerJ'),
 					new card('Switcheroo','Thing','The draw pile is now the discard pile and vice versa. After three turns this effect reverses. Do not disturb the order of either pile.','#006','','Ryan_1729'),
 					new card('Switcheroo','Thing','The draw pile is now the discard plie and vice versa. After three turns this effect reverses. Do not disturb the order of either pile.','#006','','Ryan_1729'),
@@ -9457,7 +9458,7 @@
                     new card('Costs','Thing',"15❤ Play ASAP. To play a card with a corner value, the player playing that card must discard a number of cards equal to the number in the corner value. Action (Global): Draw a card.",'rgb(0,0,102)','0','Paul'),
                     new card('Meower','Thing',"8❤ Regeneration 1. Counts as a player (pet). Action: Destroy 3 things. Action: Draw 3 cards. Action: Heal 2❤.",'rgb(0,0,102)','','Xavier'),
                     new card('Legacy Mode','Thing - Rule - Legacy'," At the start of a game all players gain whatever legacy cards they had at the end of last game, then all players gain 3 random things other things from the things they had at the end of the previous game.",'rgb(0,0,102)','','Paul'),
-                    new card('Defensive Options','Thing - Rule',"15❤ When a things would be destroyed, its control may destroy 2 of their things to prevent that destruction. ",'rgb(0,0,102)','','Paul'),
+                    new card('Defensive Options','Thing - Rule',"15❤ When a thing would be destroyed, its control may destroy 2 of their things to prevent that destruction. ",'rgb(0,0,102)','','Paul'),
                     new card('Sleepy Cat 2nd Edition','Thing',"10❤ Action: Destroy a thing and draw 2 cards. Action: Heal this 1❤. Action: Wound this to destroy 3 things and draw a card.",'rgb(0,0,102)','','Xavier'),
                     new card('Organized Enemies','Thing - Rule - Enemy',"10❤ All enemy players gain: 'Action: Move a non-player enemy' to another player.",'rgb(0,0,102)','','Enemies'),
                     new card('Blaze','Thing - Enemy',"5❤ At the start of your turn add a time counter to this if it doesn't have one or remove one if it does. At the end of your turn if this has a time counter destroy 3 of your things, otherwise destroy 1 of your things or lose.",'rgb(0,0,102)','','Paul'),
@@ -9476,7 +9477,7 @@
                     new card('Angered Enderman','Thing',"Play ASAP. 7❤ Counts as a player (Neutral, Attacks withers). Regeneration 1.",'rgb(0,0,102)','','Paul'),
                     new card('Elytra','Thing',"2❤ Action: Take 2 random cards from target player's hand. Action: Place one damage on this to steal 5 random cards from a player's hand. Action: Destroy 2 things.",'rgb(0,0,102)','','Xavier'),
                     new card('Obsidian Pillar','Thing',"5❤ All cards with 'ender' in their titles gain Regeneration 1.",'rgb(0,0,102)','','Ender-Golem'),
-                    new card('Nothing\'s Free!','Thing',"5❤ Each player draw s an extra card at the start of their turn. Whenever a player plays a card, they must first discard 2 cards from their hand.",'rgb(0,0,102)','','Paul'),
+                    new card('Nothing\'s Free!','Thing',"5❤ Each player draws an extra card at the start of their turn. Whenever a player plays a card, they must first discard 2 cards from their hand.",'rgb(0,0,102)','','Paul'),
                     new card('Wither (Effect)','Thing',"5❤ Attach to a thing. Cannot take damage from other cards. Start of turn: This and attached thing take 1❤ damage.",'rgb(0,0,102)','','Paul'),
                     new card('Redstone Ore','Thing',"2❤ Armored 2. When destroyed: Gain 6 energy tokens.",'rgb(0,0,102)','','Paul'),
                     new card('Loner','Thing',"7❤ Action: Destroy 5 things if this is your only living thing. Regeneration 1.",'rgb(0,0,102)','','Paul'),
@@ -9488,7 +9489,7 @@
                     new card('Another Player','Thing',"Play ASAP. 20❤ Counts as a player (Neutral). Regeneration 1. Action: Heal this 2❤.",'rgb(0,0,102)','','Paul'),
                 ],
                 [
-                    new card('Wrathful Enderman','Thing - Enemy Counts as a player (Enemy), but is still played in front of a specific player. Has no hand. Action: Destroy 2 things. Action: Steal a thing with 1❤.',"7❤",'rgb(0,0,102)','','Paul'),
+                    new card('Wrathful Enderman','Thing - Enemy','Counts as a player (Enemy), but is still played in front of a specific player. Has no hand. Action: Destroy 2 things. Action: Steal a thing with 1❤.',"7❤",'rgb(0,0,102)','','Paul'),
                     new card('Wither Beam','Action - Enemy',"Give 3 random things you control to the enemy player with the highest ❤. If there is no enemy player, destroy those things instead.",'rgb(102,0,0)','','Enemies'),
                     new card('Wither Skull','Action - Enemy',"Destroy 5 things you control.",'rgb(102,0,0)','','Enemies'),
                     new card('Spider','Thing',"2❤ At the end of your turn destroy a random thing you control. Then flip a coin, if heads give this to a random opponent.",'rgb(0,0,102)','','Paul'),
@@ -9676,7 +9677,7 @@
 					new card('Anomalous Activity','Action',"Play ASAP. Reveal cards from the top of the top until you reveal and SCP. Put it into play, under your control if possible. +1 Action.",'rgb(102,0,0)','',''),
 					new card('Site Director','Thing',"Protected - Living Things (When this card would be destroyed, you may redirect that destruction to another living thing you control. Action: Spend 1 Energy token or 1 Money token to gain 1 Energy token or 1 Money token. Action: Spend 5 money tokens, create and play a copy of 'Containment Unit'",'rgb(0,0,102)','',''),
 				],
-				[ // Rules note - I'm considering the SCP trait to be similar to enemy, in that you don't technically 'control' them. But you can still use abilities on them and play them at your leasure instead of forced.
+				[ // Rules note - I'm considering the SCP trait to be similar to enemy, in that you don't technically 'control' them. But you can still use abilities on them and play them at your leasure instead of forced. (Also, similar to enemies, if you are eliminated, your SCPs go to in front of random other players)
 					new card('SCP-002 - The Living Room','Thing - SCP',"5[HP] Armor 1. Regen 1. Action: Destroy target living thing thrice, if it leaves play, create a furniture token. At the end of your turn, you may perform this card's first action ability for free if you target on of your own living things. Action: Pay 3 furniture tokens to create a new card for a piece of furniture and play it attached to this.",'rgb(0,0,102)','002',''),
 					new card('SCP-003 - Biological Motherboard','Thing - SCP',"3[HP] Armor 2. At the start of your turn, gain 1 energy token, then flip a coin, if heads gain 1 energy token. At the end of your turn, spend 1 energy token, if you cannot, inflict 1 piercing damage on one of your living things or this card gets a meltdown token. While this card has meltdown tokens it is considered an Enemy with 'At the end of your turn, destroy a random thing for each meltdown token on this card. Action(Public): Destroy a living thing you control to remove one meltdown token from this.'",'rgb(0,0,102)','003',''),
 					new card('SCP-004 - Twelve Rusty Keys & The Door','Thing - SCP',"Comes into play with 12 key counters. When this would take any amount of damage, remove a key counter instead. When this card has no key counters, discard it. At the end of your turns, you may move a card from your hand beneath this facedown, then you may take a card of your choice from beneath this into hand. Action: Put a key counter from this card on a living thing, it gains 'At the end of your turn, roll a d6, on a 1, discard this card and its key counter.'",'rgb(0,0,102)','004',''),
@@ -9687,15 +9688,15 @@
 					new card('SCP-009 - Red Ice','Thing - SCP',"10[HP] Armor 1. Regen 1. At the end of your turn, put a red ice token on each living thing or thing containing water next to this, or next to a thing with a red ice token. Red ice tokens have 'At the start of your turn, roll a d6, if the number is less than the number of red ice tokens on this thing, it becomes a copy of SCP-009 Red Ice, otherwise add a red ice token to it.' If any player controls at least 3 copies of this card, they lose.",'rgb(0,0,102)','009',''),
 					new card('SCP-010 - Collars of Control','Thing - SCP',"Comes into play with 6 collar counters. Each of those counters is considered to be a thing with 3[HP]. When there are no collar counters discard this. Action: Put a collar counter on a living thing. Living things with collars counters on them can't use any of their abilities, except as listed on this card. Action: Pick a living thing with a collar counter, activate a random ability on that thing, with a random target. Then make a note of that ability and that target. Action: Use a noted ability against the target in the same note.",'rgb(0,0,102)','010',''),
 					new card('SCP-011 - Sentient Civil War Statue','Thing - SCP',"10[HP] Comes into play with 3 inanimate tokens. Has armor 1 for each inanimate token. All living things have: 'Action: roll a d6, on a 4+ destroy an inanimate token' While this card has 2 or less inanimate tokens it has 'Action: Draw a card'; 1 or less: 'Action: Destroy a thing', 0 tokens: 'Regen 1, Action: roll a d6, on a 3+ destroy target thing thrice.'",'rgb(0,0,102)','011',''),
-					new card('SCP-012 - A Bad Composition','Thing - SCP',"Indestructible. Comes into play under another thing. While there is no thing covering this it has 'At the end of each player's turn, they discard a card, then each of their living things deals itself 1 piercing damage. Action(Public): Play a thing ontop of this card, taking control of this in the process.'",'rgb(0,0,102)','012',''),
+					new card('SCP-012 - A Bad Composition','Thing - SCP',"Indestructible. Comes into play under another thing. While there is no thing covering this it has 'At the end of each player's turn, they discard a card, then each of their living things deals itself 1 piercing damage. Action(Public): Play a thing on top of this card, taking control of this in the process.'",'rgb(0,0,102)','012',''),
 					new card('SCP-013 - Blue Lady Cigarettes','Thing - SCP',"5[HP] Comes into play with 5 cigarette tokens. Action(Public): Spend a cigarette token, put a blue token on one of your living things. Things with blue tokens are considered to have the name 'Blue Lady' and to be colored blue.",'rgb(0,0,102)','',''),
 					new card('SCP-014 - The Concrete Man','Thing - SCP',"10[HP] Armor 1. Regen 1. At the end of your turn, you may draw a card, if you do discard a card.",'rgb(0,0,102)','014',''),
 					new card('SCP-015 - Pipe Nightware','Thing - SCP',"10[HP] Regen 1. Shield 1. At the start of your turn, gain 1 energy token. When this card takes damage, the player/card responsible for that damage gets a steam token. At the end of your turn, destroy every thing with a steam token, each player with a steam token has a random one of their things destroyed for each steam token.",'rgb(0,0,102)','015',''),
-					new card('SCP-016 - Sentient Micro-Organism','Thing',"Attach to a thing. Attached thing gets '+10[HP] Regen 2. Wither 1 (At the start of your turn, this gets -1 max hp, even if this results in current hp being above max, when max hp reaches 0, this is discarded) The first time attached thing takes damage each round, reveal cards from the deck until your reveal a living or SCP thing, place that card under this and temporaily give this an ability from that card.'",'rgb(0,0,102)','016',''),
+					new card('SCP-016 - Sentient Micro-Organism','Thing',"Attach to a thing. Attached thing gets '+10[HP] Regen 2. Wither 1 (At the start of your turn, this gets -1 max hp, even if this results in current hp being above max, when max hp reaches 0, this is discarded) The first time attached thing takes damage each round, reveal cards from the deck until your reveal a living or SCP thing, place that card under this and give this an ability from that card until this leaves play.'",'rgb(0,0,102)','016',''),
 					new card('SCP-017 - Shadow Person','Thing - SCP',"10[HP] When this card is targetted by an action card or ability this card deals 5 damage to the source of that action or ability. (Damage dealt to players forces them to discard that many cards / destroy that many of their things or lose)",'rgb(0,0,102)','017',''),
 					new card('SCP-018 - Super Ball','Thing - SCP',"10[HP] Shield 1. Play under any player's control. At the end of your turn, place a speed token on this, then destroy a random thing you control for every speed token on this, then give this to a random opponent.",'rgb(0,0,102)','018',''),
 					new card('SCP-019 - The Monster Pot','Thing - SCP',"10[HP] Armor 1. Play under any player's control. At the start of your turn, roll a d6, on a 1 put d6 minion tokens in play. Minion tokens are enemies with 'At the end of your turn, destroy a random thing you control, if you can't discard a card or lose the game. If you lose the game, this minion token moves to a random opponent.' When this takes damage for the first time each round, create d12 minion tokens, give them to the player who caused the damage.",'rgb(0,0,102)','019',''),
-					new card('SCP-020 - Unseen Mold','Thing - SCP',"Attach to a living thing. Indestructible. At the end of your turn, roll 2d6, for each 3+ put a mold token on a random living thing that does not have a mold token. Living things with mold tokens are considered player enemies with no hand and have all of this cards abilities.",'rgb(0,0,102)','020',''),
+					new card('SCP-020 - Unseen Mold','Thing - SCP',"Attach to a living thing. Indestructible. At the end of your turn, roll 2d6, for each 3+ put a mold token on a random living thing that does not have a mold token. Living things with mold tokens are considered player enemies with no hand and have all of this card's abilities.",'rgb(0,0,102)','020',''),
 
 
 					// new card('','Thing - SCP',"",'rgb(0,0,102)','NUMBER HERE',''),
@@ -9706,8 +9707,8 @@
 					new card("Ammo Drop","Thing","Whenever an enemy is destroyed, you may draw a card, even if another card would normally prevent you from doing so.","rgb(0,0,102)","B1","Hoppy"),
 					new card("Builder's Hall","Thing","Action: Create a copy of one of the following cards from the archives at random and put it into your hand: 'Improved Catapult', 'Construction Project', 'Cargo Ship', 'Crate', 'Worker Unit'","rgb(0,0,102)","AOW","Empira"),
 					new card("Wizard Tower","Thing","Action: Spend 2 money tokens to create a copy of one of the following at random from the archive and put it into your hand: 'Apprentice's Spellbook', 'Counterspell', 'Spellbook', 'Blue Spell', 'Green Spell', 'White Spell', 'Black Spell', 'Red Spell', 'Crystal Ball', 'Gold-Plated Wizard Tower'","rgb(0,0,102)","AOW","Empira"),
-					new card("Candy Candy Candy","Thing","Comes into play with 3 candy tokens. All candy tokens have Action: Destroy this, either get +2 Actions, or get +1 Action and draw a card.","rgb(255,200,200)","C7","Hoppy"),
-					new card("Force Lift","Action","Turn target thing 90 degrees clockwise, it loses all abilities. Any player may discard 3 cards at any time to turn in right-way up, at which point it regains its abilities","rgb(102,0,0)","ED","Empira"),
+					new card("Candy Candy Candy","Thing","Comes into play with 3 candy tokens. All candy tokens have 'Action: Destroy this, either get +2 Actions, or get +1 Action and draw a card.'","rgb(255,200,200)","C7","Hoppy"),
+					new card("Force Lift","Action","Turn target thing 90 degrees clockwise, it loses all abilities. Any player may discard 3 cards at any time to turn it right-way up, at which point it regains its abilities","rgb(102,0,0)","ED","Empira"),
 					new card("Monster Lair","Thing","Comes into play with 3 inhabitant tokens. Once this card has no inhabitants, destroy it and gain 20 money tokens or draw 3 cards. Action: Remove an inhabitant token, create one of the following at random and give it to a random opponent: 'Ancient Zombie','Golden Vampire','Rock Monster','Zubat','Goblin Boss'","rgb(0,0,102)","AOW","Empira"),
 					new card("Force Rebound","Reaction","Play when one of your things is targetted, change the target to any thing.","rgb(0,102,0)","ED","Empira"),
 					new card("Clover Field","Thing","Action: Create one of the following cards from the archive at random, then flip a coin, on a heads destroy this, then flip another coin, on a heads play the new card: 'Luck', 'Bad Luck', 'Buried Gold', 'Gnomish Mine', 'Four Leaf Clover'","rgb(0,102,0)","AOW","Empira"),
@@ -9835,7 +9836,7 @@
                     new card('Scepter of the Archives','Thing',"Action: Pick a random card from the archives, put it under this, discarding any other cards under this. Action: Play a copy of an action under this. Thing: Play a copy of a thing under this.",'rgb(0,0,102)','','')
                 ],
 				[
-					new card("The Brain Jellyfish of Death [SETUP]","Thing - Enemy","Counts as a player (enemy). When this card would take damage, instead discard and equal amount of cards and/or spend brainjuice tokens to prevent that damage. At the start of the game, this card is in play as another player. Action: target player gets a braintumor token, then you get a brainjuice token. Each player's handsize is reduced by 1 for each of their braintumor tokens, and increased by 1 for each of their brainjuice tokens. A player whose handsize goes below 0 in this way is eliminated.","rgb(0,0,102)","EBJ79","Enemies"),
+					new card("The Brain Jellyfish of Death [SETUP]","Thing - Enemy","Counts as a player (enemy). When this card would take damage, instead discard an equal amount of cards and/or spend brainjuice tokens to prevent that damage. At the start of the game, this card is in play as another player. Action: target player gets a braintumor token, then you get a brainjuice token. Each player's handsize is reduced by 1 for each of their braintumor tokens, and increased by 1 for each of their brainjuice tokens. A player whose handsize goes below 0 in this way is eliminated.","rgb(0,0,102)","EBJ79","Enemies"),
 					new card("Personal Stamp","Action","Discard a thing you control, edit that card, make it a [SETUP] card with \"At the start of the game, put this card into play under {YOUR NAME}'s control\"","rgb(102,0,0)","S5","Hoppy"),
 					new card("Whirlwind","Action","Return all things in play to the hands of random players.","rgb(102,0,0)","","Empira"),
 					new card("Build a Power Plant","Action","Spend 5 money tokens, if you do create a copy of Power Plant, then add [SETUP] to it and \"At the start of each game, {YOUR NAME} gets this card in play.\" Put the new card in play under your control.","rgb(0,102,0)","S1","Empira"),
@@ -9912,7 +9913,6 @@
 					new card("Air Mage","Thing - Class","While you only control one class, it is indestructible. When played: Create a new air spell and put it in your hand. At the start of each of your turns, gain a mana token. Action: Spend 5 mana tokens, create a new air spell and put it in your hand. When you play an air spell attach it to this card. Action: Pay mana tokens equal to the corner value of attached card to play it again.","rgb(150,150,250)","RCG","Hoppy"),
 					new card("Mickey Mouse","Thing","2❤. At the start of your turn, heal all things 1❤. Action: Destroy a thing twice. STR+0","rgb(0,0,102)","EVE","Empira"),
 					new card("Hyper Energetic Midget Man","Thing","At the start of your turn, gain an energy token. Action: Spend 2 energy tokens to attach this to a thing. Attached thing gets +1 Hosted Action. At the start of your turn, you may spend 2 energy tokens, if you do, +1 Thing this turn.","rgb(0,0,102)","EA9","Empira"),
-					new card("Parallel Realities","Thing","10❤ All players have two different play areas for their things and tokens, at the start of each player's turn their current play area phases out and their other play area phases in. Play areas that are phased out can't be affected by anything. When this card is destroyed the play areas are merged.","rgb(0,0,102)",""),
 					new card("One Million Hungry Bunnies","Action","Destroy all grain tokens, each player draws a card for every three grain tokens they lost and may destroy a thing for every 2 tokens lost.","rgb(102,0,0)","B5","Hoppy"),
 					new card("Leyline Invocation","Action","Create a 0/0 Fractal Creature with Ethereal, it comes into play with a number of +1/+1 tokens equal to the number of things you control that have no action abilities.","rgb(0,102,0)","5G","Hoppy"),
 					new card("Meteor Shower","Action","Draw 2 cards, each player gets a stone token, a gold token, and an ore token.","rgb(102,0,0)","M7","Empira"),
@@ -9936,7 +9936,7 @@
 					new card("Alchemy for all","Action","Each player may discard a card, if they do they create and play a copy of \"Alchemical Taxonomy\" Draw 2 cards.","rgb(0,102,0)","A9","Hoppy"),
 					new card("Mobius Templar of Nightmares","Thing - Class","While you only control one class, it is indestructible. Action: Destroy all mobius tokens you control, then put a mobius token on another thing you control. When a thing with a mobius token is destroyed, flip 2 coins, if both are heads create and play two copies of that thing, if both are tales create a nightmare version of that thing, then a random player plays that thing.","rgb(150,0,200)","MT6","Steve"),
 					new card("Bookwurm","Thing","7❤. 7 Attack. Trample. (When this deals excess damage to a thing by attacking, the excess damage is dealt to the player) Once per each of your turns, except the turn when this card enters play, you may attack target opponent for damage equal to this card's attack. (They must deal one of their things that much damage, discard that many cards, spend that many life tokens or lose) When this card is destroyed, you may spend 2 mana tokens and a green mana token, if you do put it in the deck third from the top. When this enters play, gain 3 life tokens and draw a card.","rgb(0,102,0)","7G","Hoppy"),
-					new card("Stocked up for the winter","Thing - Victory Condition","This card is under no player's control. Indestructible. Food-related tokens may be targetted and destroyed as if they were things. At the start of each player's turn, if that player has 10 or more food tokens, they win and stop playing, then each player has 3 turns left in which to reach 10 foods tokens, if they do then they also win, otherwise they lose. All winning players that win by reaching 10 food may add a [SETUP] note to one of their living things that says \"At the start of the game, put this in play under {YOURNAME}'s control, then remove this [SETUP] ability\"","rgb(0,0,102)","SV4","Hoppy"),
+					new card("Stocked up for the winter","Thing - Victory Condition","This card is under no player's control. Indestructible. Food-related tokens may be targetted and destroyed as if they were things. At the start of each player's turn, if that player has 10 or more food tokens, they win and stop playing, then each player has 3 turns left in which to reach 10 food tokens, if they do then they also win, otherwise they lose. All winning players that win by reaching 10 food may add a [SETUP] note to one of their living things that says \"At the start of the game, put this in play under {YOURNAME}'s control, then remove this [SETUP] ability\"","rgb(0,0,102)","SV4","Hoppy"),
 					new card("Build the Army of the Dawn","Action","Spend 10 money tokens, if you do create a copy of Dawn Commando, then add [SETUP] to it and \"At the start of each game, {YOUR NAME} gets this card in play.\"","rgb(255,255,0)","D5","Empira"),
 					new card("Ape's Misery Canker","Thing - Afflictment","Play under any player's control. When this enters play, put a copy of Angry Ape in play (3❤ At the end of your turn, destroy a random non-ape thing) At the end of your turn, destroy a random non-ape thing you control for each ape you control, then if you control no apes, destroy this.","rgb(50,50,50)","RCG","Wepo"),
 					new card("The Marquis' Boon","Action","Each player draws 2 cards. You draw an extra card for each noble or high-ranked person you control.","rgb(0,100,100)","M3","Empira"),
@@ -10004,11 +10004,11 @@
                     new card('Rich Bribe','Action',"Spend 4 money tokens to take control of a living thing with 5 or less [HP].",'rgb(200,200,102)','','Emmet'),
                     new card('Zombie Monkey','Thing',"Action: Destroy a thing. Action: Play the top card of the deck, all decisions made randomly.",'rgb(0,0,0)','',''),
                     new card('Zombie Accountant','Thing',"Action: Destroy a thing. When you gain money tokens, draw a card.",'rgb(0,0,0)','',''),
-                    new card('Orb of ZomBie','Thing',"2[HP]. Action: Put a counter on this, unless it already has one. Action: Remove a counter from this and choose a living thing at 1[HP], destroy that thing, if it leaves play, deal 1 piercing damage to this and create and play a zombified version (aggresive+weaker otherwise) of that card and play it.",'rgb(0,0,0)','','Xa-Tul'),
+                    new card('Orb of ZomBie','Thing',"2[HP]. Action: Put a counter on this, unless it already has one. Action: Remove a counter from this and choose a living thing at 1[HP], destroy that thing, if it leaves play, deal 1 piercing damage to this and create and play a zombified version (aggressive+weaker otherwise) of that card and play it.",'rgb(0,0,0)','','Xa-Tul'),
                     new card('Battery Factory','Thing',"Once per turn you may spend an amount of energy tokens to gain a token of another type as listed: 2 -> AA Battery, 3 -> AAA Battery, 4 -> C Battery, 5 -> D Battery, 10 Energy -> Mega Battery",'rgb(0,0,102)','','Wartrix'),
-                    new card('A Way to Lose','Thing',"20[HP]. Regen 2. Play ASAP. All player are considered to be things with 20[HP] and Regen 1, and cannot be affected by non-destroy effects. If a player is destroyed they are eliminated and the player responsible may take control of up to 3 of their things.",'rgb(0,0,102)','',''),
-                    new card('Mobile Defense Platform','Thing - Enemy',"Defender for all player enemies in play.",'rgb(0,0,102)','',''),
-                    new card('Combination Machien','Thing',"4[HP]. Action: Discard 2 of your things to create a new card with their combined names and put it in your hand.",'rgb(0,0,102)','',''),
+                    new card('A Way to Lose','Thing',"20[HP]. Regen 2. Play ASAP. Persist. (Remains in play even if you are eliminated) All player are considered to be things with 20[HP] and Regen 1, and cannot be affected by non-destroy effects. If a player is destroyed they are eliminated and the player responsible may take control of up to 3 of their things.",'rgb(0,0,102)','',''),
+                    new card('Mobile Defense Platform','Thing - Enemy',"Defender for all player enemies in play. 10[HP]",'rgb(0,0,102)','',''),
+                    new card('Combination Machine','Thing',"4[HP]. Action: Discard 2 of your things to create a new card with their combined names and put it in your hand.",'rgb(0,0,102)','',''),
                     new card('Unknown Portal','Thing',"10[HP]. When Played: Pick a game, universe, or other limited space. Action: Create a card from the chosen space and put it in your hand.",'rgb(0,0,102)','',''),
                     new card('Extra Arm','Thing',"5[HP]. +1 Action. When Destroyed: Discard 2 random cards from your hand.",'rgb(0,0,102)','',''),
                     new card('The D4','Thing',"Attach to a thing, indestructible. Replace all instances of 1 with d4-1 (Also a or an) 2 with d4, 3 with d4+1, on the attached card in activated or triggered abilities.",'rgb(0,0,102)','',''),
@@ -10021,9 +10021,9 @@
 					new card('Blade Battalion','Thing - Enemy',"5[HP]. At the end of your turn do damage equal to this's health to the non-enemy thing with the highest hp.",'rgb(0,0,102)','',''),
                     new card('Low Cover','Thing',"6[HP]. Armored 1. Action\\When Played: Attach to a unit. Attached thing gets Evade 20% & When a thing rolls dice after targetting this, subtract 1 from results.",'rgb(0,0,102)','',''),
                     new card('Advent Officer','Thing - Alien',"6[HP] Action: Choose a unit, then roll a d10, on a 4+ do d4+3 damage to the target. Action: Do d4+3 damage to a non-unit. Skulljack: Draw 3 cards",'rgb(102,20,20)','',''),
-                    new card('Backlash Field','Thing - Ongoing',"6[HP]. Attach to a thing. The first time atatched thign takes damage each turn, this card does 3 damage to the damaging thing.",'rgb(0,0,102)','',''),
+                    new card('Backlash Field','Thing - Ongoing',"6[HP]. Attach to a thing. The first time attached thing takes damage each turn, this card does 3 damage to the damaging thing.",'rgb(0,0,102)','',''),
                     new card('The Seed Gem','Thing - Artifact',"15[HP]. Action: Discard another thing you control, create a card that is called '[NAME OF DISCARDED CARD] Seed', with text: 'When played, put 3 counters on this. Action: Remove a counter from this, then create a copy of [DISCARDED CARD NAME] at put it in your hand. If this runs out of counter, discard it.'",'rgb(102,255,102)','',''),
-                    new card('Extra Ear','Thing',"3[HP]. Once per turn, you may may target opponent show you a random card from their hand.",'rgb(0,0,102)','',''),
+                    new card('Extra Ear','Thing',"3[HP]. Once per turn, you may have target opponent show you a random card from their hand.",'rgb(0,0,102)','',''),
                     new card('Earthquake Golem','Thing',"Action: Target player seperates their things into 4 groups, pick 2 of those groups at random and destroy all things in them.",'rgb(0,0,102)','','Qui-Juan'),
                     new card('Swap Meet','Thing',"Action: Put a card from hand under this. Action(Public): Put a card from hand under this, then look at the cards under this and take 1. Action: Take a card under this into hand.",'rgb(0,0,102)','','Vorgoth'),
                     new card('Non-Butler Monkey?','Thing - Monkey',"At the end of your turns, play the top card of your deck randomly, if any are things activate their action abilities once each randomly. While in hand: Discard a non-monkey card at the end of your turns.",'rgb(0,0,102)','','Monkey'),
@@ -10048,14 +10048,14 @@
 					new card('SCP-021 - Skin Wyrm','Thing - SCP',"Attach to a living thing. Indestructible. Attached thing gets +5[HP], Regen 1, and 'in order to use an action ability on this card, you must pay an additional cost of discarding a card.' When attached thing is destroyed, this moves to a random living thing in play, if able.",'rgb(0,0,102)','021',''),
 					new card('SCP-022 - The Morgue','Thing - SCP',"20[HP] Regen 1. Armor 1. When a living thing is destroyed, place it under this card. At the start of your turn, if there are cards under this, roll a d6, on a 1, put a random card under this in play with a cadaver counter. Cards with a cadaver counter lose all their card text, and instead have '5[HP] Wither 1. When this card takes damage from another card, it destroys 2 random things belonging to the responsible player.'",'rgb(0,0,102)','022',''),
 					new card('SCP-023 - Black Shuck','Thing - SCP',"15[HP] Regen 2. When this card takes damage, give the responsible player a danger counter. At the start of each player's turn, they roll a d6 for each danger counter. On a 1, a random living thing they control is discarded or they are eliminated randomly.",'rgb(0,0,102)','023',''),
-					new card('SCP-024 - Game Show of Death','Thing - SCP',"20[HP] Regen 1. Comes into play with a show token. At the start of your turn if there isn't a show token on this, roll a d10, on a 10+, place a show token on this. Action(Public): Attempt to start the gameshow! Starting with you each player may either send a living thing they control or themself as a participant. If at least two players opt in, remove the show token, then start a new game with all participating players using 3 random cardsets. Each player who sent a living thing, gets it in the game with 'When this leaves play you lose', after the game each player who lost either loses the thing they sent or is eliminated. The winning player gets to pick a cardset and get three random cards from it to their hand.",'rgb(0,0,102)','024',''),
-					new card('SCP-025 - A Well-Worn Wardrobe','Thing - SCP',"10[HP] Regen 1. Action: Create a clothing token. Action: Put a clothing token you control onto a living thing. Clothing tokens have, at the end of your turn, roll a d6, on a 1, discard this, on a 2, this takes 2 damage and the clothing token is destroyed.",'rgb(0,0,102)','025',''),
-					new card('SCP-026 - Afterschool Retention','Thing - SCP',"Attach to a building, or you may create ad play a copy of 'School' from the archives and attach this to that card. Indestructible. Attached thing loses its printed text, has +10[HP], Regen 1, and 'Action: Choose a living thing you control, and roll a d6, on a 6, roll a d6 and draw that many cards, on a 1, deal d6 damage to that thing.'",'rgb(0,0,102)','026',''),
+					new card('SCP-024 - Game Show of Death','Thing - SCP',"20[HP] Regen 1. Comes into play with a show token. At the start of your turn if there isn't a show token on this, roll a d10, on a 10+, place a show token on this. Action(Public): Attempt to start the gameshow! Starting with you each player may either send a living thing they control or themself as a participant. If at least two players opt in, remove the show token, then start a new game with all participating players using 3 random cardsets. Each player who sent a living thing, gets it in the game with 'When this leaves play you lose', after the game each player who lost either loses the thing they sent or is eliminated. The winning player gets to pick one of the cardsets used in the game show and get three random cards from it to their hand.",'rgb(0,0,102)','024',''),
+					new card('SCP-025 - A Well-Worn Wardrobe','Thing - SCP',"10[HP] Regen 1. Action: Create a clothing token. Action: Put a clothing token you control onto a living thing. Things with clothing tokens have: 'At the end of your turn, roll a d6, on a 1, discard this, on a 2, this takes 2 damage and the clothing token is destroyed.'",'rgb(0,0,102)','025',''),
+					new card('SCP-026 - Afterschool Retention','Thing - SCP',"Attach to a building, or you may create add play a copy of 'School' from the archives and attach this to that card. Indestructible. Attached thing loses its printed text, has +10[HP], Regen 1, and 'Action: Choose a living thing you control, and roll a d6, on a 6, roll a d6 and draw that many cards, on a 1, deal d6 damage to that thing.'",'rgb(0,0,102)','026',''),
 					new card('SCP-027 - The Vermin God','Thing - SCP',"10[HP]. Regen 3. Chance Happening (When this card enters your hand, flip a coin, if heads play it and draw a card). Attach to a random living thing. If there are no living things in play, attaches to a random player instead. Attached thing gets +4[HP]. Regen 1, and 'At the end of your turns, create an insect token on this card, when this card would take damage, remove insect tokens instead. Action: Double the number of insect tokens on this. This card cannot activate non-insect related action abilities while there are insect tokens on it.' When attached thing is discarded or attached player is eliminated, remove this card from play and then play it. Attached player gets 'At the end of your turn, create an insect token, then discard a card from hand for each insect token at random.'",'rgb(0,0,102)','027',''),
 					new card('SCP-028 - Knowledge','Thing - SCP',"Action: Choose a living thing you control and put a knowledge token on it, then roll a d4, and go to either: 1 https://www.seventhsanctum.com/generate.php?Genname=academic, 2 https://www.seventhsanctum.com/generate.php?Genname=magicrealm, 3 https://www.seventhsanctum.com/generate.php?Genname=sfrealm, 4 https://www.seventhsanctum.com/generate.php?Genname=weirdscience. Create a card representing knowledge of the field and attach it to the selected thing. It has 'Attach to a living thing. indestructible' Then if the chosen thing has 2+ knowledge tokens, for each token flip a coin, on a tails discard that thing.",'rgb(0,0,102)','028',''),
 					new card('SCP-029 - Daughter of Shadows','Thing - SCP - Enemy',"10[HP]. Regen 1. At the end of your turn, a random living thing in play takes 3 damage twice. If there are no living things in play, destroy all things and shuffle this into the deck.",'rgb(0,0,0)','029',''),
 					new card('SCP-030 - The Homunculus','Thing - SCP',"15[HP]. Regen 1. At the start of your turn, you may spend 3 tokens of any of the following types: wood, stone, paper, energy, ore, if you do, roll a d6: 1: Nothing, 2-3: Draw a card, 4-5: Draw 2 cards, 6: Draw 3 cards.",'rgb(0,0,102)','030',''),
-					new card('SCP-031 - What is Love?','Thing - SCP - Enemy',"Counts as a player, but has no hand and still attches to a thing controlled by a player. Attach to a building, if there are no buildings in play create and play Skyscraper then attach this to it. (Thing, At the end of your turns, you may discard a card to draw a card.) indestructuctible. Attached building gets +10[HP]. At the end of your turn, a random living thing in play flips a coin, on a tails it gets a mindlink token. Then each thing with a mindlink token withers 1, if this would cause that thing to leave play instead clear all wither and mindlink tokens and it is now controlled by this thing.",'rgb(0,0,102)','031',''),
+					new card('SCP-031 - What is Love?','Thing - SCP - Enemy',"Counts as a player, but has no hand and still attaches to a thing controlled by a player. Attach to a building, if there are no buildings in play create and play Skyscraper then attach this to it. (Thing, At the end of your turns, you may discard a card to draw a card.) indestructuctible. Attached building gets +10[HP]. At the end of your turn, a random living thing in play flips a coin, on a tails it gets a mindlink token. Then each thing with a mindlink token withers 1, if this would cause that thing to leave play instead clear all wither and mindlink tokens and it is now controlled by this thing.",'rgb(0,0,102)','031',''),
 					new card('SCP-032 - Brothers\' Bride','Thing - SCP',"15[HP]. Regen 2. Action: Discard target non-human, non-SCP living thing that has damaged this. Action: Each non-human, non-SCP living thing does 1 damage to this.",'rgb(0,0,102)','032',''),
 					new card('SCP-033 - The Missing Number','Thing - SCP',"Action: A random thing in play with numbers on it gets a quantum token with text 'At the start of your turn roll a d6 for each number on this card, either add or subtract the amount rolled at random from that number.'",'rgb(0,0,102)','033',''),
 					new card('SCP-034 - Obsidian Ritual Knife','Thing - SCP',"Attach to a living thing, indestructible. If attached thing is destroyed, flip a coin, on heads attach this to a random living thing, otherwise discard this. Attached thing gets 'Action: Deal 2 damage to target living thing, then put a skinsteal token on that thing for each damage dealt. At the start of your turn, you may pick a thing with a skinsteal token and remove a skinsteal token from it, if you do so this card becomes a copy of that card except [HP] until the start of your next turn or the skinstolen thing leaves play.'",'rgb(20,20,20)','034',''),
@@ -10115,7 +10115,42 @@
 					new card("Fate Die (Cameo)","Thing","Action: Roll a d12. 1 -> Create a copy of a card from an existing Dvorak deck and shuffle it into the deck. 2 -> Create a card and shuffle it into the deck. 3 -> Discard this. 4 -> Discard 3 cards. 5-> Take an extra turn after this one 6 -> Add a copy of Cameo to your hand. 7: Roll again twice. 8 -> Destroy this once. 9 -> Discard your hand, create as many copies of Cameo as cards discarded and put them in your hand. 10 -> Reveal your hand, if you reveal 5 or more Cameos you win. 11 -> Draw 3 cards, then create copies of up to 3 cards from your hand and shuffle them into the deck. 12 -> Roll again thrice.","rgb(153,85,85)","3❤","Hoppy"),
 				],
 				[
-					new card('SCP-041 - Thought-Broadcasting Patient','Thing - SCP',"",'rgb(0,0,102)','041',''),
+					new card('SCP-041 - Thought-Broadcasting Patient','Thing - SCP',"3[HP]. At the end of your turn, you and your neighbors reveal a random card from your hand, then you may discard the card you revealed to draw a card. Regen 1. Defendable (You may redirect damage dealt to this to other living things you control)",'rgb(0,0,102)','041',''),
+					new card('SCP-042 - A Formerly Winged Horse','Thing - SCP',"5[HP]. At the end of your turn, you must spend a food-related token, if you can't this loses 1 hp. Action: Discard your hand, then draw 2 cards, +1 Action.",'rgb(0,0,102)','042',''),
+					new card('SCP-043 - The Beatle','Thing - SCP',"Action: Roll a d6, on a 6+ shuffle the deck then draw 2 cards.",'rgb(0,0,102)','043',''),
+					new card('SCP-044 - World War II Era Molecular-Fission Cannon','Thing - SCP',"10[HP]. Action: Discard any number of inanimate things you control (at least 1) to gain a void token and deal damage equal to the number of things discarded times 2 to a thing, excess damage carries over randomly to adjacent things until all damage is expended.",'rgb(0,0,102)','044',''),
+					new card('SCP-045 - Atmospheric Converter','Thing - SCP',"15[HP]. Armor 1. At the end of your turn, if there isn't a time counter on this, roll a d10, on a 10, add a time counter to this. Then if there is a time counter, add an intensity token to this and a time counter to this, then deal 3 damage to random things equal to the amount of intensity tokens on this, then if this has 3 or more time counters, remove all of them and all of this's intensity tokens. Action: Add an intensity token to this.",'rgb(0,0,102)','045',''),
+					new card('SCP-046 - "Predatory" Holly Bush','Thing - SCP',"10[HP]. All living things within two things to the right or left have regen -1. This card gets Regen 1 for each thing affected thing way. When one of those affected things is destroyed by negative regen, shuffle a copy of this into the deck.",'rgb(0,0,102)','046',''),
+					new card('SCP-047 - Microbial Mutagen','Thing - SCP',"5[HP]. When this is destroyed, shuffle it into the deck. Action: create and play a more powerful version of target disease, if there are no diseases in play, create a new disease and play it.",'rgb(0,0,102)','047',''),
+					new card('SCP-048 - The Cursed SCP Number','Thing - SCP',"Attach to a random SCP in play, indestructible. Play ASAP. At the end of your turn, flip a coin, on a tails, discard attached thing and shuffle this into the deck.",'rgb(0,0,102)','048',''),
+					new card('SCP-049 - Plague Doctor','Thing - SCP',"14[HP]. Play ASAP. At the end of your turn, if there is a disease in play, this card becomes a player with \"This card is an enemy of diseased players and things. Action: Deal 3 damage to target living thing or player with a disease, if it is destroyed/eliminated, create and play a copy of SCP-049-1 based on the living thing/player destroyed and play it (Base template is an enemy that attacks and kills living things/players) \" until it leaves play. Action: Discard a living thing you control or from your hand, draw 3 cards and create a SCP-049-1 card based on that thing and shuffle it into the deck.",'rgb(0,0,102)','049',''),
+					new card('SCP-050 - To The Cleverest','Thing - SCP',"Play ASAP, and play under the control of a random player. Indestructible. At the end of your turns, roll a d6: 1: Discard a random card, 2-4: Nothing, 5: Draw a card, 6: Create a money token.",'rgb(0,0,102)','050',''),
+					new card('SCP-051 - Japanese Obstetrical Model','Thing - SCP',"3[HP]. When a female thing enters play, flip two coins, deal 2 damage to that thing for each tails.",'rgb(0,0,102)','051',''),
+					new card('SCP-052 - Time-Traveling Train','Thing - SCP',"15[HP]. Play ASAP, then draw a card and get +1 Thing. Action: Remove target living/robot thing you control from play and put it under this. At the end of your turn, flip a coin, if heads, this card is discarded and you roll a d6 for each card under it: 1-2: Lost to the past, discard the card; 3: Recent past, shuffle into the deck; 4: Near Future, put 3 time tokens on it, and the start of your turns, remove a time token, once all are removed it comes back into play; 5: Moderate Future, add a [SETUP] note to the thing with 'At the start of the game, put this in play under {YOURNAME}'s control and remove this ability; 6:Distant Future, add a [SETUP] note to the thing with 'At the start of game {Current Game Number + 2d6}, put this in play under {YOURNAME}'s control and remove this ability'",'rgb(0,0,102)','052',''),
+					new card('SCP-053 - Young Girl','Thing - SCP',"5[HP]. When a living thing within 3 things to the right or to the left activates an action ability to target a thing for destruction, it must target this thing.",'rgb(0,0,102)','053',''),
+					new card('SCP-054 - Water Nymph','Thing - SCP',"10[HP]. Comes into play with 5 water tokens on it. Regen 1. At the start of your turns, gain a water token.",'rgb(0,0,102)','054',''),
+					new card('SCP-055 - [unknown]','Thing - SCP',"Indestructible. Untargetable.",'rgb(0,0,102)','055',''),
+					new card('SCP-056 - A Beautiful Person','Thing - SCP',"8[HP]. Regen 2. Thorns 2. Action: Change this thing's color.",'rgb(0,0,102)','056',''),
+					new card('SCP-057 - The Daily Grind','Thing - SCP',"20[HP]. Action (Public): Put target living thing you control under this card, out of play. At the end of your turn, roll a d6 for each card under this, on a 5+ deal 20[HP] damage to that thing.",'rgb(0,0,102)','057',''),
+					new card('SCP-058 - Heart of Darkness','Thing - SCP - Enemy',"10[HP]. Shield 2. Regen 1. At the end of your turn, destroy a random adjacent thing twice, then destroy a random adjcent thing twice, then move this one thing right or left randomly. (If there are no other things in play, damage players to the right/left instead.",'rgb(0,0,102)','058',''),
+					new card('SCP-059 - Radioactive Mineral','Thing - SCP',"10[HP]. At the end of your turn, add a radiation token to 3 random things that aren't named Radioactive Mineral. Thing with 3 or more radiation tokens, are considered to have this card's name and these abilities (except hp) in addition to their own, and cannot negatively affect radioactive things.",'rgb(0,0,102)','059',''),
+					new card('SCP-060 - Infernal Occult Skeleton','Thing - SCP',"15[HP]. When this card takes fire damage, or as an Action spend 4 fire tokens, if it isn't in play, create and play SCP-060-Alpha (Thing - SCP - Enemy, 10[HP] Action: Destroy up to 4 things twice.)",'rgb(0,0,102)','060',''),
+				],
+				[
+					new card('SCP-061 - Auditory Mind Control','Thing - SCP - Software',"When played, you may attach this to a electronic device, if you do this gets indestructible. Action: All living things that can hear within 5 things left or right get a mindlink token, things with mindlink tokens have 'This can cannot use any abilities except by the effects of SCP-061' Action: Choose a thing with a mindlink token and choose an ability on that thing, it will now automatically activate that ability either at the start of your turn (If it is an action ability or a start/end of turn ability) or reactively under specific conditions you set now (if it is a reactive ability) until you activate this action again targetting that thing to stop.",'rgb(0,0,102)','061',''),
+					new card('SCP-062 - "Quantum" Computer','Thing - SCP',"3[HP]. Defendible by animate things. Comes into play with 10 file tokens. Action: Spend a file token on this card to put a random card from the archives in your hand.",'rgb(0,0,102)','062',''),
+					new card('SCP-063 - "The World\'s Best TothBrush"','Thing - SCP',"5[HP]. Action: Attach this to an animate thing you control. Attached thing gains 'Action: Discard target non-living tangible thing.'",'rgb(0,0,102)','063',''),
+					new card('SCP-064 - Flawed von Neumann Structure','Thing - SCP',"2[HP]. At the end of your turn, if you have less copies of this than non-SCP things, create a copy of this in play, otherwise discard all copies of this except one, that one returns to your hand.",'rgb(0,0,102)','064',''),
+					new card('SCP-065 - Destroyed Organic Catalyst','Thing - SCP',"Play under any player's control. Indestructible. At the start of your turn, add a rad token to adjacent things, then if either adjacent thing is living and has 3 or more rad tokens, remove 3 of them and discard that thing, putting a mutated version of that thing in its place. If it was already mutated just discard it without creating a new one.",'rgb(0,0,102)','065',''),
+					new card('SCP-066 - Eric\'s Toy','Thing - SCP',"5[HP]. When this takes damage, discard cards from the deck until you discard an action card, play that card (target randomly).",'rgb(0,0,102)','066',''),
+					new card('SCP-067 - The Artist\'s Pen','Thing - SCP',"3[HP]. Defendible by animate things. Action: Target a living thing you control and put a page token on it, then if that thing has 2 page tokens on it remove 2 of them and create a new page thing detailing some of that thing's history with special abilities related to that thing and play it.",'rgb(0,0,102)','067',''),
+					new card('SCP-068 - The Wire Figure','Thing - SCP',"15[HP]. Action: Move an energy token you control onto this, it becomes a counter. While there is an energy counter on this, it gains 'At the end of your turn, if there is at least one metal-related thing or token in play and less than 10 wire figures in play then: destroy a random metal-related token you control, if there are none, destroy a random metal thing you control, if you don't have either, move this to the next player clockwise. Then if a metal token was destroyed or a thing was damaged, create a copy of this with only 1 max hp named Extra Wire Figure, it also gains 'This card enters play with an energy counter'. OTHERWISE: Put an extra energy counter on all wire figures if they have 1 or less. If this has 2+ energy counters. Then, if this has 2+ energy counters: Move this to the play area with the largest max hp Wire Figure and merge with it, giving it +2[HP]'",'rgb(0,0,102)','068',''),
+					new card('SCP-069 - Second Chance','Thing - SCP',"5[HP]. Play this card immediately when a human thing would leave play, put this card in play and attach that card to this. Cards attached to this lose all abilities and cannot be affected by card effects, this thing's name is the name of the attached thing. When this card is destroyed, shuffle it into the deck. This card gains a random ability from the living thing under it at the start of your turns, and loses that ability at the end of your turns.",'rgb(0,0,102)','069',''),
+					new card('SCP-070 - Iron Wings','Thing - SCP',"",'rgb(0,0,102)','070',''),
+
+
+
+
 					// new card('SCP-XXX - ','Thing - SCP',"",'rgb(0,0,102)','XXX',''),
 				],
                 [
@@ -10124,9 +10159,9 @@
                     new card('Buying 100 Fortune Cookies','Action',"Draw a card, then spend up to 10 money tokens, draw a card for every 2 money tokens spent, then if you spent the full 10, add a copy of 'Fortune Cookie of Prophecy' and a copy of 'Fortune Cookie of Gremlin' to your hand.",'rgb(102,0,0)','FCSC',''),
                     new card('The Gremlin','Thing',"Play ASAP. Counts as a player (Programmed). On your turn, a random other player plays the top card of the deck. Then a random ability on a random thing is moved to the end of a random thing.",'rgb(0,102,0)','FCSC',''),
                     new card('50 Dollar Bill','Thing',"Counts as 50 money tokens. (You won't get change if you spend it)",'rgb(0,102,0)','FCSC',''),
-                    new card('Trash Compactor - Rising Sludge','Thing',"At the start of your turn, each player gets a sludge token, then eliminate any player who control less things than sludge tokens. If you ever have 5 or more sludge tokens, destroy this. Persist.",'rgb(0,0,102)','FCSC',''),
+                    new card('Trash Compactor - Rising Sludge','Thing',"At the start of your turn, each player gets a sludge token, then eliminate any player who controls fewer things than sludge tokens. If you ever have 5 or more sludge tokens, destroy this. Persist.",'rgb(0,0,102)','FCSC',''),
                     new card('Harold - Fortune Cookie Addict','Thing',"2[HP] Action: Discard up to 3 cards, gain 3 money tokens for each card discarded. Action: Create a fortune cookie token, then if you have 100 or more fortune cookie tokens you win the game.",'rgb(0,0,102)','FCSC',''),
-                    new card('Albert the Robot','Thing',"3[HP] When another living thing you take damage, you may have this thing take the damage reduced by 1 instead.",'rgb(0,0,102)','FCSC',''),
+                    new card('Albert the Robot','Thing',"3[HP] When another living thing you control would take damage, you may have this thing take the damage reduced by 1 instead.",'rgb(0,0,102)','FCSC',''),
                     new card('The Robaleution','Action',"All robots in play become one combined player enemy, will total hp equal to the combined hp of all the things.",'rgb(102,102,102)','FCSC',''),
                     new card('Robot Containment Unit','Thing',"3[HP] Attach to a thing, attached thing has no abilities and cannot be damaged. At the start of your turn, roll a d6: 1-3: Gain an energy token, 4-5: Gain a money token, 6: Draw a card.",'rgb(0,0,102)','FCSC',''),
                     new card('','Thing',"",'rgb(0,0,102)','FCSC',''),
@@ -10146,7 +10181,7 @@
                     new card('','Thing',"",'rgb(0,0,102)','FCSC','')
                 ],
                 [
-                    new card('Dvorak the Gathering','Thing - Rules',"Begins every game in play, under no player's control. Immune to card effects. All things now can be tapped (turned 90 degrees right) or untapped (normal). At the start of each turn, that player untaps all of their things. Cards that mention spending mana, either for costs or other reasons, can have that paid by either spending tokens of the correct type, or by tapping a card that has a corner value with the correct letter. Once per turn, a player may use living things and/or creatures to attack one other player. They tap the attacking cards, and then the defending player may block those attackers with their creatures/living things, then each creature does damage equal to its attack and each living thing does damage equal to its first destroy ability, if possible. Unblocked attacks damage the player, forcing them to lose that much health tokens. Creatures and living things can't attack the turn they are played. Players who run out of health tokens lose the game. Each player gets 20 health tokens at the start of the game, that cannot be destroyed except by cards that specifically mention them."),
+                    new card('Dvorak the Gathering [SETUP]','Thing - Rules',"Begins every game in play, under no player's control. Immune to card effects. All things now can be tapped (turned 90 degrees right) or untapped (normal). At the start of each turn, that player untaps all of their things. Cards that mention spending mana, either for costs or other reasons, can have that paid by either spending tokens of the correct type, or by tapping a card that has a corner value with the correct letter and does not have a cost. Once per turn, a player may use living things and/or creatures to attack one other player. They tap the attacking cards, and then the defending player may block those attackers with their creatures/living things, then each creature does damage equal to its attack and each living thing does damage equal to its first destroy ability, if possible. Unblocked attacks damage the player, forcing them to lose that much health tokens. Creatures and living things can't attack the turn they are played. Players who run out of health tokens lose the game. Each player gets 20 health tokens at the start of the game, that cannot be destroyed except by cards that specifically mention them."),
                     new card('Tenth District Guard','Thing - Creature',"Creature (2 / 2). Cost (1W). When this card enters play, give another thing one temporary hp until the end of your turn.",'rgb(255,255,255)'),
 					new card('Sworn Companions','Action - Sorcery',"Cost (2W). Create 2 Soldier tokens, they are 1/1 white creatures with lifelink (When this card deals damage, you get that many health tokens).",'rgb(255,255,255)'),
 					new card('Skyline Scout','Thing - Creature',"Creature (2 / 1). Cost (1W). When you attack with this, you may pay (1W), if so this card gets flying (This card can't be blocked by cards without flying) until the end of the turn.",'rgb(255,255,255)'),
@@ -10237,6 +10272,7 @@
                 ['SCPs 021-040',reg3('The 2nd set of SCP cards.',80)],
 				['Created Cards - Set 7',reg3('More created cards')],
 				['Collection: Fate Dice',reg3('A collection of fate-dice related custom cards')],
+				['SCPs 041-060',reg3('The 3rd set of SCP cards.',80)],
 				
 				
 				//['Dvorak the Gathering - RNA',reg3('A card pack that adds new mechanics to the game related to paying costs, and attacking other players.')]
@@ -11057,7 +11093,7 @@
                 update();
                 window.onbeforeunload = function() {
                     if (state != "menu"){
-                        return "Are you sure you want to reload?, You will lose unsaved progress!";
+                        return "Are you sure you want to reload?, You will lose any unsaved progress!";
                     }
                 }
             }
@@ -11155,7 +11191,10 @@
                         index = Math.floor((y - 125) / 110);
                         profile = profileNames[index];
                         state = 'getCards';
-                    }
+                    } else if (x >= 900 && y >= 50 && x <= 1200 && y <= 120){ // ctx.fillRect(900,50,300,70);
+						state = 'cardBrowser';
+						setupCardBrowser();
+					}
                 } else if (state == 'game') {
                     if (currentCardSelect) {
                         return;
@@ -11241,8 +11280,47 @@
                             alert('Note that you will have to save in-game to save this change to your deck.');
                         }
                     }
-                }
+                } else if (state == 'cardBrowser'){
+					if (x >= 20 && y+scrollY >= 20 && y+scrollY <= 80 && x <= 80) {
+                        state = 'menu';
+						cBrowserSelect = '';
+                        scrollY = 0;
+                    } else if (posInRect(x,y+scrollY,100,60,150,40)){ // ctx.fillRect(100,60,150,40);
+						cBrowserSelect = 'dropdownSort';
+
+						// Make a list of all the sorts except the current active one
+						cBrowserSorts = [];
+						for (var i in browserSorts){
+							if (browserSorts[i] == cardBrowserSortBy[0]){continue;}
+							cBrowserSorts.push(browserSorts[i]);
+						}
+					} else if (posInRect(x,y+scrollY,260,60,60,40)){
+						if (cardBrowserSortBy[1] == 'asc'){
+							cardBrowserSortBy[1] = 'desc';
+						} else {
+							cardBrowserSortBy[1] = 'asc';
+						}
+						scrollY=0;
+						cbSort();
+					} else {
+						if (cBrowserSelect == 'dropdownSort'){
+							// ctx.fillRect(100,100+i*40,150,40);
+							for (var i = 0; i < cBrowserSorts.length; i++){
+								if (posInRect(x,y+scrollY,100,100+i*40,150,40)){
+									cardBrowserSortBy[0] = cBrowserSorts[i];
+									scrollY=0;
+									cbSort();
+								}
+							}
+						}
+						cBrowserSelect = '';
+					}
+				}
             }
+
+			function posInRect(posX,posY,rx,ry,rw,rh){
+				return (posX >= rx && posX <= rx+rw && posY >= ry && posY <= ry+rh);
+			}
             
             function mouseDrag(e) {
                 mX = e.clientX;//-20;
@@ -11283,8 +11361,99 @@
             
             backgroundImg = new Image();
             backgroundImg.src = path+'background.png';
+
+			dropdownImg = new Image();
+			dropdownImg.src = path+'dropdownArrow.png';
             
             scrollSpeed = 15;
+
+			currentCardBrowser = [];
+			cBrowserSelect = '';
+			allCards = [];
+			browserSorts = ['set/card','name','creator','type','corner value','color'];
+			cBrowserSorts = [];
+			cardBrowserSortBy = ['set/card','asc'];
+
+			function setupCardBrowser() {
+				if (allCards.length == 0){
+					cNo = 1;
+					for (var set in cards){
+						for (var c in cards[set]){
+							cards[set][c].cNo = cNo;
+							cNo+=1;
+							allCards.push(cards[set][c]);
+						}
+					}
+
+					for (var set in addons){
+						for (var c in addons[set]){
+							if (addons[set][c].name == ''){continue}
+							addons[set][c].cNo = cNo;
+							cNo+=1;
+							allCards.push(addons[set][c]);
+						}
+					}
+				}
+
+				currentCardBrowser = allCards;
+			}
+
+			function cbSort(){
+				currentCardBrowser.sort(compare);
+			}
+
+			function compare(a, b) {
+				var v = 0;
+				if (cardBrowserSortBy[0] == 'set/card'){
+					if (a.cNo < b.cNo){
+						v = -1;
+					}
+					if (a.cNo > b.cNo){
+						v = 1;
+					}
+				} else if (cardBrowserSortBy[0] == 'name'){
+					if (a.name < b.name){
+						v = -1;
+					}
+					if (a.name > b.name){
+						v = 1;
+					}
+				} else if (cardBrowserSortBy[0] == 'creator'){
+					if (a.creator < b.creator){
+						v = -1;
+					}
+					if (a.creator > b.creator){
+						v = 1;
+					}
+				} else if (cardBrowserSortBy[0] == 'type'){
+					if (a.type < b.type){
+						v = -1;
+					}
+					if (a.type > b.type){
+						v = 1;
+					}
+				} else if (cardBrowserSortBy[0] == 'corner value'){
+					if (a.cornerValue < b.cornerValue){
+						v = -1;
+					}
+					if (a.cornerValue > b.cornerValue){
+						v = 1;
+					}
+				} else if (cardBrowserSortBy[0] == 'color'){
+					if (a.fillColor < b.fillColor){
+						v = -1;
+					}
+					if (a.fillColor > b.fillColor){
+						v = 1;
+					}
+				}
+
+				if (cardBrowserSortBy[1] == 'desc'){
+					v *= -1;
+				}
+
+				return v;
+			}
             
             function update() {
                 if (state == 'game') {
@@ -11337,6 +11506,11 @@
                         ctx.drawImage(xImg,720,100+110*i+25,50,50);
                         ctx.drawImage(addCardsImg,790,100+110*i+25,50,50);
                     }
+					
+                    ctx.fillStyle = 'rgb(30,30,100)';
+					ctx.fillRect(900,50,300,70);
+					ctx.fillStyle = 'black';
+					ctx.fillText('Card Browser',920,100);
                     
                     ctx.fillStyle = 'rgb(30,30,30)';
                     ctx.fillRect(300,100+profileNames.length*110,400,100);
@@ -11424,7 +11598,72 @@
                     ctx.font = '54px Arial';
                     ctx.fillText('Get Cards',500,60);
                     ctx.drawImage(backImg,20,20,60,60);
-                }
+                } else if (state = 'cardBrowser'){
+					if (38 in keysDown) { // Up
+                        scrollY += scrollSpeed;
+                        if (scrollY > 0) {
+                            scrollY = 0;
+                        }
+                    } else if (40 in keysDown){ // Down
+                        scrollY -= scrollSpeed;
+                    }
+                    
+                    ctx.fillStyle = 'rgb(255,255,255)';
+                    ctx.fillRect(0,0,2000,1000);
+                    
+                    ctx.save();
+                    ctx.translate(0,scrollY);
+                    
+                    var x = 10-205;
+					var y = 120;
+					var i;
+                    for (i = 0; i < currentCardBrowser.length; i++) {
+						x += 205;
+						if (x > 1200){
+							x = 10;
+							y += 320;
+						}
+						if (0-scrollY < y-700 || 0-scrollY > y+400){continue;}
+						c = currentCardBrowser[i];
+						drawCard(x,y,c);
+                    }
+
+                    ctx.restore();
+
+					ctx.fillStyle = 'white';
+					ctx.fillRect(0,0,2000,110);
+					ctx.fillStyle = 'black';
+					ctx.fillRect(0,110,2000,5);
+
+                    ctx.drawImage(backImg,20,20,60,60);
+
+					ctx.font = '40px Arial';
+					ctx.fillText('Sort By',100,45);
+					ctx.fillRect(100,60,150,40);
+					ctx.fillStyle = 'white';
+					ctx.fillRect(105,65,140,30);
+					ctx.font = '22px Arial';
+					ctx.fillStyle = 'black';
+					ctx.fillText(cardBrowserSortBy[0],110,90);
+					ctx.drawImage(dropdownImg,215,74,22,20);
+					if (cBrowserSelect == 'dropdownSort'){
+						for (var i in cBrowserSorts){
+							ctx.fillStyle = 'black';
+							ctx.fillRect(100,100+i*40,150,40);
+							ctx.fillStyle = 'rgb(50,50,50)';
+							ctx.fillRect(102,102+i*40,146,36);
+							ctx.fillStyle = 'black';
+							ctx.fillText(cBrowserSorts[i],110,130+i*40);
+						}
+					}
+
+					ctx.fillRect(260,60,60,40);
+					ctx.fillStyle = 'white';
+					ctx.fillRect(265,65,50,30);
+					ctx.fillStyle = 'black';
+					ctx.fillText(cardBrowserSortBy[1],265,90);
+
+				}
                 
                 requestAnimationFrame(update);
             }

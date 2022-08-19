@@ -19,8 +19,8 @@
         </style>
         <script>
             var comicElement;
-            var comicsAmount = 43+132;
-            var episodes = [43,132]
+            var comicsAmount = 43+132+14+45;
+            var episodes = [43,132,14,45]
             var cComic = 1;
             var gifs = [];
 
@@ -47,8 +47,10 @@
                 for (var i = 0; i < episodes.length; i++){
                     total = 0;
                     for (var j = 0; j <= i; j++){
-                        total += episodes[i];
+                        total += episodes[j];
                     }
+                    console.log("i:"+i);
+                    console.log("total:"+total)
 
                     if (cComic > total){
                         episode += 1;
@@ -56,6 +58,7 @@
                     }
                 }
 
+                console.log('images/Knights of Sky Episode '+episode+' pic '+(cComic-offset)+'.png');
                 comicElement.src = 'images/Knights of Sky Episode '+episode+' pic '+(cComic-offset)+'.png';
             }
 

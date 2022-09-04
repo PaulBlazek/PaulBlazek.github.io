@@ -91,7 +91,7 @@
                     currentMusic.currentTime = 0;
                 }
 
-                if (newMusic){
+                if (newMusic && newMusic != 'none'){
                     currentMusic = music[newMusic];
                     currentMusic.play();
                 }
@@ -501,6 +501,10 @@
                             currentMerchant.trade(i);
                         }
                     }
+                } else if (state == 'game'){
+                    if (currentTalk){
+                        currentTalk.click();
+                    }
                 }
             }
             
@@ -578,12 +582,13 @@
             var chosenCompanions = ['Super Cat'];
             function startGame(survival) {
                 $("#infobar").hide();
+                canChange = true;
                 pelts = 0;
                 totalPelts = 0;
                 ctx.globalAlpha = 1;
                 state = 'game';
                 day = 1;
-                loops = -1;
+                loops = -1; // loops = 7
                 cLocation = [1,0];
                 currentSpeed = 5;
                 entitys = [];
@@ -961,11 +966,11 @@
                 }
             }
             
-            charInfo = {
+            charInfo = { // ALSO EDIT IN CHRONOS BOSS'S CHAR-SPECIFC LINES
                 'super cat':'Super Cat|Super Cat is the defender of justice|and a fierce combatant.|12HP|No special abilities.',
                 'normal cat':'Normal Cat|A veteran of the great cat and dog wars,|Normal Cat always carries his trusty shotgun.|5HP|Fires 3 bullets in a blast.',
                 'crazy cat':'Crazy Cat|After running one mad science experiment too|many, Crazy Cat is now has a very minor case|of serious brain damage.|6HP|Bullets have a bit of random spread',
-                'shield cat':'Shield Cat|An elite warrior from a high-tech society, Shield Cat|makes the most of his portable shield generator.|7HP + 5 Shields|Gets an extra shield from pickups.|Has a max of 10 shields instead of 5.',
+                'shield cat':'Shield Cat|An elite warrior from a high-tech society,| Shield Cat makes the most of his|portable shield generator.|7HP + 5 Shields|Gets an extra shield from pickups.|Has a max of 10 shields instead of 5.',
                 'rob the bandit':'Rob the Bandit|A reformed bandit chief,|Rob has decided to try adventuring.|8HP|Rob\'s presence annoys bandits.|He also fires frag bullets.|NOTE: Due to space-time issues, you may|encounter an alternate universe Rob.',
                 'radioactive cat':'Radioactive Cat|This once-ordinary cat got bit by a radioactive|spider. Unfortunately, instead of becoming|Spider Cat, he became Radioactive Cat.|9 HP|Emits radioactive waves when taking damage.'
             };
@@ -1277,7 +1282,7 @@
                     entitys.push(new cherryBomb());
                 }
                 
-                if (ticksUntilPing < 1 && !river && !currentMerchant) {
+                if (ticksUntilPing < 1 && !river && !currentMerchant && !(region == 'chronos')) {
                     ticksUntilPing = 50;
                     if (region == 'plains'){ticksUntilPing += 50;}
                     cImg = ['grass.png','flower1.png','flower2.png','flower3.png'][random(0,3)];
@@ -1295,11 +1300,11 @@
                     }
                 }
 
-                if (objective == 'defeat' && entitys[0].perks.includes("deerHunter") && random(1,1000) <= 4*count("deerHunter",entitys[0].perks)){
+                if (objective == 'defeat' && entitys[0].perks.includes("deerHunter") && random(1,1000) <= 4*count("deerHunter",entitys[0].perks) && !(region == 'chronos')){
                     entitys.push(new deer());
                 }
 
-                if (entitys[0].perks.includes("lightning") && random(1,1000) <= 1*count("lightning",entitys[0].perks)){
+                if (entitys[0].perks.includes("lightning") && random(1,1000) <= 1*count("lightning",entitys[0].perks) && !(region == 'chronos')){
                     entitys.push(new Lightning(0,0));
                 }
                 
@@ -1496,6 +1501,7 @@
                 'areaText':'CURRENTPLAYER entered the grasslands.',
                 'textDuration':2000,
                 'onEnter':function(){
+                    this.leaveLoc = 'Grassland 1-2';
                     region = 'grassland';
                     currentSpeed = 5;
                     day += random(1,3);
@@ -1506,9 +1512,16 @@
                     }
 
                     if (loops > 0){
-                        entitys.push(new bossText("LOOP "+(loops+1),function(){
-                            // Nothing needed here
-                        }));
+                        if (loops == 9 && False){ // CHRONOS TIME
+                            this.leaveLoc = 'Chronos';
+                            entitys.push(new bossText("LOOP "+(loops+1),function(){
+                                // Nothing needed here
+                            },{'slowdown':1.5}));
+                        } else {
+                            entitys.push(new bossText("LOOP "+(loops+1),function(){
+                                // Nothing needed here
+                            }));
+                        }
                     }
                 },
                 'onUpdate':function(){
@@ -1528,6 +1541,23 @@
                 },
                 'leaveLoc':'Grassland 1-2',//'Grassland 1-2',
                 'noRandom':1
+            });
+            
+            new Location('Chronos',{
+                'areaTextLines':['CURRENTPLAYER hunted to get some...','Wait a second.','Uh...','What is this?'],
+                'textDuration':4000,
+                'onEnter':function(){
+                    //achievement('meetChronos');
+                    region = 'chronos';
+                    
+                    entitys.push(new ChronosBoss());
+                    cDeath = ['The timeline was wiped clean once again.'];
+                },
+                'onLeave':function(){
+                    currentBoss = '';
+                    changeMusic("Grassland");
+                },
+                'leaveLoc':'Grassland 1-2'
             });
             
             new Location('Grassland 1-2',{
@@ -2066,7 +2096,6 @@
                     day += random(1,5);
                     river = true;
                     entitys.push(new achievementUnlocked("novice"));
-                    changeMusic('River');
                 },
                 'onUpdate':function(){
                     this.tickMax = 350;
@@ -2119,6 +2148,7 @@
             new Location('River 2-3',{
                 'areaText':'There were boulders in the river.',
                 'onEnter':function(){
+                    changeMusic('River');
                     backgroundEntitys = [];
                     day += random(1,3);
                     inRiver = true;
@@ -2987,9 +3017,11 @@
             }
 
             day = 1;
+            canChange = true;
             function playerCharacter(name) {
                 this.x = 150;
                 this.y = 300;
+                this.perkAlpha = 90;
                 this.cSpeed = 5;
                 this.health = 12;
                 this.healthShow = true;
@@ -3277,6 +3309,7 @@
 
                 i = 0;
                 //console.log(this.perks);
+                ctx.globalAlpha = this.perkAlpha/100;
                 for (p in this.perks){
                     if (this.perkProperties[p].includes("CHAOS")){
                         ctx.drawImage(perkImages["chaos"],1000-(i*40)-10,550-10,30,30);
@@ -3479,7 +3512,7 @@
                     if (this.effects.laser > 0){
                         this.reloadTimer = 1;
                     }
-                } if ((16 in keysDown || gamepad1.buttons.y || mobileJoystick.swap) && !this.isChanging){
+                } if ((16 in keysDown || gamepad1.buttons.y || mobileJoystick.swap) && !this.isChanging && canChange){
                     this.isChanging = 1;
                 }
                 
@@ -3887,6 +3920,457 @@
                         }
                     }
                 }
+            };
+
+            chronosImages = [new Image(),new Image(),new Image(),new Image(),new Image(),new Image(),new Image()];
+            chronosImages[0].src = path+'chronosFace1.png';
+            chronosImages[1].src = path+'chronosFace2.png';
+            chronosImages[2].src = path+'chronosFace3.png';
+            chronosImages[3].src = path+'chronosFace4.png';
+            chronosImages[4].src = path+'chronosFace5.png';
+            chronosImages[5].src = path+'chronosFace6.png';
+            chronosImages[6].src = path+'chronosFace7.png';
+
+            function ChronosBoss(survival=false){
+                this.name = 'boss';
+                this.x = 1200;
+                this.y = height/2-60;
+                this.health = 1;
+                this.width = 100;
+                this.height = 100;
+                this.stage = 0;
+                this.imgs = chronosImages;
+                this.cImg = 0;
+                this.width = 200;
+                this.height = 200;
+                currentBoss = this;
+                this.currentAction = null;
+                this.trueHealth = 200;
+                this.maxHp = this.trueHealth;
+                this.spawnPickups = false;
+                this.isSurvival = survival;
+                changeMusic('none');
+                this.shadowImage = new Image();
+                this.shadowImage.src = path+"chronosShadow.png";
+                this.float = 0;
+                this.floatD = 1;
+                this.floatMod = 0;
+
+                this.cMsg = 0;
+                this.activeMsg = false;
+            }
+
+            ChronosBoss.prototype.update = function(){
+                if (this.health < 1 && this.isSurvival){
+                    this.trueHealth += this.health-1;
+                    if (this.trueHealth < 1){
+                        this.killTag = true;
+                        return;
+                    }
+                }
+
+                if (this.stage == 0){
+                    this.x -= 1;
+                    if (this.x <= 900){
+                        this.stage += 1;
+                        if (!this.isSurvival){
+                            //changeMusic('Boss Theme'); Not Yet
+                            // TODO: Chronos Intro & Fight Themes
+                            entitys.push(new talk(["I am Chronos, the Lord of Time","You've been very busy","in my territory"],this.imgs[Math.floor(this.cImg)],function(){
+                                entitys.push(new talk(["Really, looping over","and over","and over again.","This really must stop."],currentBoss.imgs[Math.floor(currentBoss.cImg)],function(){
+                                    entitys.push(new talk(["First though, let me look at","your past..."],currentBoss.imgs[Math.floor(currentBoss.cImg)],function(){
+                                        currentBoss.stage += 1;
+                                    }));
+                                }));
+                            }));
+                        } else {
+                            this.stage += 1;
+                        }
+                    }
+                } else if (this.stage == 2){
+                    if (!this.activeMsg){ // Find something to say if relevant
+                        if (this.cMsg == 0){ // Loops
+                            msg = ["..."];
+                            if (loops < 9){
+                                msg = ["How interesting...","You aren't even on loop 10?"];
+                            } else if (loops > 9){
+                                msg = ["You are on your "+loops+" loop.","That is a lot of looping of time."]
+                            } else {
+                                msg = ["You are on your 10th loop","through this world.","Isn't that a bit much?","Time isn't meant to loop","like this."];
+                            }
+                            entitys.push(new talk(msg,this.imgs[Math.floor(this.cImg)],function(){
+                                currentBoss.activeMsg = false;
+                            }));
+                        } else if (this.cMsg == 1){ // Party Count
+                            msg = ["..."];
+                            if (companions.length == 0){
+                                msg = ["I see you've killed off your companions.","Probably so that all the loot","and experience will be yours."];
+                            } else if (companions.length == 1){
+                                msg = ["You have only one ally with you...","Will it be enough?"];
+                            } else if (companions.length == 2){
+                                msg = ["Impressive.","You still have a fully party.","I hope you don't think","numbers alone will save you."];
+                            } else {
+                                msg = ["Hm...","You've brought a lot of backup.",(companions.length)+" allies?","Numbers alone will not be enough here."];
+                            }
+                            entitys.push(new talk(msg,this.imgs[Math.floor(this.cImg)],function(){
+                                currentBoss.activeMsg = false;
+                            }));
+                        } else if (this.cMsg == 2){ // Swapping notice
+                            msg = ["..."];
+                            if (companions.length == 0){
+                                msg = ["While it won't matter for you,","swapping characters is not permitted","while fighting me"];
+                            } else if (companions.length == 1){
+                                msg = ["Only one may face me at a time.","Choose wisely, this is your last","chance to change the order","In which your party will perish."];
+                            } else if (companions.length == 2){
+                                msg = ["Only one may face me at a time.","Choose wisely, this is your last","chance to change the order","In which your party will perish."];
+                            } else {
+                                msg = ["Only one may face me at a time.","Choose wisely, this is your last","chance to change the order","In which your party will perish."];
+                            }
+                            entitys.push(new talk(msg,this.imgs[Math.floor(this.cImg)],function(){
+                                currentBoss.activeMsg = false;
+                                canChange = false;
+                            }));
+                        } else if (this.cMsg == 3){ // Pelts
+                            msg = ["..."];
+                            
+                            if (pelts == 0){
+                                msg = ["You have no pelts","despite your long travels...","One might wonder if","you did this intentionally."];
+                            } else if (pelts < 100){
+                                msg = ["You are quite poor.","Only "+pelts+" pelts to your name"];
+                            } else if (pelts < 500){
+                                msg = ["You have been busy.",pelts+" pelts is a nice sum.","How many deer did you murder"," for them, I wonder?"];
+                            } else {
+                                msg = [pelts+" pelts is a tremendous amount.","You realize you have been","repeatedly murdering the same animals","then looping time to kill them again?"];
+                            }
+                            entitys.push(new talk(msg,this.imgs[Math.floor(this.cImg)],function(){
+                                currentBoss.activeMsg = false;
+                            }));
+                        } else if (this.cMsg == 4){ // Character-Specific Message
+                            msg = ["..."];
+                            if (entitys[0].name.toLowerCase() == 'super cat'){
+                                msg = ["Super Cat, welcome.","Let us see how well","you can fight."];
+                            } else if (entitys[0].name.toLowerCase() == 'normal cat'){
+                                msg = ["Normal Cat","I'm not confident a shotgun is","the best weapon for this fight"];
+                            } else if (entitys[0].name.toLowerCase() == 'crazy cat'){
+                                msg = ["Can you even make sense","Of what I am saying?","Crazy Cat, you are","a fool to face me."];
+                            } else if (entitys[0].name.toLowerCase() == 'shield cat'){
+                                if (entitys[0].shields >= 10){
+                                    msg = ["You at least have come prepared,","Shield Cat.","Will it be enough...","heh heh heh"];
+                                } else if (entitys[0].shields >= 5){
+                                    msg = ["Hello Shield Cat","I will be testing your defenses shortly."];
+                                } else if (entitys[0].shields >= 1){
+                                    msg = ["Your defenses are ill maintained.","I expected a more interesting","match up, shield cat."];
+                                } else {
+                                    msg = ["Shield Cat.","What an ironic name","for a cat with no defenses."];
+                                }
+                            } else if (entitys[0].name.toLowerCase() == 'rob the bandit'){
+                                msg = ["You're an interesting one.","A reformed bandit, how silly.","I am amused."];
+                            } else if (entitys[0].name.toLowerCase() == 'radioactive cat'){
+                                msg = ["Hm...","That suit","isn't doing you any favors","Radioactive Cat"];
+                            }
+                            entitys.push(new talk(msg,this.imgs[Math.floor(this.cImg)],function(){
+                                currentBoss.activeMsg = false;
+                            }));
+                        } else if (this.cMsg == 5){ // Perks count
+                            msg = ["..."];
+                            totalPerks = 0;
+                            totalPerks += entitys[0].perks.length;
+                            for (var c in companions){totalPerks += companions[c].perks.length;}
+
+                            if (totalPerks == 0){
+                                msg = ["Your party has no perks...","How interesting."];
+                            } else if (totalPerks == 1){
+                                msg = ["Your party has only 1 perk.","Amusing."];
+                            } else if (totalPerks < 10) {
+                                msg = ["Your party has "+totalPerks+" perks."]
+                            } else if (totalPerks < 50) {
+                                msg = ["Your party has "+totalPerks+" perks.","That is quite a lot."]
+                            } else {
+                                msg = ["Your party has "+totalPerks+" perks.","That is quite a lot.","Completely ridiculous."]
+                            }
+
+                            entitys.push(new talk(msg,this.imgs[Math.floor(this.cImg)],function(){
+                                currentBoss.activeMsg = false;
+                            }));
+                        } else if (this.cMsg == 6){ // Perks removed
+                            msg = ["..."];
+                            for (var c in companions){companions[c].perks = [];}
+
+                            if (totalPerks == 0){
+                                msg = ["So you desire a fair fight with me.","You will get one."];
+                            } else {
+                                msg = ["However,    ","This fight will be decided on skill.","Without these ridiculous powers."]
+                            }
+
+                            entitys.push(new talk(msg,this.imgs[Math.floor(this.cImg)],function(){
+                                currentBoss.activeMsg = false;
+                            }));
+                        } else {
+                            this.stage += 1;
+                        }
+                        this.cMsg += 1;
+                        this.activeMsg = true;
+                    }
+                } else if (this.stage == 3){
+                    
+                    if (entitys[0].perks == [] && this.y > 240){
+                        this.y -= 2;
+                    } else if (entitys[0].perks == [] && this.y <= 240){
+                        //this.stage == 4;
+                        msg = ["Now,    ","Let us begin    ","the final    ","fight.        "];
+                        this.stage = -1;
+                        entitys.push(new talk(msg,this.imgs[Math.floor(this.cImg)],function(){
+                            currentBoss.stage = 4;
+                            // TODO: BOSS MUSIC!!!
+                        }));
+                    } else if (this.y < 300 && entitys[0].perks.length > 0){
+                        this.y += 2;
+                    } else if (entitys[0].perks.length > 0){
+                        entitys[0].perkAlpha -= 1;
+                        if (entitys[0].perkAlpha < 1){
+                            entitys[0].perks = [];
+                        }
+                    } else {
+                        msg = ["Now,    ","Let us begin    ","the final    ","fight.        "];
+                        this.stage = -1;
+                        entitys.push(new talk(msg,this.imgs[Math.floor(this.cImg)],function(){
+                            currentBoss.stage = 4;
+                            // TODO: BOSS MUSIC!!!
+                        }));
+                    }
+                } else if (this.stage == 3){
+                    if (this.trueHealth <= 20){
+                        this.stage += 1;
+                        if (!this.isSurvival){
+                            areaInfo(["ROB: I'm not beaten yet!","Rob puts on his hat..."],3000,function(){
+                                currentBoss.stage += 1;
+                                this.previousAction = "";
+                                currentBoss.moveTo = [random(600,1120),random(100,500)];
+                                currentBoss.shotTimer = 10;
+                                currentBoss.actionTime = 80;
+                                for (var i = 0; i < 4; i++){
+                                    x = 1200;
+                                    y = random(100,height-70);
+                                    entitys.push(new pickup(x,y,'healthPowerup','health+1'));
+                                }
+                            },false,false);
+                        } else {
+                            this.stage += 1;
+                            this.previousAction = "";
+                            this.moveTo = [random(600,1120),random(100,500)];
+                            this.shotTimer = 10;
+                            this.actionTime = 90;
+                        }
+                    } else if (!this.currentAction){
+                        if (this.previousAction == "skirmish"){
+                            this.currentAction = weightedChoice({
+                                "skirmish":3,
+                                "burstFire":1
+                            });
+                            x = 1200;
+                            y = random(100,height-70);
+                            entitys.push(new pickup(x,y,'healthPowerup','health+1'));
+                        } else {
+                            this.currentAction = "skirmish";
+                        }
+                        
+                        this.actionsSinceHit += 1;
+                        
+                        if (this.currentAction == 'skirmish'){
+                            this.moveTo = [random(600,1120),random(100,500)];
+                            this.shotTimer = 10;
+                            this.actionTime = 55;
+                        } else {
+                            this.moveTo = [random(1000,1120),height/2];
+                            if (this.isSurvival){
+                                this.moveTo[1] = random(height/2-150,height/2+150);
+                            }
+                            this.shotTimer = 100;
+                            this.actionTime = 200;
+                        }
+                    }
+                    
+                    this.previousAction = this.currentAction;
+                    if (this.currentAction == 'skirmish'){
+                        if (this.movePause){
+                            this.movePause -= 1;
+                            if (this.actionTime < 1 && this.movePause < 1){
+                                this.currentAction = '';
+                            }
+                        } else {
+                            if (this.x-6 > this.moveTo[0]){
+                                this.x -= 6;
+                            } else if (this.x+6 < this.moveTo[0]){
+                                this.x += 6;
+                            } if (this.y-6 > this.moveTo[1]){
+                                this.y -= 6;
+                            } else if (this.y+6 < this.moveTo[1]){
+                                this.y += 6;
+                            }
+                        }
+                        
+                        this.shotTimer -= 1;
+                        if (this.shotTimer < 1){
+                            playSound("gunshot");
+                            this.shotTimer = 30;
+                            if (this.movePause){
+                                this.shotTimer = 24;
+                            }
+                            entitys.push(new bullet(this.x,this.y+20,entitys[0].x,entitys[0].y,['player','animal']));
+                        }
+                        
+                        if (this.x+this.width+6 >= this.moveTo[0] &&
+                            this.x-6 <= this.moveTo[0] && 
+                            this.y+this.height+6 >= this.moveTo[1] &&
+                            this.y-6 <= this.moveTo[1]
+                           ){
+                            this.moveTo = [random(600,1120),random(100,500)];
+                            this.movePause = 50;
+                        }
+                        
+                        this.actionTime -= 1;
+                    } else if (this.currentAction == "burstFire"){
+                        if (this.x-6 > this.moveTo[0]){
+                            this.x -= 4;
+                        } else if (this.x+6 < this.moveTo[0]){
+                            this.x += 4;
+                        } if (this.y-6 > this.moveTo[1]){
+                            this.y -= 4;
+                        } else if (this.y+6 < this.moveTo[1]){
+                            this.y += 4;
+                        }
+                        
+                        if (this.x+this.width+6 >= this.moveTo[0] &&
+                            this.x-6 <= this.moveTo[0] && 
+                            this.y+this.height+6 >= this.moveTo[1] &&
+                            this.y-6 <= this.moveTo[1]
+                           ){
+                            if (this.shotTimer > -1){
+                                this.shotTimer -= 1;
+                                if (this.shotTimer % 20 == 0){
+                                    playSound("gunshot");
+                                    entitys.push(new bullet(this.x,this.y+20,entitys[0].x,entitys[0].y,['player','animal']));
+                                } else if (this.shotTimer % 10 == 0){
+                                    playSound("gunshot");
+                                    entitys.push(new bullet(this.x,this.y+20,50,random(0,600),['player','animal']));
+                                }
+                            } else {
+                                this.actionTime -= 1;
+                                if (this.health < 1){
+                                    this.trueHealth += this.health-1;
+                                }
+                                if (this.actionTime < 1){
+                                    this.currentAction = '';
+                                }
+                            }
+                        }
+                    }
+                } else if (this.stage == 5){
+                    if (this.health < 1){
+                        this.trueHealth += this.health-1;
+                        if (this.trueHealth < 1){
+                            if (this.isSurvival){
+                                this.killTag = true;
+                                return;
+                            }
+
+                            this.stage += 1;
+                            changeMusic('Title Theme');
+                            areaInfo(["ROB: Wow. You beat me..."],3000,function(){
+                                currentBoss.stage += 1;
+                                currentBoss.actionTimer = 100;
+                            },false,false);
+                        }
+                    }
+                    if (this.movePause){
+                        this.movePause -= 1;
+                    } else {
+                        if (this.x-6 > this.moveTo[0]){
+                            this.x -= 6;
+                        } else if (this.x+6 < this.moveTo[0]){
+                            this.x += 6;
+                        } if (this.y-6 > this.moveTo[1]){
+                            this.y -= 6;
+                        } else if (this.y+6 < this.moveTo[1]){
+                            this.y += 6;
+                        }
+                    }
+                    
+                    this.shotTimer -= 1;
+                    
+                    if (this.shotTimer < 1){
+                        this.shotTimer = 28*2;
+                        if (this.movePause){
+                            this.shotTimer = 22*2;
+                        }
+                        playSound("gunshot");
+                        entitys.push(new bullet(this.x,this.y+20,entitys[0].x,entitys[0].y,['player','animal']));
+                    } else if (this.shotTimer % 15 == 0){
+                        playSound("gunshot");
+                        entitys.push(new bullet(this.x,this.y+20,50,random(0,600),['player','animal']));
+                    } else if (this.shotTimer % 31 == 0 && random(1,3) != 1){
+                        x = 1200;
+                        y = random(100,height-70);
+                        entitys.push(new pickup(x,y,'healthPowerup','health+1'));
+                    }
+                    
+                    if (this.x+this.width+6 >= this.moveTo[0] &&
+                        this.x-6 <= this.moveTo[0] && 
+                        this.y+this.height+6 >= this.moveTo[1] &&
+                        this.y-6 <= this.moveTo[1]
+                       ){
+                        this.moveTo = [random(600,1120),random(100,500)];
+                        this.movePause = 50;
+                    }
+                    
+                    this.actionTime -= 1;
+                } else if (this.stage == 7){
+                    this.actionTimer -= 1;
+                    if (this.actionTimer == 0){
+                        areaInfo(["ROB: I guess I'm not very","good at being a bandit after all."],3000,function(){
+                            currentBoss.stage += 1;
+                            currentBoss.actionTimer = 100;
+                        },false,false);
+                    }
+                } else if (this.stage == 8){
+                    this.actionTimer -= 1;
+                    if (this.actionTimer == 0){
+                        areaInfo(["ROB: Oh well, maybe I'll be better","as an adventurer!"],3000,function(){
+                            currentBoss.stage += 1;
+                            currentBoss.actionTimer = 100;
+                        },false,false);
+                    }
+                } else if (this.stage == 9){
+                    //this.killTag = true;
+                    //companions.push(new playerCharacter("Rob the Bandit"));
+                    //cLocation.leave();
+                    return;
+                }
+                
+                this.float += 1;
+                if (this.float >= 80){
+                    this.float = 0;
+                    this.floatD = -this.floatD;
+                }
+                this.floatMod += this.floatD/5;
+                this.y += this.floatD/5;
+
+                ctx.drawImage(this.imgs[Math.floor(this.cImg)],this.x,this.y,this.width,this.height);
+                this.cImg += 0.1;
+                if (this.cImg >= this.imgs.length){this.cImg = 0;}
+                ctx.drawImage(this.shadowImage,this.x,this.y+200-this.floatMod,this.width,20);
+                
+                if (this.stage < 6 && !this.isSurvival){
+                    ctx.globalAlpha = 0.5;
+                    ctx.fillStyle = 'white';
+                    ctx.fillRect(1000,590,200,10);
+                    ctx.globalAlpha = 0.8;
+                    ctx.fillStyle = 'green';
+                    ctx.fillRect(1010,592,180*(this.trueHealth/this.maxHp),6);
+                    ctx.globalAlpha = 1;
+                }
+                
+                this.health = 1;
             };
             
             function RobBoss(survival=false){
@@ -5481,8 +5965,96 @@
                     this.killTag = true;
                 }
             }
+
+            currentTalk = null;
+            function talk(txt,charImg,after=function(){}){
+                this.x = 0;
+                this.y = 0;
+                this.cw = width;
+                this.ch = height;
+                this.width = 0;
+                this.height = 0;
+                this.type = 'B';
+                this.killTag = 0;
+                this.time = 1;
+                currentTalk = this;
+                this.txtIndex = 0;
+                this.txtSubIndex = 0;
+                this.txt = txt;
+                this.currentTxt = [""];
+                this.after = after;
+                this.charImg = charImg;
+                this.cctAlpha = 0;
+                this.cctAlphaDir = 1;
+                this.alpha = 1;
+                this.clickState = 'typeAll'; // After one click or finished writing, changes to continue, after another changes to finished to go to after
+            }
+
+            talk.prototype.click = function(){
+                if (this.clickState == 'typeAll'){
+                    this.clickState = 'continue';
+                    this.currentTxt = this.txt;
+                    this.txtIndex = 100;
+                } else if (this.clickState == 'continue'){
+                    this.clickState = 'finished';
+                }
+            }
+
+            talk.prototype.update = function(){
+                if (this.clickState == 'finished'){
+                    this.alpha -= 0.05;
+                }
+                if (this.alpha <= 0){
+                    this.killTag = 1;
+                    this.after();
+                    return;
+                }
+
+                ctx.globalAlpha = this.alpha;
+
+                ctx.fillStyle = 'rgb(0,0,0)';
+                ctx.fillRect(this.cw/2-250,this.ch-200,500,200);
+                ctx.font = '20px Consolas';
+                ctx.fillStyle = 'white';
+                //ctx.textAlign = 'center';
+                for (var i = 0; i < this.currentTxt.length; i++){
+                    ctx.fillText(this.currentTxt[i],this.cw/2-240,this.ch-200+30*(i+1));
+                    if (i == this.currentTxt.length-1 && this.clickState == 'continue'){
+                        this.cctAlpha += 0.05*this.cctAlphaDir;
+                        if (this.cctAlpha >= 1){this.cctAlphaDir=-1;}
+                        if (this.cctAlpha <= 0.05){this.cctAlphaDir=1;}
+                        ctx.globalAlpha = this.cctAlpha;
+
+                        ctx.fillStyle = 'yellow';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Click to Continue',this.cw/2, this.ch-30);
+
+                        ctx.globalAlpha = 1;
+                    }
+                }
+                ctx.textAlign = 'start';
+                ctx.drawImage(this.charImg,this.cw/2+130,this.ch-300+130,100,100)
+                ctx.globalAlpha = 1;
+
+                if (this.txtIndex >= this.txt.length){
+                    if (this.clickState == 'typeAll'){this.clickState = 'continue';}
+                    return;
+                }
+                
+                this.time -= 1;
+                if (this.time <= 0){
+                    this.time = random(3,7);
+                    this.currentTxt[this.txtIndex] += this.txt[this.txtIndex].charAt(this.txtSubIndex);
+                    this.txtSubIndex += 1;
+                    if (this.txtSubIndex >= this.txt[this.txtIndex].length){
+                        this.txtSubIndex = 0;
+                        this.txtIndex += 1;
+                        this.currentTxt.push("");
+                    }
+                }
+            }
             
-            function bossText(txt,after=function(){}){
+            function bossText(txt,after=function(){},additional={}){
                 this.y = height/2;
                 this.x = width/2;
                 this.width = 0;
@@ -5496,6 +6068,10 @@
                 this.currentTxt = "";
                 this.alpha = 1;
                 this.after = after;
+                this.slowdown = 1;
+                if (additional['slowdown']){
+                    this.slowdown = additional.slowdown;
+                }
             }
             
             bossText.prototype.update = function(){
@@ -5516,8 +6092,8 @@
                 }
                 
                 this.time -= 1;
-                if (this.time == 0){
-                    this.time = random(5,15);
+                if (this.time <= 0){
+                    this.time = random(5,15)*this.slowdown;
                     this.currentTxt += this.txt.charAt(this.txtIndex);
                     this.txtIndex += 1;
                 }

@@ -1,0 +1,179 @@
+<!DOCTYPE HTML/>
+
+<html>
+    <head>
+        <title>AI-Generated Art Gallery</title>
+        <style>
+            html {
+                text-align: center;
+            }
+            
+            body {
+                text-align: center;
+                width: 80%;
+                margin: 0 10% 0 10%;
+            }
+            
+            article {
+                border: 2px solid black;
+                width: 45%;
+                display: block;
+                float: left;
+                margin: 5px;
+            }
+            
+            img {
+                max-width: 100%;
+            }
+
+            video {
+                max-width: 100%;
+            }
+            
+            img:hover {
+                cursor: pointer;
+            }
+            
+            #largeImg {
+                display: inline;
+                width: 100%;
+                max-height: 100%
+                position: fixed;
+                top: 0;
+                left: 0;
+                z-index: 1;
+                float: none;
+            }
+        </style>
+        <link rel="shortcut icon" href="../favicon.ico">
+        <script>
+            yScroll = 0;
+            function start(){
+                imgs = document.getElementsByTagName('img');
+                for (var i = 1; i < imgs.length; i++){
+                    //console.log('showLargePict("'+imgs[i].src+'");');
+                    imgs[i].setAttribute('onclick','showLargePict("'+imgs[i].src+'","'+imgs[i].alt+'");');
+                }
+                
+                hideLarge();
+            }
+            
+            function showLargePict(src,title){
+                yScroll = scrollY;
+                document.getElementById('largeImg').src = src;
+                document.getElementById('imgInfo').innerHTML = title;
+                document.getElementById('imgInfo').style.display = 'block';
+                document.getElementById('largeImg').style.display = 'block';
+                document.getElementById('content').style.display = 'none';
+            }
+            
+            function hideLarge(){
+                document.getElementById('largeImg').style.display = 'none';
+                document.getElementById('imgInfo').style.display = 'none';
+                document.getElementById('content').style.display = 'inline';
+                //window.setTimeout(scroll,100,0,yScroll);
+                window.setTimeout(function(){scrollTo(0,yScroll)},100);
+                scrollTo(0,yScroll);
+            }
+        </script>
+        <meta name="description" content="The Blazek Gazette">
+        <meta name="keywords" content="Blazek,Gazette,CB12,CoderBlaze">
+        <meta name="author" content="Paul Blazek">
+    </head>
+
+    <body onload='start();'>
+        <img id='largeImg' onclick='hideLarge();' />
+        <p id="imgInfo"></p>
+        <div id='content'>
+            <h1>AI Generated Art Gallery</h1>
+            <p><i>Click on any image to view it in fullscreen and see author(s) and prompt.</i></p>
+            
+            <article>
+                <img src='./images/DALL·E 2022-08-16 11.19.35 - A large fantasy city, raining, 8k.png'
+                     alt="A large fantasy city, raining, 8k. By Paul Blazek using DALL·E 2."/>
+            </article>
+            <article>
+                <img src='./images/DALL·E 2022-08-16 11.19.49 - A large fantasy city, raining, 8k.png'
+                     alt="A large fantasy city, raining, 8k. By Paul Blazek using DALL·E 2."/>
+            </article>
+            <article>
+                <img src='./images/DALL·E 2022-08-16 11.20.13 - A large fantasy city, raining, 8k.png'
+                     alt="A large fantasy city, raining, 8k. By Paul Blazek using DALL·E 2."/>
+            </article>
+            <article>
+                <img src='./images/DALL·E 2022-08-16 11.20.26 - A large fantasy city, raining, 8k.png'
+                     alt="A large fantasy city, raining, 8k. By Paul Blazek using DALL·E 2."/>
+            </article>
+
+            <article>
+                <img src='./images/DALL·E 2022-09-04 14.10.03 - An realistic image of a large hall with many portals to different worlds lining the walls and people bustling about.png'
+                     alt="A realistic image of a large hall with many portals to different worlds lining the walls and people bustling about. By Paul Blazek using DALL·E 2."/>
+            </article>
+            <article>
+                <img src='./images/DALL·E 2022-08-16 09.15.53 - An realistic image of a large hall with many portals to different worlds lining the walls and people bustling about.png'
+                     alt="A realistic image of a large hall with many portals to different worlds lining the walls and people bustling about. By Paul Blazek using DALL·E 2."/>
+            </article>
+            <article>
+                <img src='./images/DALL·E 2022-09-04 14.09.56 - An realistic image of a large hall with many portals to different worlds lining the walls and people bustling about.png'
+                     alt="A realistic image of a large hall with many portals to different worlds lining the walls and people bustling about. By Paul Blazek using DALL·E 2."/>
+            </article>
+            <article>
+                <img src='./images/DALL·E 2022-09-04 14.10.12 - An realistic image of a large hall with many portals to different worlds lining the walls and people bustling about.png'
+                     alt="A realistic image of a large hall with many portals to different worlds lining the walls and people bustling about. By Paul Blazek using DALL·E 2."/>
+            </article>
+            
+            <article>
+                <img src='./images/DALL·E 2022-09-04 14.09.29 - A giant planet that looks like a six-sided die with people building cities on it, fantasy, 8k.png'
+                     alt="A giant planet that looks like a six-sided die with people building cities on it, fantasy, 8k. By Paul Blazek using DALL·E 2."/>
+            </article>
+            
+            <article>
+                <img src='./images/DALL·E 2022-09-04 17.02.29 - Sauron and Darth Vader leading their armies into battle. In the middle of the desolate battlefield is Sauron wielding his great mace and Vader wieldin.png'
+                     alt="Sauron and Darth Vader leading their armies into battle. In the middle of the desolate battlefield is Sauron wielding his great mace and Vader wielding his lightsaber. Behind them are their armies: Sauron's ferocious orcs wielding swords, clubs and spears; and Vader's legion of Stormtroopers, wielding their blaster rifles and wearing their distinctive white armor. By Paul Blazek using DALL·E 2."/>
+            </article>
+            <article>
+                <img src='./images/DALL·E 2022-09-04 17.02.44 - Sauron and Darth Vader leading their armies into battle. In the middle of the desolate battlefield is Sauron wielding his great mace and Vader wieldin.png'
+                     alt="Sauron and Darth Vader leading their armies into battle. In the middle of the desolate battlefield is Sauron wielding his great mace and Vader wielding his lightsaber. Behind them are their armies: Sauron's ferocious orcs wielding swords, clubs and spears; and Vader's legion of Stormtroopers, wielding their blaster rifles and wearing their distinctive white armor. By Paul Blazek using DALL·E 2."/>
+            </article>
+            
+            <article>
+                <img src='./images/DALL·E 2022-09-04 17.19.00 - ☀⭐⭐🪐🪐⭐🌌.png'
+                     alt="☀⭐⭐🪐🪐⭐🌌. By Paul Blazek using DALL·E 2."/>
+            </article>
+            <article>
+                <img src='./images/DALL·E 2022-09-04 17.19.15 - ☀⭐⭐🪐🪐⭐🌌.png'
+                     alt="☀⭐⭐🪐🪐⭐🌌. By Paul Blazek using DALL·E 2."/>
+            </article>
+            <article>
+                <img src='./images/DALL·E 2022-09-04 17.19.22 - ☀⭐⭐🪐🪐⭐🌌.png'
+                     alt="☀⭐⭐🪐🪐⭐🌌. By Paul Blazek using DALL·E 2."/>
+            </article>
+            <article>
+                <img src='./images/DALL·E 2022-09-04 17.19.29 - ☀⭐⭐🪐🪐⭐🌌.png'
+                     alt="☀⭐⭐🪐🪐⭐🌌. By Paul Blazek using DALL·E 2."/>
+            </article>
+            
+            <article>
+                <img src='./images/DALL·E 2022-09-04 17.24.52 - Cybervave vaporpunk art of a glowing katana stuck in a wall, smoke and mist, green and blue lighting, cybernetic sci-fi render.png'
+                     alt="Cyberwave vaporpunk art of a glowing katana stuck in a wall, smoke and mist, green and blue lighting, cybernetic sci-fi render. By Paul Blazek using DALL·E 2."/>
+            </article>
+            
+            <article>
+                <img src='./images/DALL·E 2022-09-04 17.25.01 - Cybervave vaporpunk art of a ninja holding a katana, smoke and mist, green and blue lighting, cybernetic sci-fi render.png'
+                     alt="Cyberwave vaporpunk art of a ninja holding a katana, smoke and mist, green and blue lighting, cybernetic sci-fi render. By Paul Blazek using DALL·E 2."/>
+            </article>
+            
+            <article>
+                <img src='./images/DALL·E 2022-09-04 17.25.07 - Cybervave vaporpunk art of a ninja holding a katana, smoke and mist, green and blue lighting, cybernetic sci-fi render.png'
+                     alt="Cyberwave vaporpunk art of a ninja holding a katana, smoke and mist, green and blue lighting, cybernetic sci-fi render. By Paul Blazek using DALL·E 2."/>
+            </article>
+            
+            <!--
+            <article>
+                <img src='./images/AAA.png'
+                     alt="BBB. By Paul Blazek using DALL·E 2."/>
+            </article>
+            -->
+        </div>
+    </body>
+</html>

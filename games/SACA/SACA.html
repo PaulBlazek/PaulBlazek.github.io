@@ -419,12 +419,14 @@
                         state = "achievements";
                         manualScroll = 0;
                         $("#infobar").hide();
+                        $("#links").hide();
                         updateAchievements();
                     } else if (x > 1000 && x < 1090 && y > 10 && y < 100){
                         // Settings
                         state = "settings";
                         manualScroll = 0;
                         $("#infobar").hide();
+                        $("#links").hide();
                         settingsBack = 'menu';
                         updateSettings();
                     }
@@ -452,6 +454,7 @@
                         state = "settings";
                         manualScroll = 0;
                         $("#infobar").hide();
+                        $("#links").hide();
                         settingsBack = 'main menu';
                         updateSettings();
                     }
@@ -582,6 +585,7 @@
             var chosenCompanions = ['Super Cat'];
             function startGame(survival) {
                 $("#infobar").hide();
+                $("#links").hide();
                 canChange = true;
                 pelts = 0;
                 totalPelts = 0;
@@ -6641,6 +6645,7 @@
     </head>
     
     <body onload='start()'>
+        <p id="links"><a href="./links.html">Other Parts of the Site</a></p>
         <canvas id='game' width='1200' height='600'></canvas>
         <div id="infobar">
             <p>This game is gamepad compatable!</p>

@@ -37,8 +37,6 @@
             #largeImg {
                 display: inline;
                 width: 100%;
-                max-height: 100%;
-                position: fixed;
                 top: 0;
                 left: 0;
                 z-index: 1;
@@ -65,6 +63,7 @@
                 document.getElementById('imgInfo').style.display = 'block';
                 document.getElementById('largeImg').style.display = 'block';
                 document.getElementById('content').style.display = 'none';
+                //document.body.style.width = '100%';
             }
             
             function hideLarge(){
@@ -74,6 +73,7 @@
                 //window.setTimeout(scroll,100,0,yScroll);
                 window.setTimeout(function(){scrollTo(0,yScroll)},100);
                 scrollTo(0,yScroll);
+                //document.body.style.width = '80%';
             }
         </script>
         <meta name="description" content="The Blazek Gazette">
@@ -85,22 +85,39 @@
         <img id='largeImg' onclick='hideLarge();' />
         <p id="imgInfo"></p>
         <div id='content'>
-            <h1>AI Generated Art Gallery</h1>
+            <h1 id="top">AI Generated Art Gallery</h1>
             <p><a href="./links.html">Other Parts of the Site</a></p>
             <p><i>Click on any image to view it in fullscreen and see author(s) and prompt.</i></p>
-            
+            <p><a href="./gallery.html#bottom">Bottom of Page</a></p>
+
             <article>
                 <img src='./images/DALL·E 2022-08-16 11.19.35 - A large fantasy city, raining, 8k.png'
                      alt="A large fantasy city, raining, 8k. By Paul Blazek using DALL·E 2."/>
             </article>
             <article>
-                <img src='./images/DALL·E 2022-08-16 11.19.49 - A large fantasy city, raining, 8k.png'
-                     alt="A large fantasy city, raining, 8k. By Paul Blazek using DALL·E 2."/>
+                <img src='./images/patche-1-completeL2R2.png'
+                     alt="A large fantasy city, raining, 8k. (Expanded Version) By Paul Blazek using DALL·E 2."/>
             </article>
+            
+            <article>
+                <img src='./images/meldTest1-full.png'
+                     alt="A large fantasy city, raining, 8k. (Melded 2 images together) By Paul Blazek using DALL·E 2."/>
+            </article>
+
             <article>
                 <img src='./images/DALL·E 2022-08-16 11.20.13 - A large fantasy city, raining, 8k.png'
                      alt="A large fantasy city, raining, 8k. By Paul Blazek using DALL·E 2."/>
             </article>
+            <article>
+                <img src='./images/patche-2-3x3-complete.png'
+                     alt="A large fantasy city, raining, 8k. (Expanded Version) By Paul Blazek using DALL·E 2."/>
+            </article>
+
+            <article>
+                <img src='./images/DALL·E 2022-08-16 11.19.49 - A large fantasy city, raining, 8k.png'
+                     alt="A large fantasy city, raining, 8k. By Paul Blazek using DALL·E 2."/>
+            </article>
+
             <article>
                 <img src='./images/DALL·E 2022-08-16 11.20.26 - A large fantasy city, raining, 8k.png'
                      alt="A large fantasy city, raining, 8k. By Paul Blazek using DALL·E 2."/>
@@ -168,6 +185,143 @@
                 <img src='./images/DALL·E 2022-09-04 17.25.07 - Cybervave vaporpunk art of a ninja holding a katana, smoke and mist, green and blue lighting, cybernetic sci-fi render.png'
                      alt="Cyberwave vaporpunk art of a ninja holding a katana, smoke and mist, green and blue lighting, cybernetic sci-fi render. By Paul Blazek using DALL·E 2."/>
             </article>
+
+            <article>
+                <img src='./images/DALL·E 2022-09-04 18.23.30 - Mythological map of a fantasy world with various countries inhabited by different fantasy races, such as dwarves, humans, elves, and orcs..png'
+                     alt="Mythological map of a fantasy world with various countries inhabited by different fantasy races, such as dwarves, humans, elves, and orcs. By Paul Blazek using DALL·E 2."/>
+            </article>
+            <article>
+                <img src='./images/DALL·E 2022-09-04 18.23.40 - Mythological map of a fantasy world with various countries inhabited by different fantasy races, such as dwarves, humans, elves, and orcs..png'
+                     alt="Mythological map of a fantasy world with various countries inhabited by different fantasy races, such as dwarves, humans, elves, and orcs. By Paul Blazek using DALL·E 2."/>
+            </article>
+            <article>
+                <img src='./images/DALL·E 2022-09-04 18.23.46 - Mythological map of a fantasy world with various countries inhabited by different fantasy races, such as dwarves, humans, elves, and orcs..png'
+                     alt="Mythological map of a fantasy world with various countries inhabited by different fantasy races, such as dwarves, humans, elves, and orcs. By Paul Blazek using DALL·E 2."/>
+            </article>
+            
+            <article>
+                <img src='./images/DALL·E 2022-09-04 18.23.58 - A castle of royal possums amidst a deep ocean, isometric 3D.png'
+                     alt="A castle of royal possums amidst a deep ocean, isometric 3D. By Paul Blazek using DALL·E 2."/>
+            </article>
+            
+            <article>
+                <img src='./images/DALL·E 2022-09-04 18.41.54 - Pixel art of an art of sword wielding cats charging into battle with an evil army of rats.png'
+                     alt="Pixel art of an art of sword wielding cats charging into battle with an evil army of rats. By Paul Blazek using DALL·E 2."/>
+            </article>
+            <article>
+                <img src='./images/DALL·E 2022-09-04 18.53.06 - Pixel art of an art of sword wielding cats charging into battle with an evil army of rats.png'
+                     alt="Pixel art of an art of sword wielding cats charging into battle with an evil army of rats. By Paul Blazek using DALL·E 2."/>
+            </article>
+            
+            <article>
+                <img src='./images/DALL·E 2022-09-04 19.05.23 - Digital Art of a Samurai standing on top of a Japanese-stylistic train, 8k.png'
+                     alt="Digital Art of a Samurai standing on top of a Japanese-stylistic train, 8k. By Paul Blazek using DALL·E 2."/>
+            </article>
+            <article>
+                <img src='./images/DALL·E 2022-09-04 19.05.36 - Digital Art of a Samurai standing on top of a Japanese-stylistic train, 8k.png'
+                     alt="Digital Art of a Samurai standing on top of a Japanese-stylistic train, 8k. By Paul Blazek using DALL·E 2."/>
+            </article>
+            <article>
+                <img src='./images/DALL·E 2022-09-04 19.05.44 - Digital Art of a Samurai standing on top of a Japanese-stylistic train, 8k.png'
+                     alt="Digital Art of a Samurai standing on top of a Japanese-stylistic train, 8k. By Paul Blazek using DALL·E 2."/>
+            </article>
+            
+            <article>
+                <img src='./images/DALL·E 2022-09-04 19.05.55 - Realistic art of an orc wielding a battleaxe slicing a green slime monster in half, 8k.png'
+                     alt="Realistic art of an orc wielding a battleaxe slicing a green slime monster in half, 8k. By Paul Blazek using DALL·E 2."/>
+            </article>
+            
+            <article>
+                <img src='./images/DALL·E 2022-09-04 19.07.48 - A large futuristic city, raining, 8k, realistic style.png'
+                     alt="A large futuristic city, raining, 8k, realistic style. By Paul Blazek using DALL·E 2."/>
+            </article>
+            <article>
+                <img src='./images/DALL·E 2022-09-04 19.07.55 - A large futuristic city, raining, 8k, realistic style.png'
+                     alt="A large futuristic city, raining, 8k, realistic style. By Paul Blazek using DALL·E 2."/>
+            </article>
+            <article>
+                <img src='./images/DALL·E 2022-09-04 19.08.02 - A large futuristic city, raining, 8k, realistic style.png'
+                     alt="A large futuristic city, raining, 8k, realistic style. By Paul Blazek using DALL·E 2."/>
+            </article>
+            <article>
+                <img src='./images/DALL·E 2022-09-04 19.08.08 - A large futuristic city, raining, 8k, realistic style.png'
+                     alt="A large futuristic city, raining, 8k, realistic style. By Paul Blazek using DALL·E 2."/>
+            </article>
+
+            <article>
+                <img src='./images/DALL·E 2022-09-04 19.10.38 - A chess set that is actually a city, with each chess piece being a building, realistic, 8k, beautiful.png'
+                     alt="A chess set that is actually a city, with each chess piece being a building, realistic, 8k, beautiful. By Paul Blazek using DALL·E 2."/>
+            </article>
+            
+            <article>
+                <img src='./images/DALL·E 2022-09-04 19.12.57 - A large fantasy city, snowing, 8k, realistic style.png'
+                     alt="A large fantasy city, snowing, 8k, realistic style. By Paul Blazek using DALL·E 2."/>
+            </article>
+            <article>
+                <img src='./images/DALL·E 2022-09-04 19.13.04 - A large fantasy city, snowing, 8k, realistic style.png'
+                     alt="A large fantasy city, snowing, 8k, realistic style. By Paul Blazek using DALL·E 2."/>
+            </article>
+            <article>
+                <img src='./images/DALL·E 2022-09-04 19.13.13 - A large fantasy city, snowing, 8k, realistic style.png'
+                     alt="A large fantasy city, snowing, 8k, realistic style. By Paul Blazek using DALL·E 2."/>
+            </article>
+            
+            <article>
+                <img src='./images/DALL·E 2022-09-04 19.13.42 - 8-bit dungeoneer wielding a bow jumping over a spike pit..png'
+                     alt="8-bit dungeoneer wielding a bow jumping over a spike pit. By Gregory Blazek using DALL·E 2."/>
+            </article>
+            
+            <article>
+                <img src='./images/DALL·E 2022-08-29 22.08.31 - Nyan Cat crashing into a flaming asteroid while spaceships attack, 8k, vaporwave.png'
+                     alt="Nyan Cat crashing into a flaming asteroid while spaceships attack, 8k, vaporwave. By Paul Blazek and Sebastian Blazek using DALL·E 2."/>
+            </article>
+            
+            <article>
+                <img src='./images/DALL·E 2022-09-04 19.17.54 - A cat playing piano wearing sunglasses, cyberpunk, beautiful.png'
+                     alt="A cat playing piano wearing sunglasses, cyberpunk, beautiful. By Paul Blazek using DALL·E 2."/>
+            </article>
+            <article>
+                <img src='./images/DALL·E 2022-09-04 19.18.03 - A cat playing piano wearing sunglasses, cyberpunk, beautiful.png'
+                     alt="A cat playing piano wearing sunglasses, cyberpunk, beautiful. By Paul Blazek using DALL·E 2."/>
+            </article>
+            <article>
+                <img src='./images/DALL·E 2022-09-04 19.18.10 - A cat playing piano wearing sunglasses, cyberpunk, beautiful.png'
+                     alt="A cat playing piano wearing sunglasses, cyberpunk, beautiful. By Paul Blazek using DALL·E 2."/>
+            </article>
+            <article>
+                <img src='./images/DALL·E 2022-09-04 19.18.16 - A cat playing piano wearing sunglasses, cyberpunk, beautiful.png'
+                     alt="A cat playing piano wearing sunglasses, cyberpunk, beautiful. By Paul Blazek using DALL·E 2."/>
+            </article>
+            
+            <article>
+                <img src='./images/DALL·E 2022-08-29 21.56.41 - Realistic 3d render of a floating island in the sky with a magical stone castle with a gold flag, beautiful.png'
+                     alt="Realistic 3d render of a floating island in the sky with a magical stone castle with a gold flag, beautiful. By Paul Blazek using DALL·E 2."/>
+            </article>
+            <article>
+                <img src='./images/DALL·E 2022-09-04 19.21.25 - Realistic 3d render of a floating island in the sky with a magical stone castle with a gold flag, beautiful.png'
+                     alt="Realistic 3d render of a floating island in the sky with a magical stone castle with a gold flag, beautiful. By Paul Blazek using DALL·E 2."/>
+            </article>
+            <article>
+                <img src='./images/DALL·E 2022-09-04 19.21.35 - Realistic 3d render of a floating island in the sky with a magical stone castle with a gold flag, beautiful.png'
+                     alt="Realistic 3d render of a floating island in the sky with a magical stone castle with a gold flag, beautiful. By Paul Blazek using DALL·E 2."/>
+            </article>
+            
+            <article>
+                <img src='./images/DALL·E 2022-08-29 22.07.09 - Realistic 3d render of magical lightning striking mystical jungle catching fire.png'
+                     alt="Realistic 3d render of magical lightning striking mystical jungle catching fire. By Paul Blazek using DALL·E 2."/>
+            </article>
+            <article>
+                <img src='./images/DALL·E 2022-09-04 19.23.39 - Realistic 3d render of magical lightning striking mystical jungle catching fire.png'
+                     alt="Realistic 3d render of magical lightning striking mystical jungle catching fire. By Paul Blazek using DALL·E 2."/>
+            </article>
+            <article>
+                <img src='./images/DALL·E 2022-09-04 19.23.46 - Realistic 3d render of magical lightning striking mystical jungle catching fire.png'
+                     alt="Realistic 3d render of magical lightning striking mystical jungle catching fire. By Paul Blazek using DALL·E 2."/>
+            </article>
+            <article>
+                <img src='./images/DALL·E 2022-09-04 19.23.55 - Realistic 3d render of magical lightning striking mystical jungle catching fire.png'
+                     alt="Realistic 3d render of magical lightning striking mystical jungle catching fire. By Paul Blazek using DALL·E 2."/>
+            </article>
             
             <!--
             <article>
@@ -175,6 +329,7 @@
                      alt="BBB. By Paul Blazek using DALL·E 2."/>
             </article>
             -->
+            <article><p id="bottom"><a href="./gallery.html#top">Top of Page</a></p></article>
         </div>
     </body>
 </html>

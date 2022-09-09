@@ -11536,6 +11536,10 @@
                         ctx.globalAlpha = 1;
                     }
                     
+					if (16 in keysDown){
+						scrollSpeed *= 2;
+					}
+
                     if (38 in keysDown) { // Up
                         scrollY += scrollSpeed;
                         if (scrollY > 0) {
@@ -11553,6 +11557,10 @@
                     } else if (39 in keysDown) { // Right
                         scrollX -= scrollSpeed;
                     }
+
+					if (16 in keysDown){
+						scrollSpeed /= 2;
+					}
                 } else if (state == 'menu') {
                     ctx.fillStyle = 'rgb(255,255,255)';
                     ctx.fillRect(0,0,2000,1000);

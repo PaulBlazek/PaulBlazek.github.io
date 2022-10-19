@@ -1,0 +1,113 @@
+<!DOCTYPE HTML/>
+
+<html>
+    <head>
+        <title>When Dice Run Wild</title>
+        <style>
+            html {
+                text-align: center;
+            }
+            
+            body {
+                text-align: center;
+                width: 80%;
+                margin: 0 10% 0 10%;
+            }
+            
+            article {
+                border: 2px solid black;
+                width: 45%;
+                display: block;
+                float: left;
+            }
+            
+            img {
+                max-width: 100%;
+            }
+
+            video {
+                max-width: 100%;
+            }
+            
+            #largeImg {
+                display: inline;
+                width: 100%;
+                top: 0;
+                left: 0;
+                z-index: 1;
+                float: none;
+            }
+        </style>
+        <link rel="shortcut icon" href="../../favicon.ico">
+        <meta name="author" content="Paul Blazek">
+
+        <script>
+            var comicElement;
+            var comicsAmount = 1
+            var cComic = 1;
+
+            addEventListener("keydown",function(e){
+                var code = e.keyCode;
+                console.log(code);
+                if (code == 37){ // Left
+                    previous();
+                } else if (code == 39){ // Right
+                    next();
+                }
+            })
+
+            function refreshComic(){
+                comicElement.src = 'images/Comic'+cComic+'.png';
+            }
+
+            function first(){
+                cComic = 1;
+                refreshComic();
+            }
+
+            function latest(){
+                cComic = comicsAmount;
+                refreshComic();
+            }
+
+            function next(){
+                cComic += 1;
+                if (cComic > comicsAmount){
+                    cComic = comicsAmount;
+                }
+                refreshComic();
+            }
+
+            function previous(){
+                cComic -= 1;
+                if (cComic < 1){
+                    cComic = 1;
+                }
+                refreshComic();
+            }
+        </script>
+    </head>
+
+    <body>
+        <script>
+            document.body.onload = function(){
+                comicElement = document.getElementById("comic");
+                refreshComic();
+            }
+        </script>
+        
+        <div id='content'>
+            <p><img src="./header.png" width="50%"/></p>
+            <p><i>A comic written and illustrated by AI (with a little human help) about players in a roleplaying game.</i></p>
+            <p><a href="../../links.html">Other Parts of the Site</a></p>
+            <nav>
+                <button onclick='first();'><<</button>
+                <button onclick='previous();'><</button>
+                <button onclick='next();'>></button>
+                <button onclick='latest();'>>></button>
+            </nav>
+            <hr/>
+            <img id='comic' src='' onclick='next();'/>
+        </div>
+    </body>
+</html>

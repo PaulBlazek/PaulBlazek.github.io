@@ -11156,6 +11156,8 @@
             function start() {
                 loadData();
                 canvas = document.getElementById('game');
+				canvas.width = canvasSize[0];
+				canvas.height = canvasSize[1];
                 ctx = canvas.getContext('2d');
                 $('#nextTurn').hide();
                 $("#loadGame").hide();

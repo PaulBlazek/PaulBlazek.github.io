@@ -59,6 +59,7 @@
                 return false;
             }
             
+			canvasSize = [1350,600]; //width='1350' height='600'
             saidMessage = false;
             function saveData() {
                 console.log('Saving...');
@@ -76,6 +77,7 @@
                 }*/
                 ldb.set('dvjprofiles',JSON.stringify(profiles));
                 localStorage.setItem("dvjprofileNames",JSON.stringify(profileNames));
+                localStorage.setItem("dvjCanvas",JSON.stringify(canvasSize));
             }
 
             function exportGame(){
@@ -115,7 +117,12 @@
                     console.log('Loading Complete!');
                     //update();
                 });
-                console.log('Loading...')
+                console.log('Loading...');
+
+                x = JSON.parse(localStorage.getItem("dvjCanvas",canvasSize));
+				if (x){
+					canvasSize = x;
+				}
             }
             
             state = 'menu';

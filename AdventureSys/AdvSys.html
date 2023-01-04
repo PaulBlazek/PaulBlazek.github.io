@@ -1,0 +1,503 @@
+<!DOCTYPE HTML/>
+<head>
+    <title>The Adventure System</title>
+    <style>
+        body {
+            text-align: center;
+            background-color: aliceblue;
+        }
+
+        .err {
+            color:crimson;
+        }
+
+        .world, .save {
+            margin: 0 20px 0 20px;
+        }
+    </style>
+    <script
+        src="https://code.jquery.com/jquery-3.4.1.min.js"
+        integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+        crossorigin="anonymous">
+    </script>
+    <script>
+        // 10x Local Storage. Source: https://stackoverflow.com/questions/5663166/is-there-a-way-to-increase-the-size-of-localstorage-in-google-chrome-to-avoid-qu
+        !function(){function e(t,o){return n?void(n.transaction("s").objectStore("s").get(t).onsuccess=function(e){var t=e.target.result&&e.target.result.v||null;o(t)}):void setTimeout(function(){e(t,o)},100)}var t=window.indexedDB||window.mozIndexedDB||window.webkitIndexedDB||window.msIndexedDB;if(!t)return void console.error("indexDB not supported");var n,o={k:"",v:""},r=t.open("d2",1);r.onsuccess=function(e){n=this.result},r.onerror=function(e){console.error("indexedDB request error"),console.log(e)},r.onupgradeneeded=function(e){n=null;var t=e.target.result.createObjectStore("s",{keyPath:"k"});t.transaction.oncomplete=function(e){n=e.target.db}},window.ldb={get:e,set:function(e,t){o.k=e,o.v=t,n.transaction("s","readwrite").objectStore("s").put(o)}}}();
+    </script>
+    <script>
+        profiles = {};
+        profileNames = [];
+        profile = 'default';
+
+        function saveData() {
+            saving = true;
+            console.log('Saving...');
+            ldb.set('advSysProfiles',JSON.stringify(profiles));
+            saving = false;
+        }
+        function loadData() {
+            ldb.get('advSysProfiles',function(value){
+                profiles = JSON.parse(value);
+                console.log('Loading Complete!');
+                start();
+                //update();
+            });
+            console.log('Loading...');
+        }
+            
+        function isIn(item,array) {
+            for (var i = 0; i < array.length; i++) {
+                if (item == array[i]) {
+                    return true;
+                }
+            }
+            
+            return false;
+        }
+
+        function Profile(name){
+            this.name = name;
+            profiles[this.name] = this;
+            this.backgroundColor = 'aliceblue';
+            this.worlds = {};
+            this.worldNames = [];
+            this.saves = {};
+            this.saveNames = [];
+            this.options = {};
+        }
+
+        function Save(name,world,scene,stats={},tags={}){
+            this.name = name;
+            this.world = world;
+            this.scene = scene;
+            this.stats = stats;
+            this.tags = tags;
+        }
+        Save.prototype.html = function(){
+            html = '<p id="'+this.name+'">';
+
+            html += '<button class="save" onclick="loadSave(\''+this.name+'\')"><h3>'+this.name+'</h3></button>';
+            html += '<button onclick="deleteSave(\''+this.name+'\')">Delete Save</button>';
+
+            html += '</p>';
+            return html;
+        }
+
+        function World(name){
+            this.name = name;
+            this.scenes = {};
+            this.scenes['start'] = new Scene('start'); // Always start with a "start" scene
+        }
+        World.prototype.html = function(){
+            html = '<p id="'+this.name+'">';
+
+            html += '<button class="world" onclick="loadWorld(\''+this.name+'\')"><h3>'+this.name+'</h3></button>';
+            html += '<button onclick="deleteWorld(\''+this.name+'\')">Delete World</button>';
+
+            html += '</p>';
+            return html;
+        }
+
+        function Scene(name){
+            this.name = name;
+            this.sections = [];
+        }
+
+        function Section(type){
+            this.type = type;
+            this.value = '';
+            this.pathDestination = '';
+        }
+
+        Section.prototype.html = function(numericalId){
+            html = '<p id="'+numericalId+'">';
+            if (mode == 'edit'){
+                if (this.type == 'text'){ // text,path,ending,stat,tag
+                    html += '<textarea id="field'+numericalId+'" type="textarea" rows="4" cols="50" onchange="saveScene()">'+this.value+'</textarea>';
+                } else if (this.type == 'path'){
+                    html += '<input id="field'+numericalId+'" value="'+this.value+'" type="text" onchange="saveScene()"/> -> <input id="field'+numericalId+'_destination" value="'+this.pathDestination+'" type="text" onchange="saveScene()"/>'
+                    html += '<button onclick="followPath('+numericalId+')">Follow Path</button>';
+                } else if (this.type == 'ending'){
+                    html += '<h2>THE END</h2>';
+                } else if (this.type == 'stat'){
+                    html += '<select id="field'+numericalId+'">';
+                }
+
+                html += '<button onclick="deleteSection('+numericalId+')">Delete Section</button>';
+                html += '<button onclick="moveUp('+numericalId+')">Move Up</button>';
+                html += '<button onclick="moveDown('+numericalId+')">Move Down</button>';
+            } else {
+                // TODO
+            }
+
+            html += '</p>';
+            return html
+        }
+
+        Section.prototype.saveValue = function(id){
+            if (this.type == 'text'){
+                if (!($('#field'+id).val())){return;}
+                this.value = $('#field'+id).val();
+            } else if (this.type == 'path'){
+                if (($('#field'+id).val())){
+                    this.value = $('#field'+id).val();
+                } if (($('#field'+id+'_destination').val())){
+                    this.pathDestination = $('#field'+id+'_destination').val();
+                }
+            }
+        }
+
+        saving = false;
+        $(document).ready(function(){
+            loadData();
+            
+            $('#loadSaves').hide();
+            $('#newGame').hide();
+            $('#newWorld').hide();
+            $('#game').hide();
+            $('#createSave').hide();
+            $('#mainMenu').hide();
+            window.onbeforeunload = function() {
+                if (saving){
+                    return "Saving in progress, please wait until saving is completed.";
+                }
+            }
+        });
+
+        function start(){
+            if (Object.keys(profiles).length == 0){
+                // Default profile setup
+                profiles['default'] = new Profile('default');
+                profile = 'default';
+                saveData();
+            }
+            $('#loading').fadeOut(screenSpeed,function(){
+                $('#mainMenu').fadeIn(screenSpeed);
+            });
+        }
+
+        screenSpeed = 500;
+
+        function showNewWorld(){
+            $('#newGame').fadeOut(screenSpeed,function(){
+                $('#newWorld').fadeIn(screenSpeed);
+            });
+
+            // Also reload the input field value and error field - TODO
+        }
+
+        function hideNewWorld(){
+            $('#newWorld').fadeOut(screenSpeed,function(){
+                $('#mainMenu').fadeIn(screenSpeed);
+            });
+        }
+
+        function showNewGame(){
+            // Swap screens
+            $('#mainMenu').fadeOut(screenSpeed,function(){
+                $('#newGame').fadeIn(screenSpeed);
+            });
+
+            reloadWorlds();
+        }
+
+        function reloadWorlds(){
+            $('#worldList').html('');
+            for (var i = 0; i < profiles[profile].worldNames.length; i++){
+                profiles[profile].worlds[profiles[profile].worldNames[i]].html = World.prototype.html;
+                $('#worldList').append(profiles[profile].worlds[profiles[profile].worldNames[i]].html());
+            }
+        }
+
+        function hideNewGame(){
+            // Swap screens
+            $('#newGame').fadeOut(screenSpeed,function(){
+                $('#mainMenu').fadeIn(screenSpeed);
+            });
+        }
+
+        function showSaves(){
+            // Swap screens
+            $('#mainMenu').fadeOut(screenSpeed,function(){
+                $('#loadSaves').fadeIn(screenSpeed);
+            });
+
+            // Also reload the save elements - TODO
+            reloadSaves();
+        }
+
+        function reloadSaves(){
+            $('#saveList').html('');
+            for (var i = 0; i < profiles[profile].saveNames.length; i++){
+                profiles[profile].saves[profiles[profile].saveNames[i]].html = Save.prototype.html;
+                $('#saveList').append(profiles[profile].saves[profiles[profile].saveNames[i]].html());
+            }
+        }
+
+        function hideSaves(){
+            // Swap screens
+            $('#loadSaves').fadeOut(screenSpeed,function(){
+                $('#mainMenu').fadeIn(screenSpeed);
+            });
+        }
+
+        function checkWorldName(){
+            $('#worldNameError').text("");
+
+            newName = $('#worldName').val();
+            if (newName == ''){
+                $('#worldNameError').text("World name needed");
+                return;
+            } else if (isIn(newName,profiles[profile].worldNames)){
+                $('#worldNameError').text("World name already in use on this profile.");
+                return;
+            }
+
+            profiles[profile].worlds[newName] = new World(newName);
+            profiles[profile].worldNames.push(newName);
+            saveData();
+
+            $('#newWorld').fadeOut(screenSpeed,function(){
+                startWorld(newName);
+            });
+        }
+
+        function startWorld(w){
+            currentWorld = profiles[profile].worlds[w];
+            currentScene = currentWorld.scenes['start'];
+            loadScene();
+        }
+
+        stats = {};
+        tags = {};
+        function loadWorld(w){
+            $("#newGame").fadeOut(screenSpeed,function(){
+                currentWorld = profiles[profile].worlds[w];
+                currentScene = currentWorld.scenes['start'];
+                loadScene();
+            });
+            stats = {};
+            tags = {};
+        }
+
+        var mode = 'edit'; // edit or play
+        function loadScene(skipFade=false){
+            $('#sections').html('');
+            for (var i = 0; i < currentScene.sections.length; i++){
+                currentScene.sections[i].html = Section.prototype.html;
+                $('#sections').append(currentScene.sections[i].html(i));
+            }
+
+            if (mode == 'edit'){
+                $('#sections').append('<div id="newSections"></div>');
+                $('#sections').append('<p><button onclick="newSection();">Add new section</button></p>');
+            }
+
+            if (!skipFade){
+                $('#game').fadeIn(screenSpeed);
+            }
+
+            $('#sceneReminder').text('Current Scene: '+currentScene.name)
+        }
+
+        function saveScene(){ // Auto-triggers after each edit
+            for (var s = 0; s < currentScene.sections.length; s++){
+                currentScene.sections[s].saveValue = Section.prototype.saveValue;
+                currentScene.sections[s].saveValue(s);
+            }
+            saveData();
+        }
+
+        function deleteSection(id){
+            currentScene.sections.splice(id,1);
+            saveData();
+            loadScene(true);
+        }
+        function moveUp(id){ // 1,2,3
+            if (id == 0){return;} // Already at the top
+            s = currentScene.sections.splice(id,1)[0];
+            
+            if (id == 1){
+                currentScene.sections.unshift(s);
+            } else {
+                currentScene.sections.splice(id-1,0,s);
+            }
+            
+            saveData();
+            loadScene(true);
+        }
+        function moveDown(id){
+            if (id == currentScene.sections.length-1){return;}
+            s = currentScene.sections.splice(id,1)[0];
+            currentScene.sections.splice(id+1,0,s);
+            
+            saveData();
+            loadScene(true);
+        }
+
+        function newSection(){
+            $('#newSections').html('<p><button onclick=addSection("text")>TEXT</button><button onclick=addSection("stat")>STAT</button><button onclick=addSection("tag")>TAG</button><button onclick=addSection("path")>PATH</button><button onclick=addSection("ending")>ENDING</button></p>');
+        }
+        function addSection(t){
+            s = new Section(t);
+            currentScene.sections.push(s);
+            saveData();
+            loadScene(true);
+        }
+
+        function exitWorld(){
+            // Give the player the option to create a saveState first
+            $('#game').fadeOut(screenSpeed,function(){
+                $('#createSave').fadeIn(screenSpeed);
+            });
+
+            // TODO - Wipe input val (Or do not... To make overwriting easier?)
+        }
+
+        function backToGame(){
+            $('#createSave').fadeOut(screenSpeed,function(){
+                $('#game').fadeIn(screenSpeed);
+            });
+        }
+
+        function hideSaveGame(){
+            $('#createSave').fadeOut(screenSpeed,function(){
+                $('#mainMenu').fadeIn(screenSpeed);
+            });
+        }
+
+        function checkSaveName(){
+            $('#saveNameError').text("");
+
+            newName = $('#saveName').val();
+            if (newName == ''){
+                $('#saveNameError').text("Save name needed");
+                return;
+            } else if (isIn(newName,profiles[profile].saveNames) && $('#saveButton').text() != "Overwrite Save"){
+                $('#saveNameError').text("Save name already in use on this profile, are you sure you want to overwrite?");
+                $('#saveButton').text("Overwrite Save");
+                return;
+            }
+
+            profiles[profile].saves[newName] = new Save(newName,currentWorld.name,currentScene.name); // TODO - tags & stats
+            profiles[profile].saveNames.push(newName);
+            saveData();
+            refreshSaveButton();
+
+            $('#createSave').fadeOut(screenSpeed,function(){
+                $('#mainMenu').fadeIn(screenSpeed);
+            });
+        }
+
+        function refreshSaveButton(){
+            $('#saveButton').text("Save State");
+        }
+
+        function deleteWorld(id){
+            if (!confirm("Are you sure you want to delete world "+id+"?")){return;}
+            delete profiles[profile].worlds[id];
+            for (var i = 0; i < profiles[profile].worldNames.length; i++){
+                if (profiles[profile].worldNames[i] == id){
+                    profiles[profile].worldNames.splice(i,1);
+                    break;
+                }
+            }
+
+            saveData();
+            reloadWorlds();
+        }
+
+        function loadSave(id){
+            s = profiles[profile].saves[id];
+            $("#loadSaves").fadeOut(screenSpeed,function(){
+                currentWorld = profiles[profile].worlds[s.world];
+                currentScene = currentWorld.scenes[s.scene];
+                loadScene();
+            });
+            stats = s.stats;
+            tags = s.tags;
+        }
+
+        function deleteSave(id){
+            if (!confirm("Are you sure you want to delete save "+id+"?")){return;}
+            delete profiles[profile].saves[id];
+            for (var i = 0; i < profiles[profile].saveNames.length; i++){
+                if (profiles[profile].saveNames[i] == id){
+                    profiles[profile].saveNames.splice(i,1);
+                    break;
+                }
+            }
+
+            saveData();
+            reloadSaves();
+        }
+
+        function followPath(id){
+            s = currentScene.sections[id];
+            if (!(s.pathDestination in currentWorld.scenes)){
+                newScene = new Scene(s.pathDestination);
+                currentWorld.scenes[s.pathDestination] = newScene;
+            }
+            currentScene = currentWorld.scenes[s.pathDestination];
+
+            saveData();
+            $("#game").fadeOut(screenSpeed,loadScene);
+        }
+        
+    </script>
+    <link rel="shortcut icon" href="../favicon.ico">
+</head>
+<body>
+    <div id="loading">
+        <h1>The Adventure System</h1>
+        <p><a href="../links.html">Other Parts of the Site</a></p>
+        <h3>Loading your saved data...</h3>
+    </div>
+
+    <div id='mainMenu'>
+        <h1>The Adventure System</h1>
+        <p><a href="../links.html">Other Parts of the Site</a></p>
+        <p>Current Profile: <span id="cProfile">Default</span> <button>Switch Profile</button></p>
+        <p><button onclick="showNewGame()">New Game</button></p>
+        <p><button onclick="showSaves()">Load Game</button></p>
+        <p><button>Options</button></p>
+    </div>
+
+    <div id='loadSaves'>
+        <h1>Load Saved Game</h1>
+        <p><button onclick="hideSaves()">Back</button></p>
+        <div id='saveList'></div>
+        <p id="noSaves"></p>
+    </div>
+
+    <div id='newGame'>
+        <h1>New Game, choose a world</h1>
+        <p><button onclick="showNewWorld()">New World</button></p>
+        <div id='worldList'></div>
+        <p><button onclick="hideNewGame()">Cancel</button></p>
+    </div>
+
+    <div id="newWorld">
+        <h1>Name your new world</h1>
+        <p><input type="text" id='worldName'/><span id="worldNameError" class="err"></span></p>
+        <p><button onclick="checkWorldName()">A world has been named</button></p>
+        <p><button onclick="hideNewWorld()">Cancel</button></p>
+    </div>
+
+    <div id="game">
+        <p><button onclick="exitWorld()" style="text-align:left;">Exit World</button><button style="text-align:right" id="toggleMode">Current Mode: Edit Mode</button></p>
+        <p id="sceneReminder"></p>
+        <div id="sections">
+
+        </div>
+    </div>
+
+    <div id="createSave">
+        <h1>Save your progress within your world?</h1>
+        <h2><i>Your world is saved automatically.</i></h2>
+        <p>Name your save: <input onchange="refreshSaveButton()" type="text" id='saveName'/><span id="saveNameError" class="err"></span></p>
+        <p><button id="saveButton" onclick="checkSaveName()">Save State</button></p>
+        <p><button onclick="backToGame()">Cancel</button></p>
+        <p><button onclick="hideSaveGame()">Do not save</button></p>
+    </div>
+</body>

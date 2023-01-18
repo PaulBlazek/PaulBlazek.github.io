@@ -11093,6 +11093,10 @@
 						x += 201;
 						cardsOnTable.push(c);
 						continue;
+					} else if (profiles[profile].deck[i].name.includes("[ETHEREAL]")){
+						// CARD DELETION
+						//profiles[profile]['destroyed cards'].push(profiles[profile].deck[i]); // Nah
+						continue;
 					}
                     decks[0].push(profiles[profile].deck[i]);
                 }

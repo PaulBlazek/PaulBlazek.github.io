@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple Trading Card Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+    .container {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 20px;
+    }
+    .player, .ai {
+      border: 2px solid #333;
+      border-radius: 5px;
+      padding: 10px;
+      width: 200px;
+    }
+    .card {
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 5px;
+      margin-bottom: 5px;
+    }
+    .button {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Simple Trading Card Game</h1>
+  <div class="container">
+    <div class="player">
+      <h2>Player</h2>
+      <p>Health: <span id="player-health">10</span></p>
+      <p>Mana: <span id="player-mana">0</span></p>
+      <p>Turns: <span id="player-turns">0</span></p>
+      <div class="hand">
+        <h3>Hand</h3>
+        <div class="player-hand"></div>
+      </div>
+      <div class="field">
+        <h3>Field</h3>
+        <div class="player-field"></div>
+      </div>
+      <button class="button" onclick="endTurn()">End Turn</button>
+    </div>
+    <div class="ai">
+      <h2>AI</h2>
+      <p>Health: <span id="ai-health">10</span></p>
+      <p>Mana: <span id="ai-mana">0</span></p>
+      <p>Turns: <span id="ai-turns">0</span></p>
+      <div class="hand">
+        <h3>Hand</h3>
+        <div class="ai-hand"></div>
+      </div>
+      <div class="field">
+        <h3>Field</h3>
+        <div class="ai-field"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Card constructor
+    function Card(name, attack, defense, cost) {
+      this.name = name;
+      this.attack = attack;
+      this.defense = defense;
+      this.cost = cost;
+    }
+
+    // Sample cards
+    const cards = [
+      new Card("Goblin", 2, 1, 1),
+      new Card("Knight", 3, 2, 2),
+      new Card("Dragon", 5, 4, 3)
+    ];
+
+    // Player and AI hands
+    const playerHand = document.querySelector('.player-hand');
+    const aiHand = document.querySelector('.ai-hand');
+    let playerMana = 1;
+    let aiMana = 0;
+    let playerTurns = 1;
+    let aiTurns = 0;
+
+    // Draw cards for player and AI
+    function drawCards() {
+      for (let i = 0; i < 3; i++) {
+        playerHand.appendChild(createCardElement(cards[Math.floor(Math.random() * cards.length)]));
+        aiHand.appendChild(createCardElement(cards[Math.floor(Math.random() * cards.length)]));
+      }
+    }
+
+    // Create card element
+    function createCardElement(card) {
+      const cardElement = document.createElement('div');
+      cardElement.classList.add('card');
+      cardElement.textContent = `${card.name} (ATK: ${card.attack}, DEF: ${card.defense}, Cost: ${card.cost})`;
+      cardElement.dataset.cost = card.cost;
+      cardElement.addEventListener('click', function() {
+        playCard(card);
+      });
+      return cardElement;
+    }
+
+    // Play card
+    function playCard(card) {
+      if (playerMana >= card.cost) {
+        playerMana -= card.cost;
+        document.getElementById('player-mana').textContent = playerMana;
+        playerHand.removeChild(event.target);
+        const cardElement = createCardElement(card);
+        document.querySelector('.player-field').appendChild(cardElement);
+      } else {
+        alert("Not enough mana to play this card.");
+      }
+    }
+
+    // End turn
+    function endTurn() {
+      playerTurns++;
+      document.getElementById('player-turns').textContent = playerTurns;
+      playerMana += playerTurns;
+      document.getElementById('player-mana').textContent = playerMana;
+      aiTurn();
+    }
+
+    // AI turn
+    function aiTurn() {
+      aiTurns++;
+      document.getElementById('ai-turns').textContent = aiTurns;
+      aiMana += aiTurns;
+      document.getElementById('ai-mana').textContent = aiMana;
+      const aiHandCards = document.querySelectorAll('.ai-hand .card');
+      for (let card of aiHandCards) {
+        if (aiMana >= parseInt(card.dataset.cost)) {
+          aiMana -= parseInt(card.dataset.cost);
+          document.getElementById('ai-mana').textContent = aiMana;
+          aiHand.removeChild(card);
+          const cardElement = createCardElement(cards[Math.floor(Math.random() * cards.length)]);
+          document.querySelector('.ai-field').appendChild(cardElement);
+        }
+      }
+    }
+
+    // Initialize the game
+    function init() {
+      drawCards();
+    }
+
+    // Run the game
+    init();
+  </script>
+</body>
+</html>

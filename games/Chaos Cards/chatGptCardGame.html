@@ -24,6 +24,7 @@
       border-radius: 5px;
       padding: 5px;
       margin-bottom: 5px;
+      background-color: white;
     }
     .button {
       margin-top: 10px;
@@ -32,6 +33,7 @@
 </head>
 <body>
   <h1>Simple Trading Card Game</h1>
+  <div id="deck"></div>
   <div class="container">
     <div class="player">
       <h2>Player</h2>
@@ -83,9 +85,9 @@
     // Player and AI hands
     const playerHand = document.querySelector('.player-hand');
     const aiHand = document.querySelector('.ai-hand');
-    let playerMana = 1;
+    let playerMana = 0;
     let aiMana = 0;
-    let playerTurns = 1;
+    let playerTurns = 0;
     let aiTurns = 0;
 
     // Draw cards for player and AI
@@ -108,53 +110,144 @@
       return cardElement;
     }
 
+    // Create a blank card element for animation purposes
+    function createDummyCardElement(){
+      const cardElement = document.createElement('div');
+      cardElement.classList.add('card');
+      return cardElement;
+    }
+
     // Play card
     function playCard(card) {
       if (playerMana >= card.cost) {
         playerMana -= card.cost;
         document.getElementById('player-mana').textContent = playerMana;
-        playerHand.removeChild(event.target);
-        const cardElement = createCardElement(card);
-        document.querySelector('.player-field').appendChild(cardElement);
+        const cardElement = event.target;
+        animateCardDraw(cardElement, document.querySelector('.player-field'));
+        cardElement.classList.remove('card-in-hand');
       } else {
         alert("Not enough mana to play this card.");
       }
     }
 
-    // End turn
+    // End player turn
     function endTurn() {
-      playerTurns++;
-      document.getElementById('player-turns').textContent = playerTurns;
-      playerMana += playerTurns;
-      document.getElementById('player-mana').textContent = playerMana;
-      aiTurn();
+      playerMana = 0;
+      startAiTurn();
     }
 
     // AI turn
     function aiTurn() {
-      aiTurns++;
-      document.getElementById('ai-turns').textContent = aiTurns;
-      aiMana += aiTurns;
-      document.getElementById('ai-mana').textContent = aiMana;
+      // Play cards if possible (Really lazily)
       const aiHandCards = document.querySelectorAll('.ai-hand .card');
       for (let card of aiHandCards) {
         if (aiMana >= parseInt(card.dataset.cost)) {
           aiMana -= parseInt(card.dataset.cost);
           document.getElementById('ai-mana').textContent = aiMana;
-          aiHand.removeChild(card);
-          const cardElement = createCardElement(cards[Math.floor(Math.random() * cards.length)]);
-          document.querySelector('.ai-field').appendChild(cardElement);
+          animateCardDraw(card, document.querySelector('.ai-field'),fromDeck=0,after=aiTurn);
+          return;
+          //aiHand.removeChild(card);
+          //const cardElement = card;
+          //document.querySelector('.ai-field').appendChild(cardElement);
         }
       }
+      
+      aiMana = 0;
+      // Pass to the player now
+      startPlayerTurn();
     }
 
     // Initialize the game
     function init() {
       drawCards();
+      startPlayerTurn();
     }
 
     // Run the game
     init();
+
+    // Draw a card from the specified hand
+    function drawCard(hand,after=function(){}) {
+        var cardElement = createCardElement(cards[Math.floor(Math.random() * cards.length)]);
+        animateCardDraw(cardElement, hand, fromDeck=1,after=after);
+        //hand.appendChild(createCardElement(cards[Math.floor(Math.random() * cards.length)]));
+    }
+
+    currentTurn = 0; // 0=player,1=ai
+    // Draw a card at the start of the player's turn
+    function startPlayerTurn() {
+        playerTurns++;
+        document.getElementById('player-turns').textContent = playerTurns;
+        playerMana += playerTurns;
+        document.getElementById('player-mana').textContent = playerMana;
+        drawCard(playerHand);
+        currentTurn = 0;
+    }
+
+    // Draw a card at the start of the AI's turn
+    function startAiTurn() {
+        currentTurn = 1;
+        aiTurns++;
+        document.getElementById('ai-turns').textContent = aiTurns;
+        aiMana += aiTurns;
+        document.getElementById('ai-mana').textContent = aiMana;
+        drawCard(aiHand,after=aiTurn);
+        //aiTurn();
+    }
+
+    // Animate card draw/play
+    function animateCardDraw(cardElement, targetContainer,fromDeck=0,after=function(){}) {
+
+      if (fromDeck){
+        cardElement.style.position = "absolute";
+        cardElement.style.top = 5;
+        cardElement.style.left = 5;
+        document.getElementById("deck").appendChild(cardElement);
+      }
+      const initialPosition = cardElement.getBoundingClientRect();
+      console.log("Moving card from initial position: ("+initialPosition.top+","+initialPosition.left+")");
+
+      var blank = createDummyCardElement();
+      blank.style.width = "188px";
+      blank.style.height = (initialPosition.height-10)+"px";
+      targetContainer.appendChild(blank);
+
+      if (fromDeck){blank.style.height = "38px"}
+
+      const targetPosition = blank.getBoundingClientRect();
+      
+      const dx = targetPosition.left - initialPosition.left;
+      var dy = targetPosition.top - initialPosition.top-36-5-1.6;
+      if (fromDeck){dy = targetPosition.top - initialPosition.top;}
+      const distance = Math.sqrt(dx*dx + dy*dy);
+
+      const duration = 1000; // milliseconds
+      const startTime = performance.now();
+
+      cardElement.style.position = "absolute";
+      cardElement.style.width = "188px";
+      function animate(currentTime) {
+        const elapsedTime = currentTime - startTime;
+        const progress = Math.min(elapsedTime / duration, 1);
+
+        cardElement.style.left = initialPosition.left + dx * progress + 'px';
+        cardElement.style.top = initialPosition.top + dy * progress + 'px';
+
+        if (progress < 1 && !(cardElement.getBoundingClientRect.top >= blank.getBoundingClientRect.top)) {
+          requestAnimationFrame(animate);
+        } else {
+          blank.replaceWith(cardElement)
+          cardElement.style.left = 'auto';
+          cardElement.style.top = 'auto';
+          cardElement.style.position = "";
+          cardElement.style.width = "";
+          after();
+        }
+      }
+
+      requestAnimationFrame(animate);
+    }
+    
   </script>
 </body>
 </html>

@@ -103,7 +103,10 @@
       const cardElement = document.createElement('div');
       cardElement.classList.add('card');
       cardElement.textContent = `${card.name} (ATK: ${card.attack}, DEF: ${card.defense}, Cost: ${card.cost})`;
+      cardElement.dataset.attack = card.attack;
+      cardElement.dataset.defense = card.defense;
       cardElement.dataset.cost = card.cost;
+      cardElement.dataset.name = card.name;
       cardElement.addEventListener('click', function() {
         playCard(card);
       });
@@ -117,13 +120,16 @@
       return cardElement;
     }
 
+    canPlay = 1;
     // Play card
     function playCard(card) {
+      if (!playCard || currentTurn){return;}
       if (playerMana >= card.cost) {
         playerMana -= card.cost;
         document.getElementById('player-mana').textContent = playerMana;
         const cardElement = event.target;
-        animateCardDraw(cardElement, document.querySelector('.player-field'));
+        canPlay=0;
+        animateCardDraw(cardElement, document.querySelector('.player-field'),fromDeck=0,after=function(){canPlay=1;});
         cardElement.classList.remove('card-in-hand');
       } else {
         alert("Not enough mana to play this card.");
@@ -176,12 +182,12 @@
     currentTurn = 0; // 0=player,1=ai
     // Draw a card at the start of the player's turn
     function startPlayerTurn() {
+        resolveCombat();
         playerTurns++;
         document.getElementById('player-turns').textContent = playerTurns;
         playerMana += playerTurns;
         document.getElementById('player-mana').textContent = playerMana;
-        drawCard(playerHand);
-        currentTurn = 0;
+        drawCard(playerHand,after=function(){currentTurn=0;});
     }
 
     // Draw a card at the start of the AI's turn
@@ -246,6 +252,60 @@
       }
 
       requestAnimationFrame(animate);
+    }
+
+    // Attack function
+    function resolveCombat() {
+      const playerField = document.querySelector('.player-field').children;
+      const aiField = document.querySelector('.ai-field').children;
+
+      for (let i = 0; i < Math.max(playerField.length,aiField.length); i++) {
+        const playerCard = playerField[i];
+        const aiCard = aiField[i];
+
+        if (aiCard && playerCard) { // Fight!
+          const playerAttack = parseInt(playerCard.dataset.attack);
+          const aiDefense = parseInt(aiCard.dataset.defense);
+          
+          const aiAttack = parseInt(aiCard.dataset.attack);
+          const playerDefense = parseInt(playerCard.dataset.defense);
+
+          if (playerAttack > aiDefense) {
+            const damage = playerAttack - aiDefense;
+            const newDefense = aiDefense - damage;
+            if (newDefense <= 0) {
+              aiCard.remove(); // Remove card if health drops to or below 0
+              newDefense = 0;
+            } else {
+              aiCard.dataset.defense = newDefense;
+              aiCard.textContent = `${aiCard.dataset.name} (ATK: ${aiCard.dataset.attack}, DEF: ${aiCard.dataset.defense}`;
+            }
+          }
+          if (aiAttack > playerDefense) {
+            const damage = aiAttack - playerDefense;
+            const newDefense = playerDefense - damage;
+            if (newDefense <= 0) {
+              playerCard.remove(); // Remove opponent's card if health drops to or below 0
+              newDefense = 0;
+            } else {
+              playerCard.dataset.defense = newDefense;
+              playerCard.textContent = `${playerCard.dataset.name} (ATK: ${playerCard.dataset.attack}, DEF: ${playerCard.dataset.defense}`;
+            }
+          }
+        } else if (playerCard) { // Direct attack on AI
+          const playerAttack = parseInt(playerCard.dataset.attack);
+          const aiHealth = parseInt(document.getElementById('ai-health').textContent);
+
+          document.getElementById('ai-health').textContent = Math.max(0, aiHealth - playerAttack);
+        } else if (aiCard) { // Direct attack on player
+          const aiAttack = parseInt(aiCard.dataset.attack);
+          const playerHealth = parseInt(document.getElementById('player-health').textContent);
+
+          document.getElementById('player-health').textContent = Math.max(0, playerHealth - aiAttack);
+        } else {
+          return; // Get out of here!
+        }
+      }
     }
     
   </script>

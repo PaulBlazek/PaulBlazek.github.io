@@ -103,6 +103,17 @@
             this.sections = [];
         }
 
+        function sceneSelectModified(numericalId){
+            var selectedValue = document.getElementById('field'+numericalId+'select').value;
+
+            if (selectedValue == 'newScene'){
+                // TODO: Add new scene
+                return;
+            }
+
+            saveScene();
+        }
+
         function Section(type){
             this.type = type;
             this.value = '';
@@ -113,14 +124,36 @@
             html = '<p id="'+numericalId+'">';
             if (mode == 'edit'){
                 if (this.type == 'text'){ // text,path,ending,stat,tag
-                    html += '<textarea id="field'+numericalId+'" type="textarea" rows="4" cols="50" onchange="saveScene()">'+this.value+'</textarea>';
+                    html += '<textarea id="field'+numericalId+'" type="textarea" rows="4" cols="50" onchange="saveScene()">'+this.value+'</textarea><br/>';
                 } else if (this.type == 'path'){
-                    html += '<input id="field'+numericalId+'" value="'+this.value+'" type="text" onchange="saveScene()"/> -> <input id="field'+numericalId+'_destination" value="'+this.pathDestination+'" type="text" onchange="saveScene()"/>'
-                    html += '<button onclick="followPath('+numericalId+')">Follow Path</button>';
+                    html += 'Display Name: <input id="field'+numericalId+'" value="'+this.value+'" type="text" onchange="saveScene()"/> -> ';
+                    
+                    // Select a scene
+                    html += '<select id="field'+numericalId+'select" onchange="sceneSelectModified('+numericalId+')">';
+                    html += '   <option value="">Select a scene</option>';
+                    for (var i = 0; i < Object.keys(currentWorld.scenes).length; i++) {
+                        sceneName = currentWorld.scenes[Object.keys(currentWorld.scenes)[i]].name;
+                        
+                        html += '    <option '
+                        if (this.pathDestination == sceneName){html += 'selected '} // TODO
+                        html += 'value="'+sceneName+'">'+sceneName+'</option>';
+                    }
+                    html += '   <option value="newScene">Create New Scene</option>';
+                    html += '</select><br/>';
+                    
+                    html += '<br/><button onclick="followPath('+numericalId+')">Follow Path</button>';
                 } else if (this.type == 'ending'){
                     html += '<h2>THE END</h2>';
                 } else if (this.type == 'stat'){
                     html += '<select id="field'+numericalId+'">';
+                    html += '<option value="">Select a stat</option>';
+                    for (var i = 0; i < Object.keys(currentWorld.scenes).length; i++) {
+                        sceneName = currentWorld.scenes[Object.keys(currentWorld.scenes)[i]].name;
+                        
+                        html += '    <option value="'+sceneName+'">'+sceneName+'</option>';
+                    }
+                    html += '<option value="newScene">Create New Scene</option>';
+                    html += '</select><br/>';
                 }
 
                 html += '<button onclick="deleteSection('+numericalId+')">Delete Section</button>';
@@ -128,6 +161,15 @@
                 html += '<button onclick="moveDown('+numericalId+')">Move Down</button>';
             } else {
                 // TODO
+                if (this.type == 'text'){ // text,path,ending,stat,tag
+                    html += this.value;
+                } else if (this.type == 'path'){
+                    html += '<button onclick="followPath('+numericalId+')">'+this.value+'</button>'
+                } else if (this.type == 'ending'){
+                    html += '<h2>THE END</h2>';
+                } else if (this.type == 'stat'){
+                    // TODO
+                }
             }
 
             html += '</p>';
@@ -141,8 +183,9 @@
             } else if (this.type == 'path'){
                 if (($('#field'+id).val())){
                     this.value = $('#field'+id).val();
-                } if (($('#field'+id+'_destination').val())){
-                    this.pathDestination = $('#field'+id+'_destination').val();
+                }
+                if (($('#field'+id+'select').val()) && ($('#field'+id+'select').val() != 'newScene')){
+                    this.pathDestination = $('#field'+id+'select').val();
                 }
             }
         }
@@ -165,11 +208,13 @@
         });
 
         function start(){
-            if (Object.keys(profiles).length == 0){
+            if ((Object.keys(profiles).length == 0 && false) || profiles == {}){
                 // Default profile setup
                 profiles['default'] = new Profile('default');
                 profile = 'default';
                 saveData();
+            } else {
+                //loadData();
             }
             $('#loading').fadeOut(screenSpeed,function(){
                 $('#mainMenu').fadeIn(screenSpeed);
@@ -434,6 +479,10 @@
 
         function followPath(id){
             s = currentScene.sections[id];
+            if (!s.pathDestination){
+                return; // Path doesn't go anywhere yet!
+            }
+            
             if (!(s.pathDestination in currentWorld.scenes)){
                 newScene = new Scene(s.pathDestination);
                 currentWorld.scenes[s.pathDestination] = newScene;
@@ -444,6 +493,21 @@
             $("#game").fadeOut(screenSpeed,loadScene);
         }
         
+        function toggleMode(){
+            $("#game").fadeOut(screenSpeed,function(){
+                if (mode == 'edit'){
+                    mode = 'play';
+                    document.getElementById('toggleMode').innerHTML = 'Current Mode: Play Mode';
+                    document.getElementById('sceneReminder').hidden = true;
+                } else {
+                    mode = 'edit';
+                    document.getElementById('toggleMode').innerHTML = 'Current Mode: Edit Mode';
+                    document.getElementById('sceneReminder').hidden = false;
+                }
+                loadScene();
+            });
+        }
+
     </script>
     <link rel="shortcut icon" href="../favicon.ico">
 </head>
@@ -485,7 +549,7 @@
     </div>
 
     <div id="game">
-        <p><button onclick="exitWorld()" style="text-align:left;">Exit World</button><button style="text-align:right" id="toggleMode">Current Mode: Edit Mode</button></p>
+        <p><button onclick="exitWorld()" style="text-align:left;">Exit World</button><button style="text-align:right" id="toggleMode" onclick="toggleMode();">Current Mode: Edit Mode</button></p>
         <p id="sceneReminder"></p>
         <div id="sections">
 

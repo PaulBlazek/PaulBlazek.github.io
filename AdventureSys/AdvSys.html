@@ -107,11 +107,33 @@
             var selectedValue = document.getElementById('field'+numericalId+'select').value;
 
             if (selectedValue == 'newScene'){
+                document.getElementById('newSceneStuff'+numericalId).hidden = false;
                 // TODO: Add new scene
                 return;
             }
 
             saveScene();
+        }
+
+        function createScene(numericalId){
+            sceneName = document.getElementById('newSceneName'+numericalId).value;
+            if (isIn(sceneName,Object.keys(currentWorld.scenes))){
+                // Scene already exists!
+                alert("Scene "+sceneName+" already exists!");
+                return;
+            }
+
+            newScene = new Scene(sceneName);
+            currentWorld.scenes[sceneName] = newScene;
+
+            // Add an option to the select
+            document.getElementById('field'+numericalId+'select').innerHTML += '<option value="'+sceneName+'">'+sceneName+'</option>';
+            // Modify the select's value to point at the new option
+            document.getElementById('field'+numericalId+'select').value = newScene; // Set the path to go to the new scene
+            
+            saveScene(); // Save the changes to the scene
+
+            document.getElementById('newSceneStuff'+numericalId).hidden = true;
         }
 
         function Section(type){
@@ -135,11 +157,17 @@
                         sceneName = currentWorld.scenes[Object.keys(currentWorld.scenes)[i]].name;
                         
                         html += '    <option '
-                        if (this.pathDestination == sceneName){html += 'selected '} // TODO
+                        if (this.pathDestination == sceneName){html += 'selected '}
                         html += 'value="'+sceneName+'">'+sceneName+'</option>';
                     }
                     html += '   <option value="newScene">Create New Scene</option>';
-                    html += '</select><br/>';
+                    html += '</select>';
+
+                    html += '<span hidden id="newSceneStuff'+numericalId+'">';
+                    html += '<br/>Name of new scene: <input type="text" id="newSceneName'+numericalId+'"/>';
+                    html += '<button onclick="createScene('+numericalId+')">Create New Scene</button>';
+                    html += '<button onclick="document.getElementById(\'newSceneStuff'+numericalId+'\').hidden = true;">Cancel Scene Creation</button>';
+                    html += '</span>';
                     
                     html += '<br/><button onclick="followPath('+numericalId+')">Follow Path</button>';
                 } else if (this.type == 'ending'){
@@ -482,7 +510,7 @@
             if (!s.pathDestination){
                 return; // Path doesn't go anywhere yet!
             }
-            
+
             if (!(s.pathDestination in currentWorld.scenes)){
                 newScene = new Scene(s.pathDestination);
                 currentWorld.scenes[s.pathDestination] = newScene;

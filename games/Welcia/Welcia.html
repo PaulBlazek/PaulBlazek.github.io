@@ -1,0 +1,446 @@
+<!DOCTYPE HTML/>
+
+<head>
+    <title>Welcia</title>
+    <style>
+        body {
+            text-align: center;
+            background-color: gray;
+            color: white;
+            font-family: 'Comic Sans MS';
+        }
+
+        .menu button {
+            font-size: 200%;
+        }
+
+        .err {
+            color:crimson;
+        }
+
+        .world, .save {
+            margin: 0 20px 0 20px;
+        }
+
+        a {
+            color: blue;
+            text-decoration: underline;
+        }
+
+        .time {
+            color: green;
+        }
+    </style>
+    <script
+        src="https://code.jquery.com/jquery-3.4.1.min.js"
+        integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+        crossorigin="anonymous">
+    </script>
+    <script>
+        // 10x Local Storage. Source: https://stackoverflow.com/questions/5663166/is-there-a-way-to-increase-the-size-of-localstorage-in-google-chrome-to-avoid-qu
+        !function(){function e(t,o){return n?void(n.transaction("s").objectStore("s").get(t).onsuccess=function(e){var t=e.target.result&&e.target.result.v||null;o(t)}):void setTimeout(function(){e(t,o)},100)}var t=window.indexedDB||window.mozIndexedDB||window.webkitIndexedDB||window.msIndexedDB;if(!t)return void console.error("indexDB not supported");var n,o={k:"",v:""},r=t.open("d2",1);r.onsuccess=function(e){n=this.result},r.onerror=function(e){console.error("indexedDB request error"),console.log(e)},r.onupgradeneeded=function(e){n=null;var t=e.target.result.createObjectStore("s",{keyPath:"k"});t.transaction.oncomplete=function(e){n=e.target.db}},window.ldb={get:e,set:function(e,t){o.k=e,o.v=t,n.transaction("s","readwrite").objectStore("s").put(o)}}}();
+    </script>
+    <script>
+        //#region save/load and profiles
+        profiles = {};
+        profileNames = [];
+        profile = 'default';
+        function saveData() {
+            saving = true;
+            console.log('Saving...');
+            ldb.set('advSysProfiles',JSON.stringify(profiles));
+            saving = false;
+        }
+        function loadData() {
+            ldb.get('advSysProfiles',function(value){
+                profiles = JSON.parse(value);
+                console.log('Loading Complete!');
+                start();
+                //update();
+            });
+            console.log('Loading...');
+        }
+        //#endregion
+
+        //#region common functions
+        
+        function isIn(item,array) {
+            for (var i = 0; i < array.length; i++) {
+                if (item == array[i]) {
+                    return true;
+                }
+            }
+            
+            return false;
+        }
+        
+        function hideAndShow(from,to){
+            // Swap screens
+            $('#'+from).fadeOut(screenSpeed,function(){
+                $('#'+to).fadeIn(screenSpeed);
+            });
+        }
+
+        // Turns 65 into 1:05 etc
+        function formatMinutes(minutes) {
+            const hours = Math.floor(minutes / 60);
+            const mins = minutes % 60;
+            const formattedMins = mins.toString().padStart(2, '0');
+            return `${hours}:${formattedMins}`;
+        }
+
+        function formatTime(date) {
+            let hours = date.getHours();
+            const minutes = date.getMinutes();
+            const ampm = hours >= 12 ? 'pm' : 'am';
+            
+            hours = hours % 12;
+            hours = hours ? hours : 12; // The hour '0' should be '12'
+            
+            const formattedMinutes = minutes.toString().padStart(2, '0');
+            
+            return `${hours}:${formattedMinutes}${ampm}`;
+        }
+
+        // These functions allow adding/subtracting minutes and hours from the clock easily
+        Date.prototype.addMinutes = function(amount) {
+            const date = new Date(this.valueOf());
+            date.setMinutes(date.getMinutes() + amount);
+            return date;
+        };
+        Date.prototype.addHours = function(amount) {
+            const date = new Date(this.valueOf());
+            date.setHours(date.getHours() + amount);
+            return date;
+        };
+
+        //#endregion
+
+        function Profile(name){
+            this.name = name;
+            profiles[this.name] = this;
+            this.saves = {};
+            this.options = {};
+            this.achievements = {};
+            this.metaPoints = 0;
+            this.playedTutorial = 0; // Used later
+        }
+
+        saving = false;
+        screenSpeed = 0;
+        $(document).ready(function(){
+            loadData();
+            
+            $('#mainMenu').hide();
+            $('#newGame').hide();
+            $('#game').hide();
+            window.onbeforeunload = function() {
+                if (saving){
+                    return "Saving in progress, please wait until saving is completed.";
+                }
+            }
+        });
+
+        function start(){
+            if ((Object.keys(profiles).length == 0 && false) || profiles == {}){
+                // Default profile setup
+                profiles['default'] = new Profile('default');
+                profile = 'default';
+                saveData();
+            }
+            $('#loading').fadeOut(screenSpeed,function(){
+                $('#mainMenu').fadeIn(screenSpeed);
+            });
+        }
+
+        function showNewGame(from='mainMenu'){
+            // Swap screens
+            $('#'+from).fadeOut(screenSpeed,function(){
+                $('#newGame').fadeIn(screenSpeed);
+            });
+
+            $('#gameOptions').innerHTML = ''; // TODO
+        }
+
+        //#region Game Stuff
+
+        function Game(){
+            this.date = new Date('January 1, 2024 06:00:00'); // 6 am
+            this.player = new Player();
+            this.map = theMap;
+            this.currentLocation = this.map.getBedroom(this.player);
+            this.inMessage = false; // Basically: Should the screen refresh normally or are we in the middle of something?
+        }
+
+        Game.prototype.addMinutes = function(m){
+            var newDate = this.date.addMinutes(m);
+            this.date = newDate;
+        }
+
+        Game.prototype.addHours = function(h){
+            var newDate = this.date.addHours(h);
+            this.date = newDate;
+        }
+
+        function Player(){
+            this.sleepLast7Days = [8,8,8,8,8,8,8]; // Tracks toward sleep deprivation
+            this.fatigue = 0; // Out of 100
+            this.tempStress = 0; // Stress works by building up to 100, but some stress gain becomes lasting and persists over a long period of time
+            this.lastingStress = 0;
+            this.tags = {};
+        }
+
+        Player.prototype.hasTag = function(tagName){
+            if (this.tags[tagName]){return true;}
+            return false;
+        }
+
+        // Stores all the locations in the game
+        function GameMap(){
+            this.locations = {};
+            this.paths = {};
+        }
+        GameMap.prototype.getBedroom = function(player){
+            return this.locations['home-bedroom'];
+        }
+        var theMap = new GameMap();
+
+        function GameLocation(name,data){
+            this.data = data;
+            this.name=name;
+            if (isIn(name,Object.keys(theMap.locations))){console.log('ERROR: Location with name '+name+' already exists, overwriting...');}
+            theMap.locations[name] = this;
+
+            this.paths = [];
+            if (data.paths){ // data.paths - list of destinations
+                for (var i = 0; i < data.paths.length; i++){
+                    var p = data.paths[i];
+                    var path = new Path(name,p.dest,p);
+                    this.paths.push(path);
+                }
+            }
+
+            this.actions = [];
+            if (data.actions){
+                for (var i = 0; i < data.actions.length; i++){
+                    var a = data.actions[i];
+                    this.actions.push(a); // Don't need to create an object for an action
+                }
+            }
+
+            // Base description of the location to show at the top as function
+            this.description = false;
+            if (data.description){this.description = data.description;}
+
+            this.displayname = name;
+            if (data.displayname){this.displayname = data.displayname;}
+        }
+
+        function Path(start,end,data={}){
+            this.start = start;
+            this.end = end;
+            this.internalId = '';
+            if (this.start > this.end){
+                this.internalId = start+'-TO-'+end;
+            } else {
+                this.internalId = end+'-TO-'+start;
+            }
+
+            theMap.paths[this.internalId]=this;
+
+            this.time = 0; // Home many minutes to travel?
+            if (data.time){this.time = data.time}
+
+            if (data.traverse){this.traverse = data.traverse;}
+        }
+
+        // Move to new location
+        Path.prototype.traverse = function(){
+            gameData.currentLocation = gameData.map.locations[this.end]; // Change Locations
+            return true; // Required to take the time from the clock
+        }
+
+        // Show the player a message, by default have them click 'continue' to resume normal execution
+        // Can also pass in a after function in the data to execute that after clicking the continue
+        // Can pass in a different name for the click or even multiple options
+        function showMessage(msg,data={}){
+            gameData.inMessage = true;
+            gameData.postMessage = data.postMessage || function(){};
+
+            // Put the message on the screen
+            compiledHtml = '';
+            compiledHtml += '<p>'+msg+'</p>';
+
+            // TODO: Add the ability to pass in a list of options
+            compiledHtml += '<p><a onclick="resolveMessage()">';
+            if (data.continueMsg){compiledHtml+=data.continueMsg}
+            else {compiledHtml+='Continue'}
+            compiledHtml +='</a></p>';
+
+            document.getElementById('currentInfo').innerHTML = compiledHtml;
+        }
+
+        function resolveMessage(){
+            if (!gameData.inMessage){
+                console.log('Attempted to resolve a message while no message active!');
+                return;
+            }
+
+            gameData.inMessage = false;
+            gameData.postMessage();
+            if (!gameData.inMessage){
+                refreshDisplay(); // If we didn't chain into another message, refresh the display.
+            }
+        }
+
+        //#region Location Definitions
+        new GameLocation('home-bedroom',{
+            'paths':[{'dest':'home','time':5}]
+        });
+
+        new GameLocation('home',{
+            'paths':[{'dest':'apple street','time':5,'traverse':function(){
+                if (gameData.player.hasTag('tutorialReadyForSchool')){
+                    gameData.currentLocation = gameData.map.locations[this.end];
+                    return true; // Time cost = yes
+                } else {
+                    showMessage('You go to head outside and begin walking to school, but realize you still haven\'t eaten breakfast or grabbed your backpack with your schoolbooks yet!');
+                    return false; // Time cost = no
+                }
+            }}],
+            'actions':[{'name':'Get ready for school','time':15,
+                'action':function(){
+                    gameData.player.tags['tutorialReadyForSchool'] = 1;
+                    showMessage('You quickly eat breakfast and double-check that your backpack has all your books.');
+                },
+                'show':function(){
+                    if (gameData.player.hasTag('tutorialReadyForSchool')){
+                        return false; // Don't show if they already performed the action!
+                    }
+                    return true;
+                }
+            }]
+        });
+
+        new GameLocation('apple street',{
+            'paths':[{'dest':'blueberry street','time':15}]
+        });
+
+        new GameLocation('blueberry street',{
+            'paths':[{'dest':'school-hub','time':15}]
+        });
+
+        new GameLocation('school-hub',{
+            'paths':[{'dest':'assembly','time':0}] // Should be an action - fix later
+            ,'displayname':'School Entrance'
+        });
+
+        //#endregion
+
+        // TODO: Validate all paths with function call!
+
+        var gameData; // Stores the Game()
+        function startNewGame(){
+            hideAndShow('newGame','game');
+            gameData = new Game();
+            refreshDisplay();
+        }
+
+        function refreshDisplay(){
+            // Refresh the clock
+            document.getElementById('clock').innerHTML = 'Time: '+formatTime(gameData.date);
+
+            // Stop if we are in a message chain
+            if (gameData.inMessage){return;}
+
+            compiledHtml = '';
+            l = gameData.currentLocation;
+
+            if (l.description){
+                compiledHtml += '<p>'+l.description()+'</p>';
+            }
+
+            for (var i = 0; i < l.actions.length; i++){
+                a = l.actions[i];
+
+                if (a.show && !a.show()){ // function exists and function evaluates false
+                    continue;
+                }
+
+                compiledHtml += '<p><a onclick=takeAction('+i+')>'+a.name+'</a> <span class="time">('+formatMinutes(a.time || 0)+')</span></p>';
+            }
+
+            for (var i = 0; i < l.paths.length; i++){
+                p = l.paths[i];
+
+                if (p.show && !p.show()){ // function exists and function evaluates false
+                    continue;
+                }
+
+                compiledHtml += '<p><a onclick=takePath('+i+')>'+gameData.map.locations[p.end].displayname+'</a> <span class="time">('+formatMinutes(p.time)+')</span></p>';
+            }
+
+            document.getElementById('currentInfo').innerHTML = compiledHtml;
+        }
+
+        function takeAction(index){
+            l = gameData.currentLocation;
+
+            a = l.actions[index];
+            a.action();
+            if (a.time){gameData.addMinutes(a.time);} // Time cost
+
+            refreshDisplay();
+        }
+
+        function takePath(index){
+            l = gameData.currentLocation;
+
+            p = l.paths[index];
+            if (p.traverse() && p.time){
+                gameData.addMinutes(p.time);
+            }
+
+            refreshDisplay();
+        }
+
+        //#endregion
+
+    </script>
+</head>
+<body>
+    <div id="loading">
+        <h1>Welcia</h1>
+        <h2>Town of Strange Plants</h2>
+        <p><a href="../links.html">Other Parts of the Site</a></p>
+        <h3>Loading your saved data...</h3>
+    </div>
+
+    <div id='mainMenu' class='menu'>
+        <h1>Welcia</h1>
+        <h2>Town of Strange Plants</h2>
+        <p><a href="../links.html">Other Parts of the Site</a></p>
+        <p><button>Current Profile: <span id="cProfile">Default</span> </button></p>
+        <p><button onclick="showNewGame()">New Game</button></p>
+        <p><button onclick="showSaves()">Load Game</button></p>
+        <p><button>Options</button></p>
+    </div>
+
+    <div id='newGame' class='menu'>
+        <p><button onclick="hideAndShow('newGame','mainMenu')">Back</button></p>
+        <h1>New Game Setup</h1>
+        <span id="gameOptions">
+        </span>
+        <p><button onclick="startNewGame()">Start Game</button></p>
+    </div>
+
+    <div id="game">
+        <div class='pane' id='stats'>
+            <p id='clock'>ERROR</p>
+        </div>
+        <div class='pane' id='menuButtons'></div>
+        <div class='pane' id='currentInfo'>
+
+        </div>
+    </div>
+</body>

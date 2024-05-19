@@ -44,7 +44,7 @@
             });
             console.log('Loading...');
         }
-            
+        
         function isIn(item,array) {
             for (var i = 0; i < array.length; i++) {
                 if (item == array[i]) {
@@ -453,7 +453,9 @@
             }
 
             profiles[profile].saves[newName] = new Save(newName,currentWorld.name,currentScene.name); // TODO - tags & stats
-            profiles[profile].saveNames.push(newName);
+            if (!isIn(newName,profiles[profile].saveNames)) {
+                profiles[profile].saveNames.push(newName);
+            }
             saveData();
             refreshSaveButton();
 

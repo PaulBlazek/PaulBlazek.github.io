@@ -25,10 +25,21 @@
         a {
             color: blue;
             text-decoration: underline;
+            cursor: pointer;
         }
 
         .time {
             color: green;
+        }
+
+        .tutorial {
+            color:gold;
+            font-style: italic;
+        }
+
+        #currentinfo {
+            width: 50%;
+            margin: auto;
         }
     </style>
     <script
@@ -271,16 +282,27 @@
             compiledHtml = '';
             compiledHtml += '<p>'+msg+'</p>';
 
-            // TODO: Add the ability to pass in a list of options
-            compiledHtml += '<p><a onclick="resolveMessage()">';
-            if (data.continueMsg){compiledHtml+=data.continueMsg}
-            else {compiledHtml+='Continue'}
-            compiledHtml +='</a></p>';
+            // In Progress: Add the ability to pass in a list of options
+            if (!data.options){
+                compiledHtml += '<p><a onclick="resolveMessage()">';
+                if (data.continueMsg){compiledHtml+=data.continueMsg}
+                else {compiledHtml+='Continue'}
+                compiledHtml +='</a></p>';
+            } else {
+                gameData.currentOptions = data.options; // TODO: Use during resolveMessage
+                list = Object.keys(data.options);
+                for (var i = 0; i < list.length; i++){
+                    optionName = list[i];
+                    compiledHtml += '<p><a onclick="resolveMessage(option='+i+')">';
+                    compiledHtml+=optionName;
+                    compiledHtml +='</a></p>';
+                }
+            }
 
             document.getElementById('currentInfo').innerHTML = compiledHtml;
         }
 
-        function resolveMessage(){
+        function resolveMessage(option=-1){ // option param only used when multiple options available
             if (!gameData.inMessage){
                 console.log('Attempted to resolve a message while no message active!');
                 return;
@@ -288,9 +310,38 @@
 
             gameData.inMessage = false;
             gameData.postMessage();
+            if (option != -1){ // Received parameter
+                list = Object.keys(gameData.currentOptions);
+                var func = gameData.currentOptions[list[option]];
+                func(); // Call the attached function for the chosen option
+            }
+            gameData.currentOptions = null;
+
+            if (inSequence){advanceSequence();} // Sequence compatibility
+
             if (!gameData.inMessage){
                 refreshDisplay(); // If we didn't chain into another message, refresh the display.
             }
+        }
+
+        // Setup a sequence of messages to resolve in order
+        // Note: functions used, except the final one, need to check if inSequence is true
+        // Current allowed functions: showMessage
+        var inSequence = false; // Tracks if we are currently in a sequence.
+        var currentSequence = []; // Tracks steps left in the current sequence.
+        function sequence(steps){ // A list of functions
+            inSequence = true;
+            currentSequence = steps;
+            advanceSequence();
+        }
+
+        function advanceSequence(){
+            if (!inSequence){return console.log('Tried to advanced sequence outside of a sequence!');}
+            var step = currentSequence.shift(); // Get first element
+            if (currentSequence.length < 1){ // Will no longer be in a sequence after this
+                inSequence = false;
+            }
+            step(); // Call the function
         }
 
         //#region Location Definitions
@@ -299,7 +350,8 @@
         });
 
         new GameLocation('home',{
-            'paths':[{'dest':'apple street','time':5,'traverse':function(){
+            'paths':[{'dest':'apple street','time':5
+            ,'traverse':function(){
                 if (gameData.player.hasTag('tutorialReadyForSchool')){
                     gameData.currentLocation = gameData.map.locations[this.end];
                     return true; // Time cost = yes
@@ -331,8 +383,45 @@
         });
 
         new GameLocation('school-hub',{
-            'paths':[{'dest':'assembly','time':0}] // Should be an action - fix later
+            'paths':[{'dest':'assembly','time':0}]
             ,'displayname':'School Entrance'
+        });
+
+        new GameLocation('assembly',{
+            //'paths':[{'dest':'assembly','time':0}]
+            'displayname':'School Hall',
+            'actions':[{'name':'Attend Assembly','time':120,
+                'action':function(){
+                    gameData.player.tags['tutorialAttendAssembly'] = 1;
+                    sequence( // TODO
+                        [
+                            function(){showMessage('You arrive just in time for assembly and listen as the principal delivers a long speech.')}
+                            ,function(){showMessage('He begins with a long speech about the prestigious status of the school as Welcia\'s only major school. He highlights the importance of the school and its proud history.')}
+                            ,function(){showMessage('You wonder how long it will be until he gets to the point',
+                                {'options':{
+                                    'Tune out (at least until he gets to something really interesting)':function(){
+                                         currentSequence.shift() // Skip next sequence line
+                                    },
+                                    'Keep Listening':function(){}
+                                }})
+                            }
+                            ,function(){showMessage('The principal continues his speech, mentioning several key figures in Welcia\'s history. He also recaps the story of how the island was discovered.')}
+                            ,function(){showMessage('The principal eventually says something that peaks your interest. This year there will be a competition of all students, done in pairs. The winner of this schoolwide competition will receive a massive cash prize and a scholarship.')}
+                            ,function(){showMessage('The competition will be about the strange, unexplained plants that grow in Welcia\'s forest. Students will explore the forest and research these strange plants and their effects.')}
+                            ,function(){showMessage('Each week of the competition students will deliver a report on the plants they have researched so far, and based on various bracket systems, some student pairs will be eliminated each week.')}
+                            ,function(){showMessage("<div class='tutorial'>You've acquired your first goal: Win the competition. In order to do so you will need to work with your randomly assigned partner, explore the forest, and study the strange plants.</div>")}
+                            
+                            
+                        ]
+                    );
+                },
+                'show':function(){
+                    if (gameData.player.hasTag('tutorialAttendAssembly')){
+                        return false; // Don't show if they already performed the action!
+                    }
+                    return true;
+                }
+            }]
         });
 
         //#endregion
